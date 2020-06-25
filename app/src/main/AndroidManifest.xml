@@ -12,6 +12,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".Activities.ChatStatsTabActivity"
+            android:label="@string/title_activity_tab"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".Activities.ChatStatsActivity" />
         <activity android:name=".Activities.MainActivity">
             <intent-filter>

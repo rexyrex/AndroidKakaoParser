@@ -37,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Intent statsIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
+        //MainActivity.this.startActivity(statsIntent);
+
         chatLV = findViewById(R.id.chatLV);
 
         String folderPath = Environment.getExternalStorageDirectory()
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             chatLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent statsIntent = new Intent(MainActivity.this, ChatStatsActivity.class);
+                    Intent statsIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
                     statsIntent.putExtra("chat", files[position]);
                     MainActivity.this.startActivity(statsIntent);
                 }

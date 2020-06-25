@@ -1,0 +1,69 @@
+package com.rexyrex.kakaoparser.Fragments;
+
+import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.R;
+
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link GeneralStatsFrag#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class GeneralStatsFrag extends Fragment {
+
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+
+    // TODO: Rename and change types of parameters
+    private ChatData cd;
+
+    public GeneralStatsFrag() {
+        // Required empty public constructor
+    }
+
+    public static GeneralStatsFrag newInstance(ChatData param1) {
+        GeneralStatsFrag fragment = new GeneralStatsFrag();
+        Bundle args = new Bundle();
+        args.putParcelable(ARG_PARAM1, param1);
+
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            cd = getArguments().getParcelable(ARG_PARAM1);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_general_stats, container, false);
+
+        TextView statsChatterCountTV = view.findViewById(R.id.statsChatterCountTV);
+        statsChatterCountTV.setText("" + cd.getChatterCount());
+
+        TextView statsDateRangeTV = view.findViewById(R.id.statsDateRangeTV);
+        statsDateRangeTV.setText("" + cd.getChatDateRangeStr());
+
+        TextView statsAnalysedDayCountTV = view.findViewById(R.id.statsAnalysedDayCountTV);
+        statsAnalysedDayCountTV.setText("" + cd.getChatDays());
+
+        TextView statsAnalysedChatLineCountTV = view.findViewById(R.id.statsAnalysedChatLineCountTV);
+        statsAnalysedChatLineCountTV.setText("" + cd.getChatLinesCount());
+
+        return view;
+    }
+}
