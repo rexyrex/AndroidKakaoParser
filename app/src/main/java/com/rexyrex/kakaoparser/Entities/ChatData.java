@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Queue;
 
 public class ChatData implements Parcelable {
 
@@ -90,6 +91,25 @@ public class ChatData implements Parcelable {
     HashMap<String, Integer> chatAmount = new HashMap<>();
     String[] chatLines;
     Date chatStartDate;
+    HashMap<String, Integer> wordFreqMap = new HashMap<>();
+    Queue<Pair> wordFreqQueue;
+
+    public Queue<Pair> getWordFreqQueue() {
+        return wordFreqQueue;
+    }
+
+    public void setWordFreqQueue(Queue<Pair> wordFreqQueue) {
+        this.wordFreqQueue = wordFreqQueue;
+    }
+
+    public HashMap<String, Integer> getWordFreqMap() {
+        return wordFreqMap;
+    }
+
+    public void setWordFreqMap(HashMap<String, Integer> wordFreqMap) {
+        this.wordFreqMap = wordFreqMap;
+    }
+
 
     public Date getChatStartDate() {
         return chatStartDate;
@@ -108,8 +128,8 @@ public class ChatData implements Parcelable {
     }
 
     public String getChatDateRangeStr(){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy년 M월 d일 (E)");
-        return dateFormat.format(chatStartDate) + " ~ " + dateFormat.format(chatEndDate);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
+        return dateFormat.format(chatStartDate) + "~" + dateFormat.format(chatEndDate);
     }
 
     Date chatEndDate;

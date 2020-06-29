@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Activities;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.ChatLine;
+import com.rexyrex.kakaoparser.Entities.Pair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
@@ -36,11 +38,14 @@ import java.io.FileReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 public class ChatStatsTabActivity extends AppCompatActivity {
 
@@ -50,6 +55,22 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     SectionsPagerAdapter sectionsPagerAdapter;
     ViewPager viewPager;
     TabLayout tabs;
+    TextView titleTV;
+
+    public static Comparator<Pair> idComparator = new Comparator<Pair>(){
+        @Override
+        public int compare(Pair o1, Pair o2) {
+            if(o1.getFrequency() > o2.getFrequency()) {
+                return -1;
+            }
+            else if(o1.getFrequency() < o2.getFrequency()){
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +83,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         viewPager = findViewById(R.id.view_pager);
         tabs = findViewById(R.id.tabs);
+        titleTV = findViewById(R.id.title);
 
         AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(ChatStatsTabActivity.this, R.style.PopupStyle);
         rexAlertBuilder.setView(view);
@@ -76,7 +98,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         cd.setChatFile(chatFile);
 
-        AsyncTask<String, Void, String> statsTask = new AsyncTask<String, Void, String>() {
+
+
+        @SuppressLint("StaticFieldLeak") AsyncTask<String, Void, String> statsTask = new AsyncTask<String, Void, String>() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
@@ -87,30 +111,39 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 boolean chatStartDateSet = false;
                 chatStatsStr = "";
                 String chatStr = parseFile(chatFile);
-                String[] chatLines = chatStr.split("\n");
+                final String[] chatLines = chatStr.split("\n");
 
                 ArrayList<String> chatters = new ArrayList<>();
                 //Date yyyyMMdd, ChatLine
                 final LinkedHashMap<String, ArrayList<ChatLine>> chatMap = new LinkedHashMap<>();
                 HashMap<String, Integer> chatAmount = new HashMap<>();
+                HashMap<String, Integer> wordFreqMap = new HashMap<>();
+
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        titleTV.setText( chatLines[0]);
+                    }
+                });
 
                 for(int i=0; i<chatLines.length; i++){
                     String person = getPersonFromLine(chatLines[i]);
                     String chat = getChatFromLine(chatLines[i]);
                     Date date = getDateFromLine(chatLines[i]);
 
-
-
                     final int tInt = i;
                     final int totalInt = chatLines.length;
 
-                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            int progress = (int) (((double)tInt/totalInt) * 100);
-                            popupPB.setProgress( progress);
-                        }
-                    });
+                    final int progress = (int) (((double)tInt/totalInt) * 100);
+
+                    if(progress % 10 == 0){
+                        ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                popupPB.setProgress( progress);
+                            }
+                        });
+                    }
 
                     if(date!=null){
                         SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 (E)");
@@ -133,16 +166,43 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                             chatMap.put(dateKey, tmpCLArrList);
                         }
 
+                        //populate chatters
                         if(!chatters.contains(person) && !person.equals("")){
                             chatters.add(person);
                         }
+
+                        //populate chat amount map
                         if(chatAmount.containsKey(person)){
                             chatAmount.put(person, chatAmount.get(person) + 1);
                         } else {
                             chatAmount.put(person, 0);
                         }
+
+                        //populate word freq map
+                        //split chat line into words
+                        String[] splitWords = chat.split(" ");
+                        for(int w=0; w<splitWords.length; w++){
+                            if(wordFreqMap.containsKey(splitWords[w])){
+                                wordFreqMap.put(splitWords[w], wordFreqMap.get(splitWords[w]) + 1);
+                            } else {
+                                wordFreqMap.put(splitWords[w], 0);
+                            }
+                        }
                     }
                 }
+
+                Queue<Pair> wordFreqQueue = new PriorityQueue(wordFreqMap.size(), idComparator);
+                for (Map.Entry<String, Integer> entry : wordFreqMap.entrySet()) {
+                    String key = entry.getKey();
+                    Integer value = entry.getValue();
+                    wordFreqQueue.add(new Pair(key, value));
+                }
+
+                // Test the order
+                Pair temp = wordFreqQueue.peek();
+
+
+
 
                 chatStatsStr += "File Name : " + chatFile.getName() + "\n";
                 chatStatsStr += "File Size : " + chatFile.length() + "\n";
@@ -185,6 +245,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 cd.setChatMap(chatMap);
                 cd.setChatStr(chatStr);
                 cd.setChatters(chatters);
+                cd.setWordFreqMap(wordFreqMap);
+                cd.setWordFreqQueue(wordFreqQueue);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override

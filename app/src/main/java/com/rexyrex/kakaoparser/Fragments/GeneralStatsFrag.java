@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 
@@ -63,6 +65,8 @@ public class GeneralStatsFrag extends Fragment {
 
         TextView statsAnalysedChatLineCountTV = view.findViewById(R.id.statsAnalysedChatLineCountTV);
         statsAnalysedChatLineCountTV.setText("" + cd.getChatLinesCount());
+
+        Toast.makeText(this.getActivity(), cd.getWordFreqQueue().peek().toString(), Toast.LENGTH_LONG).show();
 
         return view;
     }
