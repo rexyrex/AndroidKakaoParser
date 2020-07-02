@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/elemIV"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,24 +21,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="@font/maplestory_bold"
         android:text="wuuuut"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/elemIV"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/elemIV" />
 
     <TextView
         android:id="@+id/elemTV2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="@font/maplestory_light"
         android:text="wuuuut"
         android:textSize="14sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/elemIV"
+        app:layout_constraintStart_toStartOf="@+id/elemTV3"
+        app:layout_constraintTop_toBottomOf="@+id/elemTV3" />
+
+    <TextView
+        android:id="@+id/elemTV3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/maplestory_light"
+        android:text="wuuuut"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/elemTV"
         app:layout_constraintTop_toBottomOf="@+id/elemTV" />
 </androidx.constraintlayout.widget.ConstraintLayout>

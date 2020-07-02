@@ -29,6 +29,7 @@ import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.ChatLine;
 import com.rexyrex.kakaoparser.Entities.Pair;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
 
@@ -110,7 +111,16 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             protected String doInBackground(String... params) {
                 boolean chatStartDateSet = false;
                 chatStatsStr = "";
-                String chatStr = parseFile(chatFile);
+                String chatStr = FileParseUtils.parseFile(chatFile);
+                final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
+
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        titleTV.setText( chatTitle);
+                    }
+                });
+
                 final String[] chatLines = chatStr.split("\n");
 
                 ArrayList<String> chatters = new ArrayList<>();
@@ -118,13 +128,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 final LinkedHashMap<String, ArrayList<ChatLine>> chatMap = new LinkedHashMap<>();
                 HashMap<String, Integer> chatAmount = new HashMap<>();
                 HashMap<String, Integer> wordFreqMap = new HashMap<>();
-
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        titleTV.setText( chatLines[0]);
-                    }
-                });
 
                 for(int i=0; i<chatLines.length; i++){
                     String person = getPersonFromLine(chatLines[i]);
@@ -328,31 +331,5 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         return "";
     }
 
-    public String parseFile(File file) {
-        String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
-        String chat = "";
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(fileName));
-            StringBuilder sb = new StringBuilder();
-            String line = br.readLine();
-            int index = 0;
-            while (line != null) {
-                if(index > 3 && line.length() > 0){
-                    sb.append(line);
-                    sb.append("\n");
-                }
-                index++;
-                line = br.readLine();
-            }
-            chat = sb.toString();
-            LogUtils.e( "chat size: " + chat.length());
-            String[] lines = chat.split("\n");
-            LogUtils.e( "lines: " + lines.length);
-            br.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        return chat;
-    }
 }
