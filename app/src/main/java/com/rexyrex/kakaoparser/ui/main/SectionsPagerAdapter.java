@@ -3,7 +3,6 @@ package com.rexyrex.kakaoparser.ui.main;
 import android.content.Context;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -11,10 +10,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Fragments.ChatFrequencyFrag;
 import com.rexyrex.kakaoparser.Fragments.GeneralStatsFrag;
-import com.rexyrex.kakaoparser.Fragments.MainFragment;
-import com.rexyrex.kakaoparser.R;
-
-import java.io.File;
+import com.rexyrex.kakaoparser.Fragments.WordAnalyseFrag;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -22,7 +18,7 @@ import java.io.File;
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    private static final String[] TAB_TITLES = new String[]{"Chat Stats", "Graph"};
+    private static final String[] TAB_TITLES = new String[]{"분석 개요", "사람 분석", "단어 분석"};
     private final Context mContext;
     private final ChatData cd;
 
@@ -42,7 +38,10 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 GeneralStatsFrag gsf = GeneralStatsFrag.newInstance(cd); return gsf;
             case 1 :
                 ChatFrequencyFrag cff = ChatFrequencyFrag.newInstance(cd); return cff;
-            default : MainFragment mf = MainFragment.newInstance("lolz", cd.getChatStr()); return mf;
+            case 2 :
+                WordAnalyseFrag waf = WordAnalyseFrag.newInstance(cd); return waf;
+
+            default : return null;
         }
     }
 
@@ -55,7 +54,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 2 total pages.
-        return 2;
+        return TAB_TITLES.length;
     }
 }

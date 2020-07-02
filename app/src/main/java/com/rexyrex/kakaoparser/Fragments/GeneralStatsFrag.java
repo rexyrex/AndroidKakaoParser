@@ -21,11 +21,9 @@ import com.rexyrex.kakaoparser.R;
  */
 public class GeneralStatsFrag extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
     private static final String ARG_PARAM1 = "param1";
 
-    // TODO: Rename and change types of parameters
     private ChatData cd;
 
     public GeneralStatsFrag() {
@@ -66,7 +64,8 @@ public class GeneralStatsFrag extends Fragment {
         TextView statsAnalysedChatLineCountTV = view.findViewById(R.id.statsAnalysedChatLineCountTV);
         statsAnalysedChatLineCountTV.setText("" + cd.getChatLinesCount());
 
-        Toast.makeText(this.getActivity(), cd.getWordFreqQueue().peek().toString(), Toast.LENGTH_LONG).show();
+        TextView statsAnalysedTimeElapsedTV = view.findViewById(R.id.statsAnalysedTimeElapsedTV);
+        statsAnalysedTimeElapsedTV.setText("" + cd.getLoadElapsedSeconds() + "초");
 
         return view;
     }

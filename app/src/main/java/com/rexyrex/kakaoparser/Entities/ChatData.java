@@ -92,14 +92,25 @@ public class ChatData implements Parcelable {
     String[] chatLines;
     Date chatStartDate;
     HashMap<String, Integer> wordFreqMap = new HashMap<>();
-    Queue<Pair> wordFreqQueue;
+    //sorted array list of word frequency data
+    ArrayList<Pair> wordFreqArrList;
 
-    public Queue<Pair> getWordFreqQueue() {
-        return wordFreqQueue;
+    public ArrayList<Pair> getWordFreqArrList() {
+        return wordFreqArrList;
     }
 
-    public void setWordFreqQueue(Queue<Pair> wordFreqQueue) {
-        this.wordFreqQueue = wordFreqQueue;
+    public void setWordFreqArrList(ArrayList<Pair> wordFreqArrList) {
+        this.wordFreqArrList = wordFreqArrList;
+    }
+
+    double loadElapsedSeconds;
+
+    public double getLoadElapsedSeconds() {
+        return loadElapsedSeconds;
+    }
+
+    public void setLoadElapsedSeconds(double loadElapsedSeconds) {
+        this.loadElapsedSeconds = loadElapsedSeconds;
     }
 
     public HashMap<String, Integer> getWordFreqMap() {

@@ -2,37 +2,27 @@ package com.rexyrex.kakaoparser.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.TabActivity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
-import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.PicUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     ListView chatLV;
@@ -88,12 +78,6 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.startActivity(statsIntent);
                 }
             });
-
-//            for (File file : files) {
-//                if (!file.getPath().contains("Not_Found")) {
-//                    LogUtils.e( "list " + file.getName());
-//                }
-//            }
         }
     }
 
@@ -128,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem, null);
             ImageView iv = convertView.findViewById(R.id.elemIV);
-            TextView tv = convertView.findViewById(R.id.elemTV);
+            TextView tv = convertView.findViewById(R.id.wordListElemWordTV);
             TextView tv2 = convertView.findViewById(R.id.elemTV2);
             TextView tv3 = convertView.findViewById(R.id.elemTV3);
 

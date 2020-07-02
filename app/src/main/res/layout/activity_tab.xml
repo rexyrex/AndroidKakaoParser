@@ -28,7 +28,8 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             app:tabIndicatorAnimationDuration="500"
-            app:tabIndicatorGravity="center" />
+            app:tabIndicatorColor="@color/design_default_color_surface"
+            app:tabIndicatorGravity="top" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager.widget.ViewPager

@@ -109,6 +109,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
             @Override
             protected String doInBackground(String... params) {
+                long loadStartTime = System.currentTimeMillis();
+
                 boolean chatStartDateSet = false;
                 chatStatsStr = "";
                 String chatStr = FileParseUtils.parseFile(chatFile);
@@ -188,7 +190,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                             if(wordFreqMap.containsKey(splitWords[w])){
                                 wordFreqMap.put(splitWords[w], wordFreqMap.get(splitWords[w]) + 1);
                             } else {
-                                wordFreqMap.put(splitWords[w], 0);
+                                wordFreqMap.put(splitWords[w], 1);
                             }
                         }
                     }
@@ -203,7 +205,12 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 // Test the order
                 Pair temp = wordFreqQueue.peek();
+                ArrayList<Pair> wordFreqArrList = new ArrayList<>();
+                while(!wordFreqQueue.isEmpty()){
+                    wordFreqArrList.add(wordFreqQueue.poll());
+                }
 
+                LogUtils.e("wordFreqArrList size : " + wordFreqArrList.size());
 
 
 
@@ -243,13 +250,17 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     tmpSpinnerIndex++;
                 }
 
+                long loadTime = System.currentTimeMillis() - loadStartTime;
+                double loadElapsedSeconds = loadTime/1000.0;
+
+                cd.setLoadElapsedSeconds(loadElapsedSeconds);
                 cd.setChatAmount(chatAmount);
                 cd.setChatLines(chatLines);
                 cd.setChatMap(chatMap);
                 cd.setChatStr(chatStr);
                 cd.setChatters(chatters);
                 cd.setWordFreqMap(wordFreqMap);
-                cd.setWordFreqQueue(wordFreqQueue);
+                cd.setWordFreqArrList(wordFreqArrList);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -263,7 +274,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
-                dialog.hide();
+                dialog.cancel();
                 sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager(), cd);
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);

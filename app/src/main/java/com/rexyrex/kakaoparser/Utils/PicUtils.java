@@ -8,8 +8,7 @@ import com.rexyrex.kakaoparser.R;
 public class PicUtils {
     public static Drawable getProfiePic(Context c, int index){
         switch(index){
-            case 0 : return c.getResources().getDrawable(R.drawable.avatar0); 
-            case 1 : return c.getResources().getDrawable(R.drawable.avatar1); 
+            case 1 : return c.getResources().getDrawable(R.drawable.avatar1);
             case 2 : return c.getResources().getDrawable(R.drawable.avatar2); 
             case 3 : return c.getResources().getDrawable(R.drawable.avatar3); 
             case 4 : return c.getResources().getDrawable(R.drawable.avatar4); 
