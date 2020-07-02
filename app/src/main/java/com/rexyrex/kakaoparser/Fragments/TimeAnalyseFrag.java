@@ -8,28 +8,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.mikephil.charting.charts.PieChart;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChatFrequencyFrag#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ChatFrequencyFrag extends Fragment {
+public class TimeAnalyseFrag extends Fragment {
+
     private static final String ARG_PARAM1 = "param1";
 
     private ChatData cd;
 
-    public ChatFrequencyFrag() {
+    public TimeAnalyseFrag() {
         // Required empty public constructor
     }
 
-    public static ChatFrequencyFrag newInstance(ChatData cd) {
-        ChatFrequencyFrag fragment = new ChatFrequencyFrag();
+
+    public static TimeAnalyseFrag newInstance(ChatData param1) {
+        TimeAnalyseFrag fragment = new TimeAnalyseFrag();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_PARAM1, cd);
+        args.putParcelable(ARG_PARAM1, param1);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,12 +42,8 @@ public class ChatFrequencyFrag extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_chat_frequency, container, false);
+        View view = inflater.inflate(R.layout.fragment_time_analyse, container, false);
 
-        PieChart chatAmountPieChart = view.findViewById(R.id.chatAmountPieChart);
-
-        chatAmountPieChart.setData(cd.getChatAmountPieData());
-        chatAmountPieChart.animateXY(3000, 3000);
         return view;
     }
 }

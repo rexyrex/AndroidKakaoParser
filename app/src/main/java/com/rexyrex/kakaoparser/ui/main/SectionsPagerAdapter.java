@@ -8,8 +8,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.rexyrex.kakaoparser.Entities.ChatData;
-import com.rexyrex.kakaoparser.Fragments.ChatFrequencyFrag;
+import com.rexyrex.kakaoparser.Fragments.PersonAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.GeneralStatsFrag;
+import com.rexyrex.kakaoparser.Fragments.TimeAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.WordAnalyseFrag;
 
 /**
@@ -18,7 +19,7 @@ import com.rexyrex.kakaoparser.Fragments.WordAnalyseFrag;
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    private static final String[] TAB_TITLES = new String[]{"분석 개요", "사람 분석", "단어 분석"};
+    private static final String[] TAB_TITLES = new String[]{"분석 개요", "사람 분석", "단어 분석", "시간 분석"};
     private final Context mContext;
     private final ChatData cd;
 
@@ -37,10 +38,11 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             case 0 :
                 GeneralStatsFrag gsf = GeneralStatsFrag.newInstance(cd); return gsf;
             case 1 :
-                ChatFrequencyFrag cff = ChatFrequencyFrag.newInstance(cd); return cff;
+                PersonAnalyseFrag cff = PersonAnalyseFrag.newInstance(cd); return cff;
             case 2 :
                 WordAnalyseFrag waf = WordAnalyseFrag.newInstance(cd); return waf;
-
+            case 3 :
+                TimeAnalyseFrag taf = TimeAnalyseFrag.newInstance(cd); return taf;
             default : return null;
         }
     }

@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,13 +60,17 @@ public class GeneralStatsFrag extends Fragment {
         statsDateRangeTV.setText("" + cd.getChatDateRangeStr());
 
         TextView statsAnalysedDayCountTV = view.findViewById(R.id.statsAnalysedDayCountTV);
-        statsAnalysedDayCountTV.setText("" + cd.getChatDays());
+        statsAnalysedDayCountTV.setText("" + StringParseUtils.numberCommaFormat(cd.getChatDays()+""));
 
         TextView statsAnalysedChatLineCountTV = view.findViewById(R.id.statsAnalysedChatLineCountTV);
-        statsAnalysedChatLineCountTV.setText("" + cd.getChatLinesCount());
+        statsAnalysedChatLineCountTV.setText("" + StringParseUtils.numberCommaFormat(cd.getChatLinesCount()+""));
+
+        TextView statsAnalysedWordCountTV = view.findViewById(R.id.statsAnalysedWordCountTV);
+        statsAnalysedWordCountTV.setText("" + StringParseUtils.numberCommaFormat(cd.getWordFreqArrList().size()+""));
 
         TextView statsAnalysedTimeElapsedTV = view.findViewById(R.id.statsAnalysedTimeElapsedTV);
         statsAnalysedTimeElapsedTV.setText("" + cd.getLoadElapsedSeconds() + "초");
+
 
         return view;
     }

@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             iv.setImageDrawable(titleProfilePicMap.get(title));
             tv3.setText(StringParseUtils.chatFileNameToDate(chatFiles[position].getName()));
             tv.setText(title);
-            tv2.setText(StringParseUtils.byteFormat(Long.toString(chatFiles[position].length())) + " bytes");
+            tv2.setText(StringParseUtils.numberCommaFormat(Long.toString(chatFiles[position].length())) + " bytes");
 
             return convertView;
         }

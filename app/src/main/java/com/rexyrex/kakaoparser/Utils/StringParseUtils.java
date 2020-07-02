@@ -6,7 +6,7 @@ public class StringParseUtils {
         return split[2] + " " + split[3].replace(".", ":");
     }
 
-    public static String byteFormat(String bytes){
+    public static String numberCommaFormat(String bytes){
         String formatted = "";
         for(int i=0; i<bytes.length(); i++){
             if((bytes.length() - i) % 3 == 0){

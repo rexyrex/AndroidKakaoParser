@@ -105,7 +105,6 @@ public class WordAnalyseFrag extends Fragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 String text = wordSearchET.getText().toString();
-                LogUtils.e("검사 ㄱㄱ");
                 search(text);
             }
         });
@@ -116,14 +115,11 @@ public class WordAnalyseFrag extends Fragment {
     public void search(String charText) {
         freqList.clear();
         if (charText.length() == 0) {
-            LogUtils.e("length: ");
             freqList.addAll(cd.getWordFreqArrList());
         } else
         {
-            LogUtils.e("검사단어 count: " + cd.getWordFreqArrList().size());
             for(int i = 0;i < cd.getWordFreqArrList().size(); i++)
             {
-                LogUtils.e("검사단어: " + cd.getWordFreqArrList().get(i));
                 if (cd.getWordFreqArrList().get(i).getword().toLowerCase().contains(charText))
                 {
                     freqList.add(cd.getWordFreqArrList().get(i));
