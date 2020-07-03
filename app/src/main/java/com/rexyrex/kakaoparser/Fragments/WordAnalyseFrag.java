@@ -1,7 +1,6 @@
 package com.rexyrex.kakaoparser.Fragments;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -14,36 +13,23 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
-import com.rexyrex.kakaoparser.Activities.MainActivity;
 import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
 import com.rexyrex.kakaoparser.Entities.ChatData;
-import com.rexyrex.kakaoparser.Entities.Pair;
+import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
-import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
-import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Queue;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link WordAnalyseFrag#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class WordAnalyseFrag extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
 
     private ChatData cd;
-    ArrayList<Pair> freqList;
+    ArrayList<StringIntPair> freqList;
     WordListAdapter ca;
     TextView wordCountTV;
 
@@ -80,7 +66,7 @@ public class WordAnalyseFrag extends Fragment {
 
         freqList = new ArrayList<>();
 
-        for(Pair element : cd.getWordFreqArrList()) freqList.add(element);
+        for(StringIntPair element : cd.getWordFreqArrList()) freqList.add(element);
 
         ca = new WordListAdapter(freqList);
         wordLV.setAdapter(ca);
@@ -93,7 +79,7 @@ public class WordAnalyseFrag extends Fragment {
                 LogUtils.e("\"" + cd.getWordFreqArrList().get(position).getword() + "\"");
                 //WordDetailAnalyseActivity.wordFreqMap = cd.getWordFreqMap();
                 Intent wordDtlIntent = new Intent(WordAnalyseFrag.this.getActivity(), WordDetailAnalyseActivity.class);
-                wordDtlIntent.putExtra("word", cd.getWordFreqArrList().get(position).getword());
+                wordDtlIntent.putExtra("word", freqList.get(position).getword());
                 WordAnalyseFrag.this.getActivity().startActivity(wordDtlIntent);
 
             }
@@ -138,9 +124,9 @@ public class WordAnalyseFrag extends Fragment {
     }
 
     class WordListAdapter extends BaseAdapter {
-        ArrayList<Pair> wordFreqArrList;
+        ArrayList<StringIntPair> wordFreqArrList;
 
-        WordListAdapter(ArrayList<Pair> wordFreqArrList){
+        WordListAdapter(ArrayList<StringIntPair> wordFreqArrList){
             this.wordFreqArrList = wordFreqArrList;
         }
 
@@ -165,7 +151,7 @@ public class WordAnalyseFrag extends Fragment {
             TextView wordTV = convertView.findViewById(R.id.wordListElemWordTV);
             TextView wordFreqTV = convertView.findViewById(R.id.wordListElemFreqTV);
 
-            Pair wordData = wordFreqArrList.get(position);
+            StringIntPair wordData = wordFreqArrList.get(position);
             wordTV.setText(wordData.getword());
             wordFreqTV.setText(wordData.getFrequency() + "회");
             return convertView;

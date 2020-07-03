@@ -1,8 +1,5 @@
 package com.rexyrex.kakaoparser.Entities;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
@@ -14,27 +11,53 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Queue;
+import java.util.Map;
 
-public class ChatData implements Parcelable {
+public class ChatData {
 
-    protected ChatData(Parcel in) {
-        chatStr = in.readString();
-        chatters = in.createStringArrayList();
-        chatLines = in.createStringArray();
+    //Raw chat file
+    File chatFile;
+    //Raw chat lines
+    String[] chatLines;
+    //Raw chat string
+    String chatStr;
+
+    //chatter names
+    ArrayList<String> chatters;
+
+    //Date - ChatLine Arr
+    LinkedHashMap<String, ArrayList<ChatLine>> chatMap;
+    //Full list of chatlines
+    ArrayList<ChatLine> chatLineArrayList;
+
+    //name - freq
+    HashMap<String, Integer> chatAmount;
+
+    Date chatStartDate;
+    //word - freq
+    HashMap<String, Integer> wordFreqMap;
+
+    //word - user - freq
+    HashMap<String, HashMap<String, Integer>> wordUserFreqMap;
+
+    //sorted array list of word frequency data
+    ArrayList<StringIntPair> wordFreqArrList;
+
+    public ArrayList<ChatLine> getChatLineArrayList() {
+        return chatLineArrayList;
     }
 
-    public static final Creator<ChatData> CREATOR = new Creator<ChatData>() {
-        @Override
-        public ChatData createFromParcel(Parcel in) {
-            return new ChatData(in);
-        }
+    public void setChatLineArrayList(ArrayList<ChatLine> chatLineArrayList) {
+        this.chatLineArrayList = chatLineArrayList;
+    }
 
-        @Override
-        public ChatData[] newArray(int size) {
-            return new ChatData[size];
-        }
-    };
+    public HashMap<String, HashMap<String, Integer>> getWordUserFreqMap() {
+        return wordUserFreqMap;
+    }
+
+    public void setWordUserFreqMap(HashMap<String, HashMap<String, Integer>> wordUserFreqMap) {
+        this.wordUserFreqMap = wordUserFreqMap;
+    }
 
     public File getChatFile() {
         return chatFile;
@@ -84,22 +107,11 @@ public class ChatData implements Parcelable {
         this.chatLines = chatLines;
     }
 
-    File chatFile;
-    String chatStr;
-    ArrayList<String> chatters;
-    LinkedHashMap<String, ArrayList<ChatLine>> chatMap = new LinkedHashMap<>();
-    HashMap<String, Integer> chatAmount = new HashMap<>();
-    String[] chatLines;
-    Date chatStartDate;
-    HashMap<String, Integer> wordFreqMap = new HashMap<>();
-    //sorted array list of word frequency data
-    ArrayList<Pair> wordFreqArrList;
-
-    public ArrayList<Pair> getWordFreqArrList() {
+    public ArrayList<StringIntPair> getWordFreqArrList() {
         return wordFreqArrList;
     }
 
-    public void setWordFreqArrList(ArrayList<Pair> wordFreqArrList) {
+    public void setWordFreqArrList(ArrayList<StringIntPair> wordFreqArrList) {
         this.wordFreqArrList = wordFreqArrList;
     }
 
@@ -120,7 +132,6 @@ public class ChatData implements Parcelable {
     public void setWordFreqMap(HashMap<String, Integer> wordFreqMap) {
         this.wordFreqMap = wordFreqMap;
     }
-
 
     public Date getChatStartDate() {
         return chatStartDate;
@@ -197,6 +208,24 @@ public class ChatData implements Parcelable {
         return chatStatsStr;
     }
 
+    public PieData getWordUserFreqPieData(String word){
+        ArrayList chatAmountArrayList = new ArrayList();
+
+        HashMap<String, Integer> userFreqMap = wordUserFreqMap.get(word);
+
+        for (Map.Entry<String, Integer> entry : userFreqMap.entrySet()) {
+            String key = entry.getKey();
+            Integer value = entry.getValue();
+            chatAmountArrayList.add(new PieEntry(value,key));
+        }
+
+        PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "단어 사용 비율");
+        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        dataSet.setValueTextSize(12);
+        PieData pieData = new PieData(dataSet);
+        return pieData;
+    }
+
     public PieData getChatAmountPieData(){
         ArrayList chatAmountArrayList = new ArrayList();
         ArrayList chatNicknameArrayList = new ArrayList();
@@ -207,23 +236,10 @@ public class ChatData implements Parcelable {
             chatNicknameArrayList.add(chatter);
             tmpIndex++;
         }
-
         PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "채팅 비율");
         dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         dataSet.setValueTextSize(12);
         PieData pieData = new PieData(dataSet);
         return pieData;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(chatStr);
-        dest.writeStringList(chatters);
-        dest.writeStringArray(chatLines);
     }
 }

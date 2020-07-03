@@ -8,8 +8,6 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AlertDialog;
@@ -17,25 +15,20 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.ChatLine;
-import com.rexyrex.kakaoparser.Entities.Pair;
+import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,9 +51,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     TabLayout tabs;
     TextView titleTV;
 
-    public static Comparator<Pair> idComparator = new Comparator<Pair>(){
+    public static Comparator<StringIntPair> wordFreqComparator = new Comparator<StringIntPair>(){
         @Override
-        public int compare(Pair o1, Pair o2) {
+        public int compare(StringIntPair o1, StringIntPair o2) {
             if(o1.getFrequency() > o2.getFrequency()) {
                 return -1;
             }
@@ -128,8 +121,13 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 ArrayList<String> chatters = new ArrayList<>();
                 //Date yyyyMMdd, ChatLine
                 final LinkedHashMap<String, ArrayList<ChatLine>> chatMap = new LinkedHashMap<>();
+                final ArrayList<ChatLine> chatLineArrayList = new ArrayList<>();
                 HashMap<String, Integer> chatAmount = new HashMap<>();
                 HashMap<String, Integer> wordFreqMap = new HashMap<>();
+
+                //word - user - freq
+                HashMap<String, HashMap<String, Integer>> wordUserFreqMap = new HashMap<>();
+
 
                 for(int i=0; i<chatLines.length; i++){
                     String person = getPersonFromLine(chatLines[i]);
@@ -171,6 +169,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                             chatMap.put(dateKey, tmpCLArrList);
                         }
 
+                        chatLineArrayList.add(new ChatLine(date, person, chat));
+
                         //populate chatters
                         if(!chatters.contains(person) && !person.equals("")){
                             chatters.add(person);
@@ -193,21 +193,33 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                 } else {
                                     wordFreqMap.put(splitWords[w], 1);
                                 }
+
+                                if(wordUserFreqMap.containsKey(splitWords[w])){
+                                    if(wordUserFreqMap.get(splitWords[w]).containsKey(person)){
+                                        wordUserFreqMap.get(splitWords[w]).put(person, wordUserFreqMap.get(splitWords[w]).get(person) + 1);
+                                    } else {
+                                        wordUserFreqMap.get(splitWords[w]).put(person, 1);
+                                    }
+                                } else {
+                                    HashMap<String, Integer> tmpMap = new HashMap<>();
+                                    tmpMap.put(person, 1);
+                                    wordUserFreqMap.put(splitWords[w], tmpMap);
+                                }
                             }
                         }
                     }
                 }
 
-                Queue<Pair> wordFreqQueue = new PriorityQueue(wordFreqMap.size(), idComparator);
+                Queue<StringIntPair> wordFreqQueue = new PriorityQueue(wordFreqMap.size(), wordFreqComparator);
                 for (Map.Entry<String, Integer> entry : wordFreqMap.entrySet()) {
                     String key = entry.getKey();
                     Integer value = entry.getValue();
-                    wordFreqQueue.add(new Pair(key, value));
+                    wordFreqQueue.add(new StringIntPair(key, value));
                 }
 
                 // Test the order
-                Pair temp = wordFreqQueue.peek();
-                ArrayList<Pair> wordFreqArrList = new ArrayList<>();
+                StringIntPair temp = wordFreqQueue.peek();
+                ArrayList<StringIntPair> wordFreqArrList = new ArrayList<>();
                 while(!wordFreqQueue.isEmpty()){
                     wordFreqArrList.add(wordFreqQueue.poll());
                 }
@@ -234,7 +246,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 }
 
                 PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "채팅 비율");
-                dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+                dataSet.setColors(ColorTemplate.PASTEL_COLORS);
                 dataSet.setValueTextSize(12);
                 final PieData pieData = new PieData(dataSet);
 
@@ -263,6 +275,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 cd.setChatters(chatters);
                 cd.setWordFreqMap(wordFreqMap);
                 cd.setWordFreqArrList(wordFreqArrList);
+
+                cd.setChatLineArrayList(chatLineArrayList);
+                cd.setWordUserFreqMap(wordUserFreqMap);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override

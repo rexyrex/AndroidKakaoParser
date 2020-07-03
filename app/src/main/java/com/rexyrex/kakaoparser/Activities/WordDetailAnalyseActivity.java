@@ -39,5 +39,8 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
 
         titleTV.setText(word+"");
         freqTV.setText(cd.getWordFreqMap().get(word) + "회");
+
+        freqPieChart.setData(cd.getWordUserFreqPieData(word));
+        freqPieChart.animateXY(2000, 2000);
     }
 }

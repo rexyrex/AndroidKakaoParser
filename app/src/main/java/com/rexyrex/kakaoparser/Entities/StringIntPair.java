@@ -1,6 +1,6 @@
 package com.rexyrex.kakaoparser.Entities;
 
-public class Pair {
+public class StringIntPair {
     private String word;
     private int frequency;
 
@@ -14,7 +14,7 @@ public class Pair {
         return word + ":" + frequency;
     }
 
-    public Pair(String word, int frequency) {
+    public StringIntPair(String word, int frequency) {
         super();
         this.word = word;
         this.frequency = frequency;
