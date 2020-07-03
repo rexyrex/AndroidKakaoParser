@@ -148,7 +148,7 @@ public class WordAnalyseFrag extends Fragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem_word, null);
-            TextView wordTV = convertView.findViewById(R.id.wordListElemWordTV);
+            TextView wordTV = convertView.findViewById(R.id.chatLineExampleSentenceTV);
             TextView wordFreqTV = convertView.findViewById(R.id.wordListElemFreqTV);
 
             StringIntPair wordData = wordFreqArrList.get(position);

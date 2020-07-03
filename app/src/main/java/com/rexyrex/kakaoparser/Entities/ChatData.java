@@ -40,8 +40,19 @@ public class ChatData {
     //word - user - freq
     HashMap<String, HashMap<String, Integer>> wordUserFreqMap;
 
+    //word - ArrayList<ChatLine>
+    HashMap<String, ArrayList<ChatLine>> wordChatLinesMap;
+
     //sorted array list of word frequency data
     ArrayList<StringIntPair> wordFreqArrList;
+
+    public HashMap<String, ArrayList<ChatLine>> getWordChatLinesMap() {
+        return wordChatLinesMap;
+    }
+
+    public void setWordChatLinesMap(HashMap<String, ArrayList<ChatLine>> wordChatLinesMap) {
+        this.wordChatLinesMap = wordChatLinesMap;
+    }
 
     public ArrayList<ChatLine> getChatLineArrayList() {
         return chatLineArrayList;

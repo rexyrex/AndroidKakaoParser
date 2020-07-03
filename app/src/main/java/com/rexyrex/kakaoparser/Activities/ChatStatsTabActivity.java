@@ -128,6 +128,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 //word - user - freq
                 HashMap<String, HashMap<String, Integer>> wordUserFreqMap = new HashMap<>();
 
+                HashMap<String, ArrayList<ChatLine>> wordChatLinesMap = new HashMap<>();
+
 
                 for(int i=0; i<chatLines.length; i++){
                     String person = getPersonFromLine(chatLines[i]);
@@ -205,6 +207,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                     tmpMap.put(person, 1);
                                     wordUserFreqMap.put(splitWords[w], tmpMap);
                                 }
+
+                                if(wordChatLinesMap.containsKey(splitWords[w])){
+                                    wordChatLinesMap.get(splitWords[w]).add(new ChatLine(date, person, chat));
+                                } else {
+                                    ArrayList<ChatLine> chatLinesTmp = new ArrayList<>();
+                                    chatLinesTmp.add(new ChatLine(date, person, chat));
+                                    wordChatLinesMap.put(splitWords[w], chatLinesTmp);
+                                }
                             }
                         }
                     }
@@ -278,6 +288,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 cd.setChatLineArrayList(chatLineArrayList);
                 cd.setWordUserFreqMap(wordUserFreqMap);
+                cd.setWordChatLinesMap(wordChatLinesMap);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override

@@ -16,7 +16,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem, null);
             ImageView iv = convertView.findViewById(R.id.elemIV);
-            TextView tv = convertView.findViewById(R.id.wordListElemWordTV);
+            TextView tv = convertView.findViewById(R.id.chatLineExampleSentenceTV);
             TextView tv2 = convertView.findViewById(R.id.elemTV2);
             TextView tv3 = convertView.findViewById(R.id.elemTV3);
 
