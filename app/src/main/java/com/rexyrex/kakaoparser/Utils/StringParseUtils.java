@@ -7,6 +7,9 @@ public class StringParseUtils {
     }
 
     public static String numberCommaFormat(String bytes){
+        if(bytes.length()<4){
+            return bytes;
+        }
         String formatted = "";
         for(int i=0; i<bytes.length(); i++){
             if((bytes.length() - i) % 3 == 0){

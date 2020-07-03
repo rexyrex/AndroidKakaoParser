@@ -93,7 +93,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
-        cd = new ChatData();
+        cd = ChatData.getInstance();
 
         final File chatFile = (File) ChatStatsTabActivity.this.getIntent().getSerializableExtra("chat");
 
@@ -185,12 +185,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                         //populate word freq map
                         //split chat line into words
-                        String[] splitWords = chat.split(" ");
+                        String[] splitWords = chat.split("[ \\(\\)\\<\\>]+");
                         for(int w=0; w<splitWords.length; w++){
-                            if(wordFreqMap.containsKey(splitWords[w])){
-                                wordFreqMap.put(splitWords[w], wordFreqMap.get(splitWords[w]) + 1);
-                            } else {
-                                wordFreqMap.put(splitWords[w], 1);
+                            if(splitWords[w].length()>0){
+                                if(wordFreqMap.containsKey(splitWords[w])){
+                                    wordFreqMap.put(splitWords[w], wordFreqMap.get(splitWords[w]) + 1);
+                                } else {
+                                    wordFreqMap.put(splitWords[w], 1);
+                                }
                             }
                         }
                     }
@@ -275,7 +277,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
                 dialog.cancel();
-                sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager(), cd);
+                sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);
             }

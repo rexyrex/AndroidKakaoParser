@@ -31,10 +31,10 @@ public class GeneralStatsFrag extends Fragment {
         // Required empty public constructor
     }
 
-    public static GeneralStatsFrag newInstance(ChatData param1) {
+    public static GeneralStatsFrag newInstance() {
         GeneralStatsFrag fragment = new GeneralStatsFrag();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_PARAM1, param1);
+        //args.putParcelable(ARG_PARAM1, param1);
 
         fragment.setArguments(args);
         return fragment;
@@ -44,7 +44,8 @@ public class GeneralStatsFrag extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            cd = getArguments().getParcelable(ARG_PARAM1);
+            //cd = getArguments().getParcelable(ARG_PARAM1);
+            cd = ChatData.getInstance();
         }
     }
 

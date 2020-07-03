@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -13,9 +14,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
+import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.PicUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
@@ -29,12 +33,16 @@ public class MainActivity extends AppCompatActivity {
     File[] files;
     File[] reversedFilesArr;
 
+    private static long lastBackAttemptTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         chatLV = findViewById(R.id.chatLV);
+
+        lastBackAttemptTime = 0;
 
         String folderPath = Environment.getExternalStorageDirectory()
                 + File.separator + "KakaoTalk/Chats/";
@@ -123,6 +131,27 @@ public class MainActivity extends AppCompatActivity {
             tv2.setText(StringParseUtils.numberCommaFormat(Long.toString(chatFiles[position].length())) + " bytes");
 
             return convertView;
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
+            promptExit();
+        }
+        return true;
+    }
+
+    //2초 안에 뒤로가기 버튼 2번 누를 시 앱 종료
+    private void promptExit(){
+        LogUtils.e("PromptExit");
+        long timeNow = System.currentTimeMillis();
+        long tPassed = timeNow - lastBackAttemptTime;
+        if(tPassed >2000){
+            lastBackAttemptTime = System.currentTimeMillis();
+            Toast.makeText(this, "뒤로 버튼을 한번 더 누르면 종료됩니다", Toast.LENGTH_SHORT).show();
+        } else {
+            finishAndRemoveTask();
         }
     }
 }

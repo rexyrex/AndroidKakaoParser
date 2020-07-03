@@ -23,9 +23,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     private final Context mContext;
     private final ChatData cd;
 
-    public SectionsPagerAdapter(Context context, FragmentManager fm, ChatData cd) {
+    public SectionsPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
-        this.cd = cd;
+        this.cd = ChatData.getInstance();
         mContext = context;
     }
 
@@ -36,13 +36,13 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         switch(position){
             case 0 :
-                GeneralStatsFrag gsf = GeneralStatsFrag.newInstance(cd); return gsf;
+                GeneralStatsFrag gsf = GeneralStatsFrag.newInstance(); return gsf;
             case 1 :
-                PersonAnalyseFrag cff = PersonAnalyseFrag.newInstance(cd); return cff;
+                PersonAnalyseFrag cff = PersonAnalyseFrag.newInstance(); return cff;
             case 2 :
-                WordAnalyseFrag waf = WordAnalyseFrag.newInstance(cd); return waf;
+                WordAnalyseFrag waf = WordAnalyseFrag.newInstance(); return waf;
             case 3 :
-                TimeAnalyseFrag taf = TimeAnalyseFrag.newInstance(cd); return taf;
+                TimeAnalyseFrag taf = TimeAnalyseFrag.newInstance(); return taf;
             default : return null;
         }
     }

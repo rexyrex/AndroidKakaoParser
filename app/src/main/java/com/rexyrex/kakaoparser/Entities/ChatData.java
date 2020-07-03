@@ -149,6 +149,14 @@ public class ChatData implements Parcelable {
 
     }
 
+    private static ChatData the_instance;
+    public static ChatData getInstance() {
+        if (the_instance == null) {
+            the_instance = new ChatData();
+        }
+        return the_instance;
+    }
+
     public int getChatDays(){
         return chatMap.size();
     }

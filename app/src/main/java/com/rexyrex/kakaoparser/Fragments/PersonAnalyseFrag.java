@@ -26,10 +26,10 @@ public class PersonAnalyseFrag extends Fragment {
         // Required empty public constructor
     }
 
-    public static PersonAnalyseFrag newInstance(ChatData cd) {
+    public static PersonAnalyseFrag newInstance() {
         PersonAnalyseFrag fragment = new PersonAnalyseFrag();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_PARAM1, cd);
+        //args.putParcelable(ARG_PARAM1, cd);
         fragment.setArguments(args);
         return fragment;
     }
@@ -38,7 +38,8 @@ public class PersonAnalyseFrag extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            cd = getArguments().getParcelable(ARG_PARAM1);
+            //cd = getArguments().getParcelable(ARG_PARAM1);
+            cd = ChatData.getInstance();
         }
     }
 

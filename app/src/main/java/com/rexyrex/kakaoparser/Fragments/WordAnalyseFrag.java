@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
 import com.rexyrex.kakaoparser.Activities.MainActivity;
+import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.Pair;
 import com.rexyrex.kakaoparser.R;
@@ -51,10 +52,10 @@ public class WordAnalyseFrag extends Fragment {
     }
 
 
-    public static WordAnalyseFrag newInstance(ChatData param1) {
+    public static WordAnalyseFrag newInstance() {
         WordAnalyseFrag fragment = new WordAnalyseFrag();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_PARAM1, param1);
+        //args.putParcelable(ARG_PARAM1, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -63,7 +64,8 @@ public class WordAnalyseFrag extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            cd = getArguments().getParcelable(ARG_PARAM1);
+            //cd = getArguments().getParcelable(ARG_PARAM1);
+            cd = ChatData.getInstance();
         }
     }
 
@@ -88,6 +90,11 @@ public class WordAnalyseFrag extends Fragment {
         wordLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                LogUtils.e("\"" + cd.getWordFreqArrList().get(position).getword() + "\"");
+                //WordDetailAnalyseActivity.wordFreqMap = cd.getWordFreqMap();
+                Intent wordDtlIntent = new Intent(WordAnalyseFrag.this.getActivity(), WordDetailAnalyseActivity.class);
+                wordDtlIntent.putExtra("word", cd.getWordFreqArrList().get(position).getword());
+                WordAnalyseFrag.this.getActivity().startActivity(wordDtlIntent);
 
             }
         });

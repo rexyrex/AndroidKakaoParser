@@ -17,8 +17,10 @@
         android:layout_marginEnd="8dp"
         android:background="@drawable/custom_edittext"
         android:ems="10"
+        android:fontFamily="@font/nanum_square_round_r"
         android:hint="검색할 단어"
         android:inputType="textPersonName"
+        android:textColor="@color/textColor1"
         android:textCursorDrawable="@drawable/text_cursor_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -31,8 +33,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/maplestory_bold"
+        android:fontFamily="@font/nanum_square_round_r"
         android:text="검색 결과"
+        android:textColor="@color/textColor1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -22,10 +22,10 @@ public class TimeAnalyseFrag extends Fragment {
     }
 
 
-    public static TimeAnalyseFrag newInstance(ChatData param1) {
+    public static TimeAnalyseFrag newInstance() {
         TimeAnalyseFrag fragment = new TimeAnalyseFrag();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_PARAM1, param1);
+        //args.putParcelable(ARG_PARAM1, param1);
 
         fragment.setArguments(args);
         return fragment;
@@ -35,7 +35,8 @@ public class TimeAnalyseFrag extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            cd = getArguments().getParcelable(ARG_PARAM1);
+            //cd = getArguments().getParcelable(ARG_PARAM1);
+            cd = ChatData.getInstance();
         }
     }
 
