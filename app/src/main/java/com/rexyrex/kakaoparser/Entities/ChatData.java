@@ -1,5 +1,7 @@
 package com.rexyrex.kakaoparser.Entities;
 
+import android.graphics.Color;
+
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
@@ -233,6 +235,8 @@ public class ChatData {
         PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "단어 사용 비율");
         dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         dataSet.setValueTextSize(12);
+        dataSet.setValueTextColor(Color.BLACK);
+        dataSet.setSliceSpace(4);
         PieData pieData = new PieData(dataSet);
         return pieData;
     }
@@ -250,6 +254,8 @@ public class ChatData {
         PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "채팅 비율");
         dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         dataSet.setValueTextSize(12);
+        dataSet.setValueTextColor(Color.BLACK);
+        dataSet.setSliceSpace(4);
         PieData pieData = new PieData(dataSet);
         return pieData;
     }

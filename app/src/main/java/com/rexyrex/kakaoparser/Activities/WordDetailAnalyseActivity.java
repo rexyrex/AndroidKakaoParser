@@ -12,11 +12,8 @@ import android.widget.TextView;
 import com.github.mikephil.charting.charts.PieChart;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.ChatLine;
-import com.rexyrex.kakaoparser.Entities.StringIntPair;
-import com.rexyrex.kakaoparser.Fragments.WordAnalyseFrag;
 import com.rexyrex.kakaoparser.R;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -82,7 +79,7 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem_chat_line, null);
-            TextView sentenceTV = convertView.findViewById(R.id.chatLineExampleSentenceTV);
+            TextView sentenceTV = convertView.findViewById(R.id.generalStatsElemTitleTV);
 
             sentenceTV.setText(wordFreqArrList.get(position).getContent());
 

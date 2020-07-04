@@ -119,9 +119,9 @@ public class MainActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem, null);
             ImageView iv = convertView.findViewById(R.id.elemIV);
-            TextView tv = convertView.findViewById(R.id.chatLineExampleSentenceTV);
+            TextView tv = convertView.findViewById(R.id.generalStatsElemTitleTV);
             TextView tv2 = convertView.findViewById(R.id.elemTV2);
-            TextView tv3 = convertView.findViewById(R.id.elemTV3);
+            TextView tv3 = convertView.findViewById(R.id.generalStatsElemValueTV);
 
             String title = FileParseUtils.parseFileForTitle(chatFiles[position]);
             iv.setImageDrawable(titleProfilePicMap.get(title));

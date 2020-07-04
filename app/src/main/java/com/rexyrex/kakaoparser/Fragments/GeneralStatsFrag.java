@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Fragments;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,13 +8,24 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
+import com.rexyrex.kakaoparser.Activities.MainActivity;
 import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.Entities.StringIntPair;
+import com.rexyrex.kakaoparser.Entities.StringStringPair;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,25 +66,60 @@ public class GeneralStatsFrag extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_general_stats, container, false);
 
-        TextView statsChatterCountTV = view.findViewById(R.id.statsChatterCountTV);
-        statsChatterCountTV.setText("" + cd.getChatterCount());
+        ListView generalStatsLV = view.findViewById(R.id.generalStatsLV);
 
-        TextView statsDateRangeTV = view.findViewById(R.id.statsDateRangeTV);
-        statsDateRangeTV.setText("" + cd.getChatDateRangeStr());
+        ArrayList<StringStringPair> pairs = new ArrayList<>();
+        pairs.add(new StringStringPair("분석 기간", "" + cd.getChatDateRangeStr()));
+        pairs.add(new StringStringPair("대화 참여 인원", ""+ cd.getChatterCount()));
+        pairs.add(new StringStringPair("분석 일 수", "" + StringParseUtils.numberCommaFormat(cd.getChatDays()+"")));
+        pairs.add(new StringStringPair("분석 대화 수", "" + StringParseUtils.numberCommaFormat(cd.getChatLinesCount()+"")));
+        pairs.add(new StringStringPair("분석 단어 수", "" + StringParseUtils.numberCommaFormat(cd.getWordFreqArrList().size()+"")));
+        pairs.add(new StringStringPair("분석 소요 시간 (초)", "" + cd.getLoadElapsedSeconds()));
 
-        TextView statsAnalysedDayCountTV = view.findViewById(R.id.statsAnalysedDayCountTV);
-        statsAnalysedDayCountTV.setText("" + StringParseUtils.numberCommaFormat(cd.getChatDays()+""));
-
-        TextView statsAnalysedChatLineCountTV = view.findViewById(R.id.statsAnalysedChatLineCountTV);
-        statsAnalysedChatLineCountTV.setText("" + StringParseUtils.numberCommaFormat(cd.getChatLinesCount()+""));
-
-        TextView statsAnalysedWordCountTV = view.findViewById(R.id.statsAnalysedWordCountTV);
-        statsAnalysedWordCountTV.setText("" + StringParseUtils.numberCommaFormat(cd.getWordFreqArrList().size()+""));
-
-        TextView statsAnalysedTimeElapsedTV = view.findViewById(R.id.statsAnalysedTimeElapsedTV);
-        statsAnalysedTimeElapsedTV.setText("" + cd.getLoadElapsedSeconds() + "초");
-
+        CustomAdapter customAdapter = new CustomAdapter(pairs);
+        generalStatsLV.setAdapter(customAdapter);
 
         return view;
+    }
+
+    class CustomAdapter extends BaseAdapter {
+
+        ArrayList<StringStringPair> pairs;
+
+        CustomAdapter(ArrayList<StringStringPair> pairs){
+            this.pairs = pairs;
+        }
+
+        @Override
+        public int getCount() {
+            return pairs.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            convertView = getLayoutInflater().inflate(R.layout.list_view_elem_general_stat, null);
+
+            TextView titleTV = convertView.findViewById(R.id.generalStatsElemTitleTV);
+            TextView valueTV = convertView.findViewById(R.id.generalStatsElemValueTV);
+
+            titleTV.setText(pairs.get(position).getTitle());
+            valueTV.setText(pairs.get(position).getValue());
+
+            if(pairs.get(position).getValue().length() > 12){
+                valueTV.setTextSize(30);
+            }
+
+            return convertView;
+        }
     }
 }
