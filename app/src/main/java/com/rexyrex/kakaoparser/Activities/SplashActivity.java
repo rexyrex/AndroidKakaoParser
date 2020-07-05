@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ public class SplashActivity extends AppCompatActivity {
 
     boolean backBtnPressed;
     TextView appTitleTV;
+    ImageView splashIV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +28,12 @@ public class SplashActivity extends AppCompatActivity {
         backBtnPressed = false;
 
         appTitleTV = findViewById(R.id.appTitleTV);
+        splashIV = findViewById(R.id.splashIV);
+
+        splashIV.setVisibility(View.VISIBLE);
         appTitleTV.setVisibility(View.VISIBLE);
+
+        runFadeInAnimation(splashIV);
         runFadeInAnimation(appTitleTV);
         scheduleSplashScreen(3000);
     }
@@ -47,6 +54,14 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void runFadeInAnimation(TextView tv)
+    {
+        Animation a = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        a.reset();
+        tv.clearAnimation();
+        tv.startAnimation(a);
+    }
+
+    private void runFadeInAnimation(ImageView tv)
     {
         Animation a = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         a.reset();

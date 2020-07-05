@@ -1,11 +1,21 @@
 package com.rexyrex.kakaoparser.Entities;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.rexyrex.kakaoparser.R;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -47,6 +57,12 @@ public class ChatData {
 
     //sorted array list of word frequency data
     ArrayList<StringIntPair> wordFreqArrList;
+
+    //PieChart Typeface
+    Typeface tf;
+
+    //Context
+    Context context;
 
     public HashMap<String, ArrayList<ChatLine>> getWordChatLinesMap() {
         return wordChatLinesMap;
@@ -169,8 +185,12 @@ public class ChatData {
 
     Date chatEndDate;
 
-    public ChatData() {
+    public ChatData(Context c) {
+        tf = ResourcesCompat.getFont(c, R.font.nanum_square_round_r);
+    }
 
+    public ChatData() {
+        //tf = ResourcesCompat.getFont(c, R.font.nanum_square_round_r);
     }
 
     private static ChatData the_instance;
@@ -178,6 +198,7 @@ public class ChatData {
         if (the_instance == null) {
             the_instance = new ChatData();
         }
+
         return the_instance;
     }
 
@@ -252,11 +273,29 @@ public class ChatData {
             tmpIndex++;
         }
         PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "채팅 비율");
+
         dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         dataSet.setValueTextSize(12);
         dataSet.setValueTextColor(Color.BLACK);
         dataSet.setSliceSpace(4);
+        dataSet.setValueLineColor(Color.BLACK);
+
+//        dataSet.setValueLinePart1OffsetPercentage(80.f);
+//        dataSet.setValueLinePart1Length(0.2f);
+//        dataSet.setValueLinePart2Length(0.4f);
+
+//        dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+//        dataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+
         PieData pieData = new PieData(dataSet);
+
+        pieData.setValueFormatter(new PercentFormatter());
+        pieData.setValueTextSize(11f);
+        pieData.setValueTextColor(Color.BLACK);
+        //pieData.setValueTypeface(tf);
+
         return pieData;
     }
+
+
 }

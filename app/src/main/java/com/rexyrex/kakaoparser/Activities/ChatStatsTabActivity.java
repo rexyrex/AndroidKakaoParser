@@ -326,6 +326,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     date = sdf.parse(dateStr);
                 } catch (ParseException e) {
                     e.printStackTrace();
+                    return null;
                 }
             }
             return date;
