@@ -122,7 +122,7 @@ public class PersonAnalyseFrag extends Fragment {
     }
 
     private SpannableString generateCenterSpannableText(Typeface tf) {
-        SpannableString s = new SpannableString("대화량 (탑10)");
+        SpannableString s = new SpannableString("대화량");
         s.setSpan(new StyleSpan(Typeface.BOLD), 0, s.length(), 0);
         return s;
     }

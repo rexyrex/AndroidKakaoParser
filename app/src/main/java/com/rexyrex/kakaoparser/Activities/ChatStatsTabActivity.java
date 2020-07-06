@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import com.bumptech.glide.Glide;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -55,6 +57,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     ChatData cd;
     ProgressBar popupPB;
+    TextView loadingTextTV;
+    ImageView loadingGifIV;
+
     SectionsPagerAdapter sectionsPagerAdapter;
     ViewPager viewPager;
     TabLayout tabs;
@@ -70,8 +75,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tab);
 
         View view = (LayoutInflater.from(ChatStatsTabActivity.this)).inflate(R.layout.horizontal_progress_popup, null);
-
         popupPB = view.findViewById(R.id.popupPB);
+        loadingTextTV = view.findViewById(R.id.loadingTextTV);
+        loadingGifIV = view.findViewById(R.id.loadingGifIV);
+        Glide.with(this).asGif().load(R.drawable.loading1).into(loadingGifIV);
+
 
         viewPager = findViewById(R.id.view_pager);
         tabs = findViewById(R.id.tabs);
@@ -165,6 +173,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     }
                 }
 
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        popupPB.setVisibility(View.INVISIBLE);
+                        loadingTextTV.setText("정밀 분석중...");
+                        loadingGifIV.setVisibility(View.VISIBLE);
+                    }
+                });
                 chatLineDao.insertAll(chatLineModelArrayList);
                 wordDao.insertAll(wordModelArrayList);
                 long loadTime = System.currentTimeMillis() - loadStartTime;
