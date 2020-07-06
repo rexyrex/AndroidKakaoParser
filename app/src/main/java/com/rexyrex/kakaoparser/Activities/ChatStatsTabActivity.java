@@ -48,6 +48,8 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatStatsTabActivity extends AppCompatActivity {
 
@@ -141,10 +143,36 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 final ArrayList<ChatLineModel> chatLineModelArrayList = new ArrayList<>();
                 final ArrayList<WordModel> wordModelArrayList = new ArrayList<>();
 
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
+
+                Date date = null;
+                String person = null;
+                String chat = null;
+
                 for(int i=0; i<chatLines.length; i++){
-                    String person = getPersonFromLine(chatLines[i]);
-                    String chat = getChatFromLine(chatLines[i]);
-                    Date date = getDateFromLine(chatLines[i]);
+                    //String person = getPersonFromLine(chatLines[i]);
+                    //String chat = getChatFromLine(chatLines[i]);
+                    //Date date = getDateFromLine(chatLines[i]);
+
+
+
+                    Pattern p = Pattern.compile("(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2}),? (.+?) : ?(.+)");
+                    Matcher m = p.matcher(chatLines[i]);
+                    boolean match = m.matches();
+
+                    if(match){
+                        try {
+                            date = sdf.parse(m.group(1));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        person = m.group(2);
+                        chat = m.group(3);
+
+                        //LogUtils.e("Person: " + person);
+                        //LogUtils.e("Chat: " + chat);
+                    }
+
 
                     final int tInt = i;
                     final int totalInt = chatLines.length;
@@ -160,7 +188,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         });
                     }
 
-                    if(date!=null){
+                    if(match){
                         SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 (E)");
                         String dateKey = format.format(date);
 
@@ -188,31 +216,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 chatStatsStr += "File Size : " + chatFile.length() + "\n";
                 chatStatsStr += "Lines : " + chatLines.length + "\n";
 
-                long loadTime = System.currentTimeMillis() - loadStartTime;
-                double loadElapsedSeconds = loadTime/1000.0;
-
-                cd.setLoadElapsedSeconds(loadElapsedSeconds);
                 cd.setChatLines(chatLines);
                 cd.setChatStr(chatStr);
 
                 chatLineDao.insertAll(chatLineModelArrayList);
                 wordDao.insertAll(wordModelArrayList);
-
-                Executor executor = Executors.newSingleThreadExecutor();
-
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        LogUtils.e("Parsing Done!!");
-//                        LogUtils.e("DB Size: " + chatLineDao.getCount());
-//                        LogUtils.e("Day Count: " + chatLineDao.getDayCount());
-//                        LogUtils.e("Chatter Count: " + chatLineDao.getChatterCount());
-//                        LogUtils.e("Start Date: " + chatLineDao.getStartDate().toString());
-//                        LogUtils.e("End Date: " + chatLineDao.getEndDate().toString());
-//                        LogUtils.e("Chat Count Of 회원님: " + chatLineDao.getChatCountByAuthor("회원님"));
-                        //LogUtils.e("Most freq word: " + wordDao.getMostFreqWord().toString());
-                    }
-                });
+                long loadTime = System.currentTimeMillis() - loadStartTime;
+                double loadElapsedSeconds = loadTime/1000.0;
+                cd.setLoadElapsedSeconds(loadElapsedSeconds);
 
                 return "";
             }

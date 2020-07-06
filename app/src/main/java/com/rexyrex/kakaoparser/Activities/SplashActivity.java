@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.DeviceInfoUtils;
+import com.rexyrex.kakaoparser.Utils.LogUtils;
 
 import java.util.ArrayList;
 
@@ -38,9 +40,6 @@ public class SplashActivity extends AppCompatActivity {
         appTitleTV = findViewById(R.id.appTitleTV);
         splashIV = findViewById(R.id.splashIV);
 
-        splashIV.setVisibility(View.VISIBLE);
-        appTitleTV.setVisibility(View.VISIBLE);
-
         //요청할 권한들
         permissions = new String[] {
                 Manifest.permission.READ_EXTERNAL_STORAGE
@@ -54,15 +53,19 @@ public class SplashActivity extends AppCompatActivity {
         //deniedPermsArr length를 나중에도 확인해서 scheduleSplashScreen이 나중에 호출되도록 구현돼있음
         if(deniedPermsArr.length>0){
             ActivityCompat.requestPermissions(this, deniedPermsArr, 1);
+        } else {
+            scheduleSplashScreen(2500L);
         }
 
-        runFadeInAnimation(splashIV);
-        runFadeInAnimation(appTitleTV);
-        scheduleSplashScreen(3000);
+
     }
 
     //splashScreenDuration이후 activity이동, splash activity는 finish
     private void scheduleSplashScreen(long splashScreenDuration) {
+        splashIV.setVisibility(View.VISIBLE);
+        appTitleTV.setVisibility(View.VISIBLE);
+        runFadeInAnimation(splashIV);
+        runFadeInAnimation(appTitleTV);
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -74,6 +77,16 @@ public class SplashActivity extends AppCompatActivity {
                 finish();
             }
         }, splashScreenDuration);
+    }
+
+    private void scheduleAppClose(long duration) {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        }, duration);
     }
 
     private void runFadeInAnimation(TextView tv)
@@ -101,5 +114,28 @@ public class SplashActivity extends AppCompatActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    //권한 승인/거절 시 호출
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode){
+            case 1 :
+                boolean moveOn = true;
+                for(int i=0; i<permissions.length; i++){
+                    LogUtils.e("grant res : " + grantResults[i]);
+                    if(grantResults[i] == -1){
+                        Toast.makeText(SplashActivity.this, "카톡 분석을 위해 권한 승인을 해야 앱사용이 가능합니다. 종료됩니다.", Toast.LENGTH_LONG).show();
+                        scheduleAppClose(1500);
+                        moveOn = false;
+                    }
+                }
+
+                if(moveOn){
+                    scheduleSplashScreen(2500L);
+                }
+
+                return;
+        }
     }
 }
