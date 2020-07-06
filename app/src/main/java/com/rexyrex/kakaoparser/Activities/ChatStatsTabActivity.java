@@ -54,7 +54,6 @@ import java.util.regex.Pattern;
 public class ChatStatsTabActivity extends AppCompatActivity {
 
     ChatData cd;
-    String chatStatsStr;
     ProgressBar popupPB;
     SectionsPagerAdapter sectionsPagerAdapter;
     ViewPager viewPager;
@@ -64,21 +63,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     MainDatabase database;
     ChatLineDAO chatLineDao;
     WordDAO wordDao;
-
-    public static Comparator<StringIntPair> wordFreqComparator = new Comparator<StringIntPair>(){
-        @Override
-        public int compare(StringIntPair o1, StringIntPair o2) {
-            if(o1.getFrequency() > o2.getFrequency()) {
-                return -1;
-            }
-            else if(o1.getFrequency() < o2.getFrequency()){
-                return 1;
-            }
-            else {
-                return 0;
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,12 +89,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         dialog.show();
 
         cd = ChatData.getInstance();
-
-        final File chatFile = (File) ChatStatsTabActivity.this.getIntent().getSerializableExtra("chat");
-
-        cd.setChatFile(chatFile);
-
-
+        final File chatFile = cd.getChatFile();
 
         @SuppressLint("StaticFieldLeak") AsyncTask<String, Void, String> statsTask = new AsyncTask<String, Void, String>() {
             @Override
@@ -126,8 +105,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 wordDao.truncateTable();
                 chatLineDao.truncateTable();
 
-                boolean chatStartDateSet = false;
-                chatStatsStr = "";
                 String chatStr = FileParseUtils.parseFile(chatFile);
                 final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
 
@@ -144,42 +121,18 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 final ArrayList<WordModel> wordModelArrayList = new ArrayList<>();
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 (E)");
 
                 Date date = null;
                 String person = null;
                 String chat = null;
 
+                Pattern p = Pattern.compile("(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2}),? (.+?) : ?(.+)");
+
                 for(int i=0; i<chatLines.length; i++){
-                    //String person = getPersonFromLine(chatLines[i]);
-                    //String chat = getChatFromLine(chatLines[i]);
-                    //Date date = getDateFromLine(chatLines[i]);
+                    final int progress = (int) (((double)i/chatLines.length) * 100);
 
-
-
-                    Pattern p = Pattern.compile("(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2}),? (.+?) : ?(.+)");
-                    Matcher m = p.matcher(chatLines[i]);
-                    boolean match = m.matches();
-
-                    if(match){
-                        try {
-                            date = sdf.parse(m.group(1));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        person = m.group(2);
-                        chat = m.group(3);
-
-                        //LogUtils.e("Person: " + person);
-                        //LogUtils.e("Chat: " + chat);
-                    }
-
-
-                    final int tInt = i;
-                    final int totalInt = chatLines.length;
-
-                    final int progress = (int) (((double)tInt/totalInt) * 100);
-
-                    if(progress % 10 == 0){
+                    if(progress % 2 == 0){
                         ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -188,36 +141,29 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         });
                     }
 
-                    if(match){
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 (E)");
+                    Matcher m = p.matcher(chatLines[i]);
+                    if(m.matches()){
+                        try {
+                            date = sdf.parse(m.group(1));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        person = m.group(2);
+                        chat = m.group(3);
+
                         String dateKey = format.format(date);
 
                         int tmpIndex = chatLineModelArrayList.size();
                         chatLineModelArrayList.add(new ChatLineModel(tmpIndex, date, dateKey, person, chat));
 
-                        //populate word freq map
-                        //split chat line into words
-//                        chat.replace('(', ' ');
-//                        chat.replace(')', ' ');
-//                        chat.replace('<', ' ');
-//                        chat.replace('>', ' ');
-
                         String[] splitWords = chat.split(" ");
                         for(int w=0; w<splitWords.length; w++){
                             if(splitWords[w].length()>0){
-                                //word db
                                 wordModelArrayList.add(new WordModel(chatLineModelArrayList.size()-1, date, person, splitWords[w]));
                             }
                         }
                     }
                 }
-
-                chatStatsStr += "File Name : " + chatFile.getName() + "\n";
-                chatStatsStr += "File Size : " + chatFile.length() + "\n";
-                chatStatsStr += "Lines : " + chatLines.length + "\n";
-
-                cd.setChatLines(chatLines);
-                cd.setChatStr(chatStr);
 
                 chatLineDao.insertAll(chatLineModelArrayList);
                 wordDao.insertAll(wordModelArrayList);
@@ -239,66 +185,4 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         };
         statsTask.execute();
     }
-
-    public Date getDateFromLine(String line){
-        String[] split = line.split(", ");
-        if(split.length<2){
-            return null;
-        } else {
-            Date date = new Date();
-            String dateStr = split[0];
-
-            if(!dateStr.equals("")){
-                //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일 a h:m", Locale.KOREAN);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
-                try {
-                    date = sdf.parse(dateStr);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-            return date;
-        }
-    }
-
-    public String getDateStrFromLine(String line){
-        String[] split = line.split(", ");
-        if(split.length<2){
-            return "";
-        } else {
-            return split[0];
-        }
-    }
-
-    public String getChatFromLine(String line){
-        String chat = "";
-        String[] split = line.split(", ");
-        if(split.length<2){
-            return line;
-        } else {
-            String[] split2 = split[1].split(" : ");
-            for(int i=1; i<split2.length; i++){
-                chat += split2[i];
-            }
-            return chat;
-        }
-    }
-
-    public String getPersonFromLine(String line){
-        String chat = "";
-        String[] split = line.split(", ");
-        if(split.length>1){
-            if(split[1].contains(" :")) {
-                String[] split2 = split[1].split(" :");
-                return split2[0];
-            } else {
-                return "";
-            }
-        }
-
-        return "";
-    }
-
-
 }

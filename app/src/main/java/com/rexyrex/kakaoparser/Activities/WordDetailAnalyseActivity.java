@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -64,7 +65,8 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         chatLinesLV.setAdapter(ca);
 
         freqPieChart.setData(getWordUserFreqPieData(word));
-        freqPieChart.animateXY(2000, 2000);
+        //freqPieChart.animateXY(2000, 2000);
+        freqPieChart.spin(500, freqPieChart.getRotationAngle(), freqPieChart.getRotationAngle() + 180, Easing.EaseInOutCubic);
     }
 
     class WordListAdapter extends BaseAdapter {

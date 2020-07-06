@@ -16,7 +16,9 @@
 
         <activity
             android:name=".Activities.SplashActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,11 +29,15 @@
             android:name=".Activities.ChatStatsTabActivity"
             android:label="@string/title_activity_tab"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTop"
+            />
         <activity android:name=".Activities.ChatStatsActivity" />
         <activity
             android:name=".Activities.MainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            />
 
         <meta-data
             android:name="preloaded_fonts"

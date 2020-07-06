@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     ListView chatLV;
     File[] files;
     File[] reversedFilesArr;
+    ChatData cd;
 
     private static long lastBackAttemptTime;
 
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         chatLV = findViewById(R.id.chatLV);
 
+        cd = ChatData.getInstance();
         lastBackAttemptTime = 0;
 
         String folderPath = Environment.getExternalStorageDirectory()
@@ -81,7 +84,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent statsIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
-                    statsIntent.putExtra("chat", reversedFilesArr[position]);
+                    //statsIntent.putExtra("chat", reversedFilesArr[position]);
+                    cd.setChatFile(reversedFilesArr[position]);
                     MainActivity.this.startActivity(statsIntent);
                 }
             });
