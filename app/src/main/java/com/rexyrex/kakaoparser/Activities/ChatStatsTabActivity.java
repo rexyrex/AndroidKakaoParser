@@ -14,12 +14,18 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
+import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
+import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.ChatLine;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
@@ -40,6 +46,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class ChatStatsTabActivity extends AppCompatActivity {
 
@@ -50,6 +58,10 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     ViewPager viewPager;
     TabLayout tabs;
     TextView titleTV;
+
+    MainDatabase database;
+    ChatLineDAO chatLineDao;
+    WordDAO wordDao;
 
     public static Comparator<StringIntPair> wordFreqComparator = new Comparator<StringIntPair>(){
         @Override
@@ -79,6 +91,10 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         tabs = findViewById(R.id.tabs);
         titleTV = findViewById(R.id.title);
 
+        database = MainDatabase.getDatabase(this);
+        chatLineDao = database.getChatLineDAO();
+        wordDao = database.getWordDAO();
+
         AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(ChatStatsTabActivity.this, R.style.PopupStyle);
         rexAlertBuilder.setView(view);
         rexAlertBuilder.setCancelable(false);
@@ -104,6 +120,10 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             protected String doInBackground(String... params) {
                 long loadStartTime = System.currentTimeMillis();
 
+                //clear tables
+                wordDao.truncateTable();
+                chatLineDao.truncateTable();
+
                 boolean chatStartDateSet = false;
                 chatStatsStr = "";
                 String chatStr = FileParseUtils.parseFile(chatFile);
@@ -118,18 +138,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 final String[] chatLines = chatStr.split("\n");
 
-                ArrayList<String> chatters = new ArrayList<>();
-                //Date yyyyMMdd, ChatLine
-                final LinkedHashMap<String, ArrayList<ChatLine>> chatMap = new LinkedHashMap<>();
-                final ArrayList<ChatLine> chatLineArrayList = new ArrayList<>();
-                HashMap<String, Integer> chatAmount = new HashMap<>();
-                HashMap<String, Integer> wordFreqMap = new HashMap<>();
-
-                //word - user - freq
-                HashMap<String, HashMap<String, Integer>> wordUserFreqMap = new HashMap<>();
-
-                HashMap<String, ArrayList<ChatLine>> wordChatLinesMap = new HashMap<>();
-
+                final ArrayList<ChatLineModel> chatLineModelArrayList = new ArrayList<>();
+                final ArrayList<WordModel> wordModelArrayList = new ArrayList<>();
 
                 for(int i=0; i<chatLines.length; i++){
                     String person = getPersonFromLine(chatLines[i]);
@@ -154,148 +164,56 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 (E)");
                         String dateKey = format.format(date);
 
-                        //update chat data date
-                        if(!chatStartDateSet){
-                            chatStartDateSet = true;
-                            cd.setChatStartDate(date);
-                        } else {
-                            cd.setChatEndDate(date);
-                        }
-
-                        //Populate chatMap
-                        if(chatMap.containsKey(dateKey)){
-                            chatMap.get(dateKey).add(new ChatLine(date, person, chat));
-                        } else {
-                            ArrayList<ChatLine> tmpCLArrList = new ArrayList<>();
-                            tmpCLArrList.add(new ChatLine(date, person, chat));
-                            chatMap.put(dateKey, tmpCLArrList);
-                        }
-
-                        chatLineArrayList.add(new ChatLine(date, person, chat));
-
-                        //populate chatters
-                        if(!chatters.contains(person) && !person.equals("")){
-                            chatters.add(person);
-                        }
-
-                        //populate chat amount map
-                        if(chatAmount.containsKey(person)){
-                            chatAmount.put(person, chatAmount.get(person) + 1);
-                        } else {
-                            chatAmount.put(person, 0);
-                        }
+                        int tmpIndex = chatLineModelArrayList.size();
+                        chatLineModelArrayList.add(new ChatLineModel(tmpIndex, date, dateKey, person, chat));
 
                         //populate word freq map
                         //split chat line into words
-                        String[] splitWords = chat.split("[ \\(\\)\\<\\>]+");
+//                        chat.replace('(', ' ');
+//                        chat.replace(')', ' ');
+//                        chat.replace('<', ' ');
+//                        chat.replace('>', ' ');
+
+                        String[] splitWords = chat.split(" ");
                         for(int w=0; w<splitWords.length; w++){
                             if(splitWords[w].length()>0){
-                                if(wordFreqMap.containsKey(splitWords[w])){
-                                    wordFreqMap.put(splitWords[w], wordFreqMap.get(splitWords[w]) + 1);
-                                } else {
-                                    wordFreqMap.put(splitWords[w], 1);
-                                }
-
-                                if(wordUserFreqMap.containsKey(splitWords[w])){
-                                    if(wordUserFreqMap.get(splitWords[w]).containsKey(person)){
-                                        wordUserFreqMap.get(splitWords[w]).put(person, wordUserFreqMap.get(splitWords[w]).get(person) + 1);
-                                    } else {
-                                        wordUserFreqMap.get(splitWords[w]).put(person, 1);
-                                    }
-                                } else {
-                                    HashMap<String, Integer> tmpMap = new HashMap<>();
-                                    tmpMap.put(person, 1);
-                                    wordUserFreqMap.put(splitWords[w], tmpMap);
-                                }
-
-                                if(wordChatLinesMap.containsKey(splitWords[w])){
-                                    wordChatLinesMap.get(splitWords[w]).add(new ChatLine(date, person, chat));
-                                } else {
-                                    ArrayList<ChatLine> chatLinesTmp = new ArrayList<>();
-                                    chatLinesTmp.add(new ChatLine(date, person, chat));
-                                    wordChatLinesMap.put(splitWords[w], chatLinesTmp);
-                                }
+                                //word db
+                                wordModelArrayList.add(new WordModel(chatLineModelArrayList.size()-1, date, person, splitWords[w]));
                             }
                         }
                     }
                 }
 
-                Queue<StringIntPair> wordFreqQueue = new PriorityQueue(wordFreqMap.size(), wordFreqComparator);
-                for (Map.Entry<String, Integer> entry : wordFreqMap.entrySet()) {
-                    String key = entry.getKey();
-                    Integer value = entry.getValue();
-                    wordFreqQueue.add(new StringIntPair(key, value));
-                }
-
-                // Test the order
-                StringIntPair temp = wordFreqQueue.peek();
-                ArrayList<StringIntPair> wordFreqArrList = new ArrayList<>();
-                while(!wordFreqQueue.isEmpty()){
-                    wordFreqArrList.add(wordFreqQueue.poll());
-                }
-
-                LogUtils.e("wordFreqArrList size : " + wordFreqArrList.size());
-
-
-
                 chatStatsStr += "File Name : " + chatFile.getName() + "\n";
                 chatStatsStr += "File Size : " + chatFile.length() + "\n";
                 chatStatsStr += "Lines : " + chatLines.length + "\n";
-                chatStatsStr += "Chatters : " + chatters.size() + "\n";
-                chatStatsStr += "====== Chat Amount ======\n";
-
-                ArrayList chatAmountArrayList = new ArrayList();
-                ArrayList chatNicknameArrayList = new ArrayList();
-                int tmpIndex = 0;
-
-                for(String chatter : chatters){
-                    chatStatsStr += chatter + " : " + chatAmount.get(chatter) + "\n";
-                    chatAmountArrayList.add(new PieEntry(chatAmount.get(chatter),chatter));
-                    chatNicknameArrayList.add(chatter);
-                    tmpIndex++;
-                }
-
-                PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "채팅 비율");
-                dataSet.setColors(ColorTemplate.PASTEL_COLORS);
-                dataSet.setValueTextSize(12);
-                final PieData pieData = new PieData(dataSet);
-
-                chatStatsStr += "=========================\n";
-                chatStatsStr += "Chat Days : " + chatMap.size() + "\n";
-                chatStatsStr += "=========================\n";
-
-                final String[] spinnerItems = new String[chatMap.size()];
-                int tmpSpinnerIndex = 0;
-                for (Map.Entry<String, ArrayList<ChatLine>> entry : chatMap.entrySet()) {
-                    String key = entry.getKey();
-                    ArrayList<ChatLine> value = entry.getValue();
-                    //chatStatsStr += key + " : " + value.size() +  "\n";
-                    spinnerItems[tmpSpinnerIndex] = key + " [대화: " + value.size() + "]";
-                    tmpSpinnerIndex++;
-                }
 
                 long loadTime = System.currentTimeMillis() - loadStartTime;
                 double loadElapsedSeconds = loadTime/1000.0;
 
                 cd.setLoadElapsedSeconds(loadElapsedSeconds);
-                cd.setChatAmount(chatAmount);
                 cd.setChatLines(chatLines);
-                cd.setChatMap(chatMap);
                 cd.setChatStr(chatStr);
-                cd.setChatters(chatters);
-                cd.setWordFreqMap(wordFreqMap);
-                cd.setWordFreqArrList(wordFreqArrList);
 
-                cd.setChatLineArrayList(chatLineArrayList);
-                cd.setWordUserFreqMap(wordUserFreqMap);
-                cd.setWordChatLinesMap(wordChatLinesMap);
+                chatLineDao.insertAll(chatLineModelArrayList);
+                wordDao.insertAll(wordModelArrayList);
 
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                Executor executor = Executors.newSingleThreadExecutor();
+
+                executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(ChatStatsTabActivity.this, android.R.layout.simple_spinner_dropdown_item, spinnerItems);
+                        LogUtils.e("Parsing Done!!");
+//                        LogUtils.e("DB Size: " + chatLineDao.getCount());
+//                        LogUtils.e("Day Count: " + chatLineDao.getDayCount());
+//                        LogUtils.e("Chatter Count: " + chatLineDao.getChatterCount());
+//                        LogUtils.e("Start Date: " + chatLineDao.getStartDate().toString());
+//                        LogUtils.e("End Date: " + chatLineDao.getEndDate().toString());
+//                        LogUtils.e("Chat Count Of 회원님: " + chatLineDao.getChatCountByAuthor("회원님"));
+                        //LogUtils.e("Most freq word: " + wordDao.getMostFreqWord().toString());
                     }
                 });
+
                 return "";
             }
 

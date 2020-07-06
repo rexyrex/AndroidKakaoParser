@@ -1,7 +1,9 @@
 package com.rexyrex.kakaoparser.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,12 +16,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.DeviceInfoUtils;
+
+import java.util.ArrayList;
 
 public class SplashActivity extends AppCompatActivity {
 
     boolean backBtnPressed;
     TextView appTitleTV;
     ImageView splashIV;
+
+    String[] permissions;
+    String[] deniedPermsArr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +40,21 @@ public class SplashActivity extends AppCompatActivity {
 
         splashIV.setVisibility(View.VISIBLE);
         appTitleTV.setVisibility(View.VISIBLE);
+
+        //요청할 권한들
+        permissions = new String[] {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+        };
+
+        //허용되지 않은 권한 받아오기
+        ArrayList<String> deniedPerms =  DeviceInfoUtils.getDeniedPermissions(this, permissions);
+        deniedPermsArr = deniedPerms.toArray(new String[0]);
+
+        //허용되지 않은 권한 있으면 권한 요청
+        //deniedPermsArr length를 나중에도 확인해서 scheduleSplashScreen이 나중에 호출되도록 구현돼있음
+        if(deniedPermsArr.length>0){
+            ActivityCompat.requestPermissions(this, deniedPermsArr, 1);
+        }
 
         runFadeInAnimation(splashIV);
         runFadeInAnimation(appTitleTV);

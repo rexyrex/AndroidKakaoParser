@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
 import com.rexyrex.kakaoparser.Activities.MainActivity;
+import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
+import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.Entities.StringStringPair;
@@ -24,6 +27,7 @@ import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -38,6 +42,10 @@ public class GeneralStatsFrag extends Fragment {
     private static final String ARG_PARAM1 = "param1";
 
     private ChatData cd;
+
+    private MainDatabase database;
+    private ChatLineDAO chatLineDao;
+    private WordDAO wordDao;
 
     public GeneralStatsFrag() {
         // Required empty public constructor
@@ -58,6 +66,9 @@ public class GeneralStatsFrag extends Fragment {
         if (getArguments() != null) {
             //cd = getArguments().getParcelable(ARG_PARAM1);
             cd = ChatData.getInstance();
+            database = MainDatabase.getDatabase(getContext());
+            chatLineDao = database.getChatLineDAO();
+            wordDao = database.getWordDAO();
         }
     }
 
@@ -68,12 +79,15 @@ public class GeneralStatsFrag extends Fragment {
 
         ListView generalStatsLV = view.findViewById(R.id.generalStatsLV);
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
+        String dateRange = dateFormat.format(chatLineDao.getStartDate()) + "~" + dateFormat.format(chatLineDao.getEndDate());
+
         ArrayList<StringStringPair> pairs = new ArrayList<>();
-        pairs.add(new StringStringPair("분석 기간", "" + cd.getChatDateRangeStr()));
-        pairs.add(new StringStringPair("대화 참여 인원", ""+ cd.getChatterCount()));
-        pairs.add(new StringStringPair("분석 일 수", "" + StringParseUtils.numberCommaFormat(cd.getChatDays()+"")));
-        pairs.add(new StringStringPair("분석 대화 수", "" + StringParseUtils.numberCommaFormat(cd.getChatLinesCount()+"")));
-        pairs.add(new StringStringPair("분석 단어 수", "" + StringParseUtils.numberCommaFormat(cd.getWordFreqArrList().size()+"")));
+        pairs.add(new StringStringPair("분석 기간", "" + dateRange));
+        pairs.add(new StringStringPair("대화 참여 인원", ""+ chatLineDao.getChatterCount()));
+        pairs.add(new StringStringPair("분석 일 수", "" + StringParseUtils.numberCommaFormat(chatLineDao.getDayCount()+"")));
+        pairs.add(new StringStringPair("분석 대화 수", "" + StringParseUtils.numberCommaFormat(chatLineDao.getCount()+"")));
+        pairs.add(new StringStringPair("분석 단어 수", "" + StringParseUtils.numberCommaFormat(wordDao.getDistinctCount()+"")));
         pairs.add(new StringStringPair("분석 소요 시간 (초)", "" + cd.getLoadElapsedSeconds()));
 
         CustomAdapter customAdapter = new CustomAdapter(pairs);

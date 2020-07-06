@@ -17,21 +17,30 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
+import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
+import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class WordAnalyseFrag extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
 
-    private ChatData cd;
     ArrayList<StringIntPair> freqList;
     WordListAdapter ca;
     TextView wordCountTV;
+
+    private MainDatabase database;
+    private ChatLineDAO chatLineDao;
+    private WordDAO wordDao;
+
+    private List<StringIntPair> wordFreqArrList;
 
     public WordAnalyseFrag() {
         // Required empty public constructor
@@ -50,8 +59,9 @@ public class WordAnalyseFrag extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            //cd = getArguments().getParcelable(ARG_PARAM1);
-            cd = ChatData.getInstance();
+            database = MainDatabase.getDatabase(getContext());
+            chatLineDao = database.getChatLineDAO();
+            wordDao = database.getWordDAO();
         }
     }
 
@@ -66,7 +76,9 @@ public class WordAnalyseFrag extends Fragment {
 
         freqList = new ArrayList<>();
 
-        for(StringIntPair element : cd.getWordFreqArrList()) freqList.add(element);
+        wordFreqArrList = wordDao.getFreqWordList();
+
+        for(StringIntPair element : wordFreqArrList) freqList.add(element);
 
         ca = new WordListAdapter(freqList);
         wordLV.setAdapter(ca);
@@ -76,8 +88,6 @@ public class WordAnalyseFrag extends Fragment {
         wordLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                LogUtils.e("\"" + cd.getWordFreqArrList().get(position).getword() + "\"");
-                //WordDetailAnalyseActivity.wordFreqMap = cd.getWordFreqMap();
                 Intent wordDtlIntent = new Intent(WordAnalyseFrag.this.getActivity(), WordDetailAnalyseActivity.class);
                 wordDtlIntent.putExtra("word", freqList.get(position).getword());
                 WordAnalyseFrag.this.getActivity().startActivity(wordDtlIntent);
@@ -108,14 +118,14 @@ public class WordAnalyseFrag extends Fragment {
     public void search(String charText) {
         freqList.clear();
         if (charText.length() == 0) {
-            freqList.addAll(cd.getWordFreqArrList());
+            freqList.addAll(wordFreqArrList);
         } else
         {
-            for(int i = 0;i < cd.getWordFreqArrList().size(); i++)
+            for(int i = 0;i < wordFreqArrList.size(); i++)
             {
-                if (cd.getWordFreqArrList().get(i).getword().toLowerCase().contains(charText))
+                if (wordFreqArrList.get(i).getword().toLowerCase().contains(charText))
                 {
-                    freqList.add(cd.getWordFreqArrList().get(i));
+                    freqList.add(wordFreqArrList.get(i));
                 }
             }
         }

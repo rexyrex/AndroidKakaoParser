@@ -18,9 +18,18 @@ import android.view.ViewGroup;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,7 +39,8 @@ import com.rexyrex.kakaoparser.R;
 public class PersonAnalyseFrag extends Fragment {
     private static final String ARG_PARAM1 = "param1";
 
-    private ChatData cd;
+    private MainDatabase database;
+    private ChatLineDAO chatLineDao;
 
     public PersonAnalyseFrag() {
         // Required empty public constructor
@@ -48,8 +58,8 @@ public class PersonAnalyseFrag extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            //cd = getArguments().getParcelable(ARG_PARAM1);
-            cd = ChatData.getInstance();
+            database = MainDatabase.getDatabase(getContext());
+            chatLineDao = database.getChatLineDAO();
         }
     }
 
@@ -60,7 +70,7 @@ public class PersonAnalyseFrag extends Fragment {
 
         PieChart chatAmountPieChart = view.findViewById(R.id.chatAmountPieChart);
 
-        chatAmountPieChart.setData(cd.getChatAmountPieData());
+        chatAmountPieChart.setData(getChatAmountPieData());
 
         Typeface tf = ResourcesCompat.getFont(getActivity(), R.font.nanum_square_round_r);
 
@@ -114,13 +124,43 @@ public class PersonAnalyseFrag extends Fragment {
     private SpannableString generateCenterSpannableText(Typeface tf) {
         SpannableString s = new SpannableString("대화량 (탑10)");
         s.setSpan(new StyleSpan(Typeface.BOLD), 0, s.length(), 0);
-//        SpannableString s = new SpannableString("MPAndroidChart\ndeveloped by Philipp Jahoda");
-//        s.setSpan(new RelativeSizeSpan(1.5f), 0, 14, 0);
-//        s.setSpan(new StyleSpan(Typeface.NORMAL), 14, s.length() - 15, 0);
-//        s.setSpan(new ForegroundColorSpan(Color.GRAY), 14, s.length() - 15, 0);
-//        s.setSpan(new RelativeSizeSpan(.65f), 14, s.length() - 15, 0);
-//        s.setSpan(new StyleSpan(Typeface.ITALIC), s.length() - 14, s.length(), 0);
-//        s.setSpan(new ForegroundColorSpan(ColorTemplate.getHoloBlue()), s.length() - 14, s.length(), 0);
         return s;
+    }
+
+    public PieData getChatAmountPieData(){
+        List<String> chatters = chatLineDao.getChatters();
+
+        ArrayList chatAmountArrayList = new ArrayList();
+        ArrayList chatNicknameArrayList = new ArrayList();
+        int tmpIndex = 0;
+
+        for(String chatter : chatters){
+            chatAmountArrayList.add(new PieEntry(chatLineDao.getChatterChatLineCount(chatter),chatter));
+            chatNicknameArrayList.add(chatter);
+            tmpIndex++;
+        }
+        PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "채팅 비율");
+
+        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        dataSet.setValueTextSize(12);
+        dataSet.setValueTextColor(Color.BLACK);
+        dataSet.setSliceSpace(4);
+        dataSet.setValueLineColor(Color.BLACK);
+
+//        dataSet.setValueLinePart1OffsetPercentage(80.f);
+//        dataSet.setValueLinePart1Length(0.2f);
+//        dataSet.setValueLinePart2Length(0.4f);
+
+//        dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+//        dataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+
+        PieData pieData = new PieData(dataSet);
+
+        pieData.setValueFormatter(new PercentFormatter());
+        pieData.setValueTextSize(11f);
+        pieData.setValueTextColor(Color.BLACK);
+        //pieData.setValueTypeface(tf);
+
+        return pieData;
     }
 }

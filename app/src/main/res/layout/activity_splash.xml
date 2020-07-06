@@ -32,5 +32,5 @@
         app:layout_constraintBottom_toTopOf="@+id/appTitleTV"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/kakaotalk_analyser_icon" />
+        app:srcCompat="@mipmap/kakao_ic_launcher_analyze_round" />
 </androidx.constraintlayout.widget.ConstraintLayout>
