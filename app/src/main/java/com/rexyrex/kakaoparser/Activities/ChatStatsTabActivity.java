@@ -1,6 +1,8 @@
 package com.rexyrex.kakaoparser.Activities;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -12,9 +14,18 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.text.Layout;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.AlignmentSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -80,7 +91,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         loadingGifIV = view.findViewById(R.id.loadingGifIV);
         Glide.with(this).asGif().load(R.drawable.loading1).into(loadingGifIV);
 
-
         viewPager = findViewById(R.id.view_pager);
         tabs = findViewById(R.id.tabs);
         titleTV = findViewById(R.id.title);
@@ -114,8 +124,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 chatLineDao.truncateTable();
 
                 String chatStr = FileParseUtils.parseFile(chatFile);
-                final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
 
+                //First, load chat room name only (later load date as spannable string)
+                final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -161,13 +172,12 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                         String dateKey = format.format(date);
 
-                        int tmpIndex = chatLineModelArrayList.size();
-                        chatLineModelArrayList.add(new ChatLineModel(tmpIndex, date, dateKey, person, chat));
+                        chatLineModelArrayList.add(new ChatLineModel(date, dateKey, person, chat));
 
                         String[] splitWords = chat.split(" ");
                         for(int w=0; w<splitWords.length; w++){
                             if(splitWords[w].length()>0){
-                                wordModelArrayList.add(new WordModel(chatLineModelArrayList.size()-1, date, person, splitWords[w]));
+                                wordModelArrayList.add(new WordModel(date, person, splitWords[w]));
                             }
                         }
                     }
@@ -187,6 +197,17 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 double loadElapsedSeconds = loadTime/1000.0;
                 cd.setLoadElapsedSeconds(loadElapsedSeconds);
 
+                //Change Title to include date
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
+                String dateRangeStr = "(" + dateFormat.format(chatLineDao.getStartDate()) + " ~ " + dateFormat.format(chatLineDao.getEndDate()) + ")";
+                final SpannableString newChatTitle = generateTitleSpannableText(chatTitle, dateRangeStr);
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        titleTV.setText( newChatTitle);
+                    }
+                });
+
                 return "";
             }
 
@@ -200,5 +221,16 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             }
         };
         statsTask.execute();
+    }
+
+    private SpannableString generateTitleSpannableText(String title, String dateRangeStr) {
+        SpannableString s = new SpannableString(title + "\n" + dateRangeStr);
+        s.setSpan(new StyleSpan(Typeface.BOLD), 0, title.length(), 0);
+        s.setSpan(new ForegroundColorSpan(getColor(R.color.lightBrown)), title.length(), title.length() + dateRangeStr.length()+1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        s.setSpan(new StyleSpan(Typeface.ITALIC), title.length(), title.length() + dateRangeStr.length()+1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        s.setSpan(new AbsoluteSizeSpan(15, true), title.length(), title.length() + dateRangeStr.length()+1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        //AlignmentSpan alignmentSpan = new AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE);
+        //s.setSpan(alignmentSpan, title.length(), title.length() + dateRangeStr.length()+1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return s;
     }
 }

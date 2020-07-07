@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/elemWordTitleTV"
+        android:id="@+id/personFreqElemTitleTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/elemWordFreqTV"
+        android:id="@+id/personFreqElemFreqTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="28dp"
@@ -32,8 +32,8 @@
         android:textColor="@color/design_default_color_error"
         android:textSize="10sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/generalStatsElemTitleTV"
+        app:layout_constraintBottom_toBottomOf="@+id/personFreqElemTitleTV"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/generalStatsElemTitleTV" />
+        app:layout_constraintTop_toTopOf="@+id/personFreqElemTitleTV" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

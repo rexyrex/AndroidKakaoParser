@@ -40,6 +40,8 @@ public class WordAnalyseFrag extends Fragment {
     private ChatLineDAO chatLineDao;
     private WordDAO wordDao;
 
+    ListView wordLV;
+
     private List<StringIntPair> wordFreqArrList;
 
     public WordAnalyseFrag() {
@@ -70,7 +72,7 @@ public class WordAnalyseFrag extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_word_analyse, container, false);
 
-        ListView wordLV = view.findViewById(R.id.wordSearchLV);
+        wordLV = view.findViewById(R.id.wordSearchLV);
         final EditText wordSearchET = view.findViewById(R.id.wordSearchET);
         wordCountTV = view.findViewById(R.id.wordSearchResTV);
 
@@ -158,8 +160,8 @@ public class WordAnalyseFrag extends Fragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem_word, null);
-            TextView wordTV = convertView.findViewById(R.id.generalStatsElemTitleTV);
-            TextView wordFreqTV = convertView.findViewById(R.id.wordListElemFreqTV);
+            TextView wordTV = convertView.findViewById(R.id.elemWordTitleTV);
+            TextView wordFreqTV = convertView.findViewById(R.id.elemWordFreqTV);
 
             StringIntPair wordData = wordFreqArrList.get(position);
             wordTV.setText(wordData.getword());

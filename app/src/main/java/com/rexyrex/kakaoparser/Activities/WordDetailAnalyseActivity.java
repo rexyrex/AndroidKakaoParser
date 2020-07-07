@@ -1,11 +1,15 @@
 package com.rexyrex.kakaoparser.Activities;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -56,7 +60,7 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         freqPieChart = findViewById(R.id.wordDtlFreqPieChart);
         chatLinesLV = findViewById(R.id.wordChatSentencesLV);
 
-        String word = this.getIntent().getStringExtra("word");
+        final String word = this.getIntent().getStringExtra("word");
 
         titleTV.setText(word+"");
         freqTV.setText(wordDao.getFreqWordListSearch(word).getFrequency() + "회");
@@ -64,9 +68,61 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         WordListAdapter ca = new WordListAdapter(chatLineDao.getChatLinesContainingWord(word));
         chatLinesLV.setAdapter(ca);
 
+
+        chatLinesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View viewz, int position, long id) {
+                View view = (LayoutInflater.from(WordDetailAnalyseActivity.this)).inflate(R.layout.chat_snippet, null);
+                ListView chatLV = view.findViewById(R.id.chatSnippetLV);
+
+                ChatListAdapter cla = new ChatListAdapter(chatLineDao.getChatLinesContainingWord(word));
+                chatLV.setAdapter(cla);
+
+                AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(WordDetailAnalyseActivity.this, R.style.PopupStyleLight);
+                rexAlertBuilder.setView(view);
+                rexAlertBuilder.setCancelable(true);
+                final AlertDialog dialog = rexAlertBuilder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+            }
+        });
+
         freqPieChart.setData(getWordUserFreqPieData(word));
         //freqPieChart.animateXY(2000, 2000);
         freqPieChart.spin(500, freqPieChart.getRotationAngle(), freqPieChart.getRotationAngle() + 180, Easing.EaseInOutCubic);
+    }
+
+    class ChatListAdapter extends BaseAdapter {
+        List<ChatLineModel> wordFreqArrList;
+
+        ChatListAdapter(List<ChatLineModel> wordFreqArrList){
+            this.wordFreqArrList = wordFreqArrList;
+        }
+
+        @Override
+        public int getCount() {
+            return wordFreqArrList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            convertView = getLayoutInflater().inflate(R.layout.chat_list_elem_outgoing, null);
+            TextView sentenceTV = convertView.findViewById(R.id.outgoingChatContentTV);
+
+            sentenceTV.setText(wordFreqArrList.get(position).getContent());
+
+            return convertView;
+        }
     }
 
     class WordListAdapter extends BaseAdapter {
@@ -94,7 +150,7 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem_chat_line, null);
-            TextView sentenceTV = convertView.findViewById(R.id.generalStatsElemTitleTV);
+            TextView sentenceTV = convertView.findViewById(R.id.chatLineElemContentsTV);
 
             sentenceTV.setText(wordFreqArrList.get(position).getContent());
 

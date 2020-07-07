@@ -79,11 +79,11 @@ public class GeneralStatsFrag extends Fragment {
 
         ListView generalStatsLV = view.findViewById(R.id.generalStatsLV);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
-        String dateRange = dateFormat.format(chatLineDao.getStartDate()) + "~" + dateFormat.format(chatLineDao.getEndDate());
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
+        //String dateRange = dateFormat.format(chatLineDao.getStartDate()) + "~" + dateFormat.format(chatLineDao.getEndDate());
 
         ArrayList<StringStringPair> pairs = new ArrayList<>();
-        pairs.add(new StringStringPair("분석 기간", "" + dateRange));
+        //pairs.add(new StringStringPair("분석 기간", "" + dateRange));
         pairs.add(new StringStringPair("대화 참여 인원", ""+ chatLineDao.getChatterCount()));
         pairs.add(new StringStringPair("분석 일 수", "" + StringParseUtils.numberCommaFormat(chatLineDao.getDayCount()+"")));
         pairs.add(new StringStringPair("분석 대화 수", "" + StringParseUtils.numberCommaFormat(chatLineDao.getCount()+"")));

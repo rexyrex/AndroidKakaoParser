@@ -9,6 +9,7 @@ import androidx.room.Update;
 
 import com.rexyrex.kakaoparser.Database.Converters.DateConverter;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.Entities.StringIntPair;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,6 +50,14 @@ public interface ChatLineDAO {
 
     @Query("SELECT DISTINCT(author) FROM tb_chat_line")
     public List<String> getChatters();
+
+    //get chatter-frequency pairs
+    @Query("SELECT author as word, count(author) as frequency FROM tb_chat_line GROUP BY author ORDER BY count(author) desc")
+    public List<StringIntPair> getChatterFrequencyPairs();
+
+    //get top 10 most freq chatters
+    @Query("SELECT author as word, count(author) as frequency FROM tb_chat_line GROUP BY author ORDER BY count(author) desc LIMIT 10")
+    public List<StringIntPair> getTop10Chatters();
 
     @Query("SELECT COUNT(content) FROM tb_chat_line WHERE author = :author")
     public int getChatterChatLineCount(String author);

@@ -121,11 +121,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            convertView = getLayoutInflater().inflate(R.layout.list_view_elem, null);
+            convertView = getLayoutInflater().inflate(R.layout.list_view_elem_chat, null);
             ImageView iv = convertView.findViewById(R.id.elemIV);
-            TextView tv = convertView.findViewById(R.id.generalStatsElemTitleTV);
+            TextView tv = convertView.findViewById(R.id.elemTV3);
             TextView tv2 = convertView.findViewById(R.id.elemTV2);
-            TextView tv3 = convertView.findViewById(R.id.generalStatsElemValueTV);
+            TextView tv3 = convertView.findViewById(R.id.elemTV1);
 
             String title = FileParseUtils.parseFileForTitle(chatFiles[position]);
             iv.setImageDrawable(titleProfilePicMap.get(title));

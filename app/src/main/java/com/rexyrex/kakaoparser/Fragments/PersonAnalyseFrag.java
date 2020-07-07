@@ -8,12 +8,13 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
@@ -25,7 +26,7 @@ import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
-import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class PersonAnalyseFrag extends Fragment {
         chatAmountPieChart.setTransparentCircleRadius(61f);
 
         chatAmountPieChart.setDrawCenterText(true);
-        chatAmountPieChart.setMinAngleForSlices(5f);
+        chatAmountPieChart.setMinAngleForSlices(10f);
 
         chatAmountPieChart.setEntryLabelColor(Color.BLACK);
         chatAmountPieChart.setEntryLabelTextSize(12);
@@ -118,6 +119,12 @@ public class PersonAnalyseFrag extends Fragment {
 
         //chatAmountPieChart.animateXY(1000, 1000);
         chatAmountPieChart.spin(1000, chatAmountPieChart.getRotationAngle(), chatAmountPieChart.getRotationAngle() + 360, Easing.EaseInOutCubic);
+
+        ListView freqLV = view.findViewById(R.id.pafPersonFreqLV);
+
+        CustomAdapter customAdapter = new CustomAdapter(chatLineDao.getTop10Chatters());
+        freqLV.setAdapter(customAdapter);
+
         return view;
     }
 
@@ -128,14 +135,14 @@ public class PersonAnalyseFrag extends Fragment {
     }
 
     public PieData getChatAmountPieData(){
-        List<String> chatters = chatLineDao.getChatters();
+        List<StringIntPair> chatters = chatLineDao.getTop10Chatters();
 
         ArrayList chatAmountArrayList = new ArrayList();
         ArrayList chatNicknameArrayList = new ArrayList();
         int tmpIndex = 0;
 
-        for(String chatter : chatters){
-            chatAmountArrayList.add(new PieEntry(chatLineDao.getChatterChatLineCount(chatter),chatter));
+        for(StringIntPair chatter : chatters){
+            chatAmountArrayList.add(new PieEntry(chatter.getFrequency(),chatter.getword()));
             chatNicknameArrayList.add(chatter);
             tmpIndex++;
         }
@@ -162,5 +169,47 @@ public class PersonAnalyseFrag extends Fragment {
         //pieData.setValueTypeface(tf);
 
         return pieData;
+    }
+
+    class CustomAdapter extends BaseAdapter {
+
+        List<StringIntPair> pairs;
+
+        CustomAdapter(List<StringIntPair> pairs){
+            this.pairs = pairs;
+        }
+
+        @Override
+        public int getCount() {
+            return pairs.size()+1;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if(position == pairs.size()){
+                convertView = getLayoutInflater().inflate(R.layout.list_view_elem_show_more_btn, null);
+                return convertView;
+            }
+
+            convertView = getLayoutInflater().inflate(R.layout.list_view_elem_person_frequency, null);
+
+            TextView titleTV = convertView.findViewById(R.id.personFreqElemTitleTV);
+            TextView valueTV = convertView.findViewById(R.id.personFreqElemFreqTV);
+
+            titleTV.setText(pairs.get(position).getword());
+            valueTV.setText(pairs.get(position).getFrequency() + "");
+
+            return convertView;
+        }
     }
 }
