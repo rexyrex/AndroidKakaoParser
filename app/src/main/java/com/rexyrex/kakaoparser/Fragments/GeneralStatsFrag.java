@@ -1,13 +1,18 @@
 package com.rexyrex.kakaoparser.Fragments;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager.widget.ViewPager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -92,6 +97,24 @@ public class GeneralStatsFrag extends Fragment {
 
         CustomAdapter customAdapter = new CustomAdapter(pairs);
         generalStatsLV.setAdapter(customAdapter);
+
+        generalStatsLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(position==0){
+                    ViewPager vp = GeneralStatsFrag.this.getActivity().findViewById(R.id.view_pager);
+                    vp.setCurrentItem(1);
+                }
+                if(position==1){
+                    ViewPager vp = GeneralStatsFrag.this.getActivity().findViewById(R.id.view_pager);
+                    vp.setCurrentItem(3);
+                }
+                if(position==3){
+                    ViewPager vp = GeneralStatsFrag.this.getActivity().findViewById(R.id.view_pager);
+                    vp.setCurrentItem(2);
+                }
+            }
+        });
 
         return view;
     }

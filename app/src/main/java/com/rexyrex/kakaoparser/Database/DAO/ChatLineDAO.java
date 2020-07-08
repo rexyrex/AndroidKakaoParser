@@ -71,6 +71,6 @@ public interface ChatLineDAO {
     @Query("SELECT * FROM tb_chat_line WHERE instr(content, :word)")
     public List<ChatLineModel> getChatLinesContainingWord(String word);
 
-    @Query("SELECT * FROM tb_chat_line WHERE id < :id+20 AND id > :id-20")
+    @Query("SELECT * FROM tb_chat_line WHERE id < :id+30 AND id > :id-30")
     public List<ChatLineModel> getSurroundingChatLines(int id);
 }

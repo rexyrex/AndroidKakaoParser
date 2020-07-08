@@ -49,7 +49,7 @@ public class DialogUtils {
 
         ChatListAdapter cla = new ChatListAdapter(clm);
         chatLV.setAdapter(cla);
-        //chatLV.setSelection(clm.size()-1);
+        chatLV.setSelection((int)(clm.size()/2 - 5));
         //chatLV.smoothScrollToPosition(clm.size()-1);
 
         AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(context, R.style.PopupStyleLight);
