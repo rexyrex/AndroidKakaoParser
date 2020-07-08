@@ -1,0 +1,167 @@
+package com.rexyrex.kakaoparser.Utils;
+
+import android.app.Activity;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+
+import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
+import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
+import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.Entities.ChatLine;
+import com.rexyrex.kakaoparser.R;
+
+import java.text.SimpleDateFormat;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+
+public class DialogUtils {
+    Context context;
+    List<ChatLineModel> clm;
+    String author;
+    AlertDialog dialog;
+
+    public DialogUtils(Context context, List<ChatLineModel> clm, String author){
+        this.context = context;
+        this.clm = clm;
+        this.author = author;
+    }
+
+    public DialogUtils(Context context, List<ChatLineModel> clm){
+        this.context = context;
+        this.clm = clm;
+        this.author = "회원님";
+    }
+
+    public void openDialog(){
+        View view = (LayoutInflater.from(context)).inflate(R.layout.chat_snippet, null);
+        ListView chatLV = view.findViewById(R.id.chatSnippetLV);
+
+        ChatListAdapter cla = new ChatListAdapter(clm);
+        chatLV.setAdapter(cla);
+        chatLV.setSelection(clm.size()-1);
+
+        AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(context, R.style.PopupStyleLight);
+        rexAlertBuilder.setView(view);
+        rexAlertBuilder.setCancelable(true);
+        dialog = rexAlertBuilder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.show();
+    }
+
+    public void closeDialog(){
+        dialog.cancel();
+    }
+
+    class ChatListAdapter extends BaseAdapter {
+        List<ChatLineModel> wordFreqArrList;
+        int dayCount = 0;
+        HashSet<String> parsedDaySet;
+        boolean[] showDateSepArr;
+        int[] daysPassedArr;
+
+        ChatListAdapter(List<ChatLineModel> wordFreqArrList){
+            parsedDaySet = new HashSet<>();
+            this.wordFreqArrList = wordFreqArrList;
+
+            HashSet<String> daySet = new HashSet<>();
+
+            for(int i=0; i<wordFreqArrList.size(); i++){
+                ChatLineModel clm = wordFreqArrList.get(i);
+                if(!daySet.contains(clm.getDateDayString())){
+                    dayCount++;
+                    daySet.add(clm.getDateDayString());
+                }
+            }
+
+            showDateSepArr = new boolean[wordFreqArrList.size() + dayCount];
+            daysPassedArr = new int[wordFreqArrList.size()+ dayCount];
+
+            for(int i=0; i<showDateSepArr.length; i++){
+                showDateSepArr[i] = false;
+            }
+
+            HashSet<String> daySet2 = new HashSet<>();
+            int dayCounter = 0;
+            for(int i=0; i<wordFreqArrList.size(); i++){
+                if(!daySet2.contains(wordFreqArrList.get(i).getDateDayString())){
+                    daySet2.add(wordFreqArrList.get(i).getDateDayString());
+                    showDateSepArr[i+dayCounter] = true;
+                    dayCounter++;
+                }
+            }
+
+            int tmp = 0;
+            for(int i=0; i<showDateSepArr.length; i++){
+                if(showDateSepArr[i]){
+                    tmp++;
+                }
+                daysPassedArr[i] = tmp;
+            }
+
+        }
+
+        @Override
+        public int getCount() {
+            return wordFreqArrList.size() + dayCount;
+            //return wordFreqArrList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Activity activity = (Activity) context;
+            TextView sentenceTV;
+            TextView dateTV;
+
+            //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd\na h:mm", Locale.KOREAN);
+            SimpleDateFormat sdf = new SimpleDateFormat("a h:mm", Locale.KOREAN);
+            //Date separator
+            if(showDateSepArr[position]){
+                convertView = activity.getLayoutInflater().inflate(R.layout.chat_list_elem_date_separator, null);
+                TextView dateSepTV = convertView.findViewById(R.id.chatListElemDateSeparatorTV);
+                ChatLineModel prevModel = null;
+                if(position == 0){
+                    prevModel = wordFreqArrList.get(0);
+                } else {
+                    prevModel = wordFreqArrList.get(position - daysPassedArr[position]+1);
+                }
+                dateSepTV.setText(prevModel.getDateDayString());
+                return convertView;
+            }
+
+            ChatLineModel clm = wordFreqArrList.get(position==0?0 : position - daysPassedArr[position]);
+            if(clm.getAuthor().equals(author)){
+                //outgoing msg
+                convertView = activity.getLayoutInflater().inflate(R.layout.chat_list_elem_outgoing, null);
+                sentenceTV = convertView.findViewById(R.id.outgoingChatContentTV);
+                dateTV = convertView.findViewById(R.id.outgoingChatDateTV);
+            } else {
+                //Incoming msg
+                convertView = activity.getLayoutInflater().inflate(R.layout.chat_list_elem_incoming, null);
+                sentenceTV = convertView.findViewById(R.id.incomingChatContentTV);
+                dateTV = convertView.findViewById(R.id.incomingChatDateTV);
+            }
+            sentenceTV.setText(clm.getContent());
+            dateTV.setText(sdf.format(clm.getDate()));
+            return convertView;
+        }
+    }
+}

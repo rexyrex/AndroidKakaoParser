@@ -12,7 +12,7 @@ import java.util.Date;
 @Entity(tableName = "tb_chat_line")
 @TypeConverters(DateConverter.class)
 public class ChatLineModel {
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     @NonNull
     private int id;
     private String author;
@@ -24,7 +24,8 @@ public class ChatLineModel {
 
     }
 
-    public ChatLineModel(Date date, String dateDayString, String author, String content){
+    public ChatLineModel(int id, Date date, String dateDayString, String author, String content){
+        this.id = id;
         this.date = date;
         this.dateDayString = dateDayString;
         this.author = author;

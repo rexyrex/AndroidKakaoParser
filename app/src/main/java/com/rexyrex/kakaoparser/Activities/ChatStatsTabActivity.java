@@ -142,6 +142,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
                 SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 (E)");
 
+                int lineId = 0;
+
                 Date date = null;
                 String person = null;
                 String chat = null;
@@ -172,14 +174,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                         String dateKey = format.format(date);
 
-                        chatLineModelArrayList.add(new ChatLineModel(date, dateKey, person, chat));
-
+                        chatLineModelArrayList.add(new ChatLineModel(lineId, date, dateKey, person, chat));
                         String[] splitWords = chat.split(" ");
                         for(int w=0; w<splitWords.length; w++){
                             if(splitWords[w].length()>0){
-                                wordModelArrayList.add(new WordModel(date, person, splitWords[w]));
+                                wordModelArrayList.add(new WordModel(lineId, date, person, splitWords[w]));
                             }
                         }
+                        lineId++;
                     }
                 }
 

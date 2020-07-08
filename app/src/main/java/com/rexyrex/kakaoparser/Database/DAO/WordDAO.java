@@ -6,6 +6,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 
@@ -48,4 +49,8 @@ public interface WordDAO {
     //get user-frequency mapping of given word
     @Query("SELECT DISTINCT(author) AS word, COUNT(*) AS frequency FROM tb_word WHERE word = :searchTerm GROUP BY author ORDER BY frequency desc")
     public List<StringIntPair> getFreqWordListSearchByAuthor(String searchTerm);
+
+    //get lines containing word
+    @Query("SELECT * FROM tb_chat_line WHERE id IN (SELECT lineId FROM tb_word WHERE word = :word)")
+    public List<ChatLineModel> getChatLinesContainingWord(String word);
 }

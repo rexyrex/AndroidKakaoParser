@@ -9,30 +9,30 @@
     >
 
     <ImageView
-        android:id="@+id/outgoingChatProfileIV"
+        android:id="@+id/incomingChatProfileIV"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/avatar0" />
 
     <TextView
-        android:id="@+id/outgoingChatContentTV"
+        android:id="@+id/incomingChatContentTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/chat_bubble_outgoing"
+        android:background="@drawable/chat_bubble_incoming"
         android:maxWidth="300dp"
         android:text="TextView Blah \nblahblah"
-        app:layout_constraintEnd_toStartOf="@+id/outgoingChatProfileIV"
-        app:layout_constraintTop_toTopOf="@+id/outgoingChatProfileIV" />
+        app:layout_constraintStart_toEndOf="@+id/incomingChatProfileIV"
+        app:layout_constraintTop_toTopOf="@+id/incomingChatProfileIV" />
 
     <TextView
-        android:id="@+id/outgoingChatDateTV"
+        android:id="@+id/incomingChatDateTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
         android:textSize="8sp"
-        app:layout_constraintBottom_toBottomOf="@+id/outgoingChatContentTV"
-        app:layout_constraintEnd_toStartOf="@+id/outgoingChatContentTV" />
+        app:layout_constraintBottom_toBottomOf="@+id/incomingChatContentTV"
+        app:layout_constraintStart_toEndOf="@+id/incomingChatContentTV" />
 </androidx.constraintlayout.widget.ConstraintLayout>

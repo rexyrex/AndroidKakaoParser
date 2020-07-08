@@ -10,13 +10,15 @@ import com.rexyrex.kakaoparser.Database.Converters.DateConverter;
 
 import java.util.Date;
 
-@Entity(tableName = "tb_word")
+@Entity(tableName = "tb_word", foreignKeys = @ForeignKey(entity = ChatLineModel.class, parentColumns = "id", childColumns = "lineId", onDelete = ForeignKey.CASCADE))
 @TypeConverters(DateConverter.class)
 public class WordModel {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull
     private int id;
+
+    private int lineId;
 
     private Date date;
     private String author;
@@ -26,10 +28,19 @@ public class WordModel {
 
     }
 
-    public WordModel(Date date, String author, String word){
+    public WordModel(int lineId, Date date, String author, String word){
+        this.lineId = lineId;
         this.date = date;
         this.author = author;
         this.word = word;
+    }
+
+    public int getLineId() {
+        return lineId;
+    }
+
+    public void setLineId(int lineId) {
+        this.lineId = lineId;
     }
 
     public int getId() {

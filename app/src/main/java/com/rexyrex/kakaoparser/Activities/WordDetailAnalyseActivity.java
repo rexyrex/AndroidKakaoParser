@@ -28,9 +28,12 @@ import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.ChatLine;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.DialogUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -65,25 +68,15 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         titleTV.setText(word+"");
         freqTV.setText(wordDao.getFreqWordListSearch(word).getFrequency() + "회");
 
-        WordListAdapter ca = new WordListAdapter(chatLineDao.getChatLinesContainingWord(word));
+        WordListAdapter ca = new WordListAdapter(wordDao.getChatLinesContainingWord(word));
         chatLinesLV.setAdapter(ca);
 
 
         chatLinesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View viewz, int position, long id) {
-                View view = (LayoutInflater.from(WordDetailAnalyseActivity.this)).inflate(R.layout.chat_snippet, null);
-                ListView chatLV = view.findViewById(R.id.chatSnippetLV);
-
-                ChatListAdapter cla = new ChatListAdapter(chatLineDao.getChatLinesContainingWord(word));
-                chatLV.setAdapter(cla);
-
-                AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(WordDetailAnalyseActivity.this, R.style.PopupStyleLight);
-                rexAlertBuilder.setView(view);
-                rexAlertBuilder.setCancelable(true);
-                final AlertDialog dialog = rexAlertBuilder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+                DialogUtils du = new DialogUtils(WordDetailAnalyseActivity.this, chatLineDao.getChatLinesContainingWord(word));
+                du.openDialog();
             }
         });
 
@@ -92,38 +85,6 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         freqPieChart.spin(500, freqPieChart.getRotationAngle(), freqPieChart.getRotationAngle() + 180, Easing.EaseInOutCubic);
     }
 
-    class ChatListAdapter extends BaseAdapter {
-        List<ChatLineModel> wordFreqArrList;
-
-        ChatListAdapter(List<ChatLineModel> wordFreqArrList){
-            this.wordFreqArrList = wordFreqArrList;
-        }
-
-        @Override
-        public int getCount() {
-            return wordFreqArrList.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            convertView = getLayoutInflater().inflate(R.layout.chat_list_elem_outgoing, null);
-            TextView sentenceTV = convertView.findViewById(R.id.outgoingChatContentTV);
-
-            sentenceTV.setText(wordFreqArrList.get(position).getContent());
-
-            return convertView;
-        }
-    }
 
     class WordListAdapter extends BaseAdapter {
         List<ChatLineModel> wordFreqArrList;
