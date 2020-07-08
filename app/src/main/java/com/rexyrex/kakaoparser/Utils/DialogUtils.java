@@ -11,11 +11,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
-import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
-import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
-import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
-import com.rexyrex.kakaoparser.Entities.ChatLine;
 import com.rexyrex.kakaoparser.R;
 
 import java.text.SimpleDateFormat;
@@ -29,6 +25,8 @@ public class DialogUtils {
     String author;
     AlertDialog dialog;
 
+    ChatLineModel highlightChatLine;
+
     public DialogUtils(Context context, List<ChatLineModel> clm, String author){
         this.context = context;
         this.clm = clm;
@@ -41,13 +39,18 @@ public class DialogUtils {
         this.author = "회원님";
     }
 
+    public void setHighlightText(ChatLineModel clm){
+        highlightChatLine = clm;
+    }
+
     public void openDialog(){
         View view = (LayoutInflater.from(context)).inflate(R.layout.chat_snippet, null);
         ListView chatLV = view.findViewById(R.id.chatSnippetLV);
 
         ChatListAdapter cla = new ChatListAdapter(clm);
         chatLV.setAdapter(cla);
-        chatLV.setSelection(clm.size()-1);
+        //chatLV.setSelection(clm.size()-1);
+        //chatLV.smoothScrollToPosition(clm.size()-1);
 
         AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(context, R.style.PopupStyleLight);
         rexAlertBuilder.setView(view);
@@ -67,6 +70,7 @@ public class DialogUtils {
         HashSet<String> parsedDaySet;
         boolean[] showDateSepArr;
         int[] daysPassedArr;
+        boolean[] isNewMsg;
 
         ChatListAdapter(List<ChatLineModel> wordFreqArrList){
             parsedDaySet = new HashSet<>();
@@ -107,6 +111,16 @@ public class DialogUtils {
                 daysPassedArr[i] = tmp;
             }
 
+            isNewMsg = new boolean[wordFreqArrList.size()];
+            isNewMsg[0] = true;
+            for(int i=1; i<isNewMsg.length; i++){
+                if(wordFreqArrList.get(i-1).getAuthor().equals(wordFreqArrList.get(i).getAuthor())){
+                    isNewMsg[i] = false;
+                } else {
+                    isNewMsg[i] = true;
+                }
+            }
+
         }
 
         @Override
@@ -130,6 +144,7 @@ public class DialogUtils {
             Activity activity = (Activity) context;
             TextView sentenceTV;
             TextView dateTV;
+            TextView authorTV;
 
             //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd\na h:mm", Locale.KOREAN);
             SimpleDateFormat sdf = new SimpleDateFormat("a h:mm", Locale.KOREAN);
@@ -150,17 +165,41 @@ public class DialogUtils {
             ChatLineModel clm = wordFreqArrList.get(position==0?0 : position - daysPassedArr[position]);
             if(clm.getAuthor().equals(author)){
                 //outgoing msg
-                convertView = activity.getLayoutInflater().inflate(R.layout.chat_list_elem_outgoing, null);
-                sentenceTV = convertView.findViewById(R.id.outgoingChatContentTV);
-                dateTV = convertView.findViewById(R.id.outgoingChatDateTV);
+
+                //should show author name (new author)
+                if(!isNewMsg[position==0?0 : position - daysPassedArr[position]]){
+                    convertView = activity.getLayoutInflater().inflate(R.layout.chat_list_elem_outgoing, null);
+                    sentenceTV = convertView.findViewById(R.id.outgoingChatContentTV);
+                    dateTV = convertView.findViewById(R.id.outgoingChatDateTV);
+                } else {
+                    convertView = activity.getLayoutInflater().inflate(R.layout.chat_list_elem_outgoing_new, null);
+                    sentenceTV = convertView.findViewById(R.id.outgoingNewChatContentTV);
+                    dateTV = convertView.findViewById(R.id.outgoingNewChatDateTV);
+                    authorTV = convertView.findViewById(R.id.outgoingNewChatAuthorTV);
+                    authorTV.setText(clm.getAuthor());
+                }
             } else {
                 //Incoming msg
-                convertView = activity.getLayoutInflater().inflate(R.layout.chat_list_elem_incoming, null);
-                sentenceTV = convertView.findViewById(R.id.incomingChatContentTV);
-                dateTV = convertView.findViewById(R.id.incomingChatDateTV);
+                if(!isNewMsg[position==0?0 : position - daysPassedArr[position]]){
+                    convertView = activity.getLayoutInflater().inflate(R.layout.chat_list_elem_incoming, null);
+                    sentenceTV = convertView.findViewById(R.id.incomingChatContentTV);
+                    dateTV = convertView.findViewById(R.id.incomingChatDateTV);
+                } else {
+                    convertView = activity.getLayoutInflater().inflate(R.layout.chat_list_elem_incoming_new, null);
+                    sentenceTV = convertView.findViewById(R.id.incomingNewChatContentTV);
+                    dateTV = convertView.findViewById(R.id.incomingNewChatDateTV);
+                    authorTV = convertView.findViewById(R.id.incomingNewChatAuthorTV);
+                    authorTV.setText(clm.getAuthor());
+                }
             }
             sentenceTV.setText(clm.getContent());
             dateTV.setText(sdf.format(clm.getDate()));
+
+            //highlight
+            if(highlightChatLine!=null && highlightChatLine.getId() == clm.getId()){
+                sentenceTV.setBackground(context.getDrawable(R.drawable.chat_bubble_highlight));
+            }
+
             return convertView;
         }
     }

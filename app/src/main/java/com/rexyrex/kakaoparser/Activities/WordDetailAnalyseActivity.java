@@ -1,18 +1,15 @@
 package com.rexyrex.kakaoparser.Activities;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
@@ -24,18 +21,13 @@ import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
-import com.rexyrex.kakaoparser.Entities.ChatData;
-import com.rexyrex.kakaoparser.Entities.ChatLine;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.DialogUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 public class WordDetailAnalyseActivity extends AppCompatActivity {
     TextView titleTV;
@@ -73,11 +65,11 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         WordListAdapter ca = new WordListAdapter(popupChatLineList);
         chatLinesLV.setAdapter(ca);
 
-
         chatLinesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View viewz, int position, long id) {
                 DialogUtils du = new DialogUtils(WordDetailAnalyseActivity.this, chatLineDao.getSurroundingChatLines(popupChatLineList.get(position).getId()));
+                du.setHighlightText(popupChatLineList.get(position));
                 du.openDialog();
             }
         });

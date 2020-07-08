@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             app:tabIndicator="@drawable/custom_tab"
-            app:tabIndicatorAnimationDuration="300"
+            app:tabIndicatorAnimationDuration="120"
             app:tabIndicatorColor="@color/colorAccent"
             app:tabIndicatorGravity="stretch"
             app:tabSelectedTextColor="@color/textColor1"
