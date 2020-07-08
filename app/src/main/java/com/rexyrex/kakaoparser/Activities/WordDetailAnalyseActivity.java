@@ -48,6 +48,7 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
     private WordDAO wordDao;
 
     public static HashMap<String, Integer> wordFreqMap;
+    List<ChatLineModel> popupChatLineList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +69,15 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         titleTV.setText(word+"");
         freqTV.setText(wordDao.getFreqWordListSearch(word).getFrequency() + "회");
 
-        WordListAdapter ca = new WordListAdapter(wordDao.getChatLinesContainingWord(word));
+        popupChatLineList = wordDao.getChatLinesContainingWord(word);
+        WordListAdapter ca = new WordListAdapter(popupChatLineList);
         chatLinesLV.setAdapter(ca);
 
 
         chatLinesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View viewz, int position, long id) {
-                DialogUtils du = new DialogUtils(WordDetailAnalyseActivity.this, chatLineDao.getChatLinesContainingWord(word));
+                DialogUtils du = new DialogUtils(WordDetailAnalyseActivity.this, chatLineDao.getSurroundingChatLines(popupChatLineList.get(position).getId()));
                 du.openDialog();
             }
         });
