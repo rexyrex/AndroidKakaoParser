@@ -60,13 +60,26 @@ public class DialogUtils {
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
+
+
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                chatLV.smoothScrollToPosition((int)(clm.size()/2 + 10));
+                chatLV.smoothScrollToPosition((int)(getHighlightPos() + 5));
             }
         }, 300);
+    }
+
+    public int getHighlightPos(){
+        //get position of highlight
+        int hPos = 0;
+        for(int i=0; i<clm.size(); i++){
+            if(clm.get(i).getId() == highlightChatLine.getId()){
+                return i;
+            }
+        }
+        return 0;
     }
 
     public void closeDialog(){
