@@ -2,6 +2,8 @@ package com.rexyrex.kakaoparser.Utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,12 +47,11 @@ public class DialogUtils {
 
     public void openDialog(){
         View view = (LayoutInflater.from(context)).inflate(R.layout.chat_snippet, null);
-        ListView chatLV = view.findViewById(R.id.chatSnippetLV);
+        final ListView chatLV = view.findViewById(R.id.chatSnippetLV);
 
         ChatListAdapter cla = new ChatListAdapter(clm);
         chatLV.setAdapter(cla);
-        chatLV.setSelection((int)(clm.size()/2 - 5));
-        //chatLV.smoothScrollToPosition(clm.size()-1);
+        //chatLV.setSelection((int)(clm.size()/2 - 5));
 
         AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(context, R.style.PopupStyleLight);
         rexAlertBuilder.setView(view);
@@ -58,6 +59,14 @@ public class DialogUtils {
         dialog = rexAlertBuilder.create();
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                chatLV.smoothScrollToPosition((int)(clm.size()/2 + 10));
+            }
+        }, 300);
     }
 
     public void closeDialog(){

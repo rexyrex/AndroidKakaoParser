@@ -149,6 +149,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 String chat = null;
 
                 Pattern p = Pattern.compile("(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2}),? (.+?) : ?(.+)");
+                Pattern onlyDateP = Pattern.compile("^(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2})$");
+                Pattern onlyNewLineP = Pattern.compile("^\\n$");
 
                 for(int i=0; i<chatLines.length; i++){
                     final int progress = (int) (((double)i/chatLines.length) * 100);
@@ -163,6 +165,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     }
 
                     Matcher m = p.matcher(chatLines[i]);
+
                     if(m.matches()){
                         try {
                             date = sdf.parse(m.group(1));
@@ -174,6 +177,31 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                         String dateKey = format.format(date);
 
+                        int entireMsgIndex = 1;
+                        while(entireMsgIndex + i < chatLines.length){
+                            Matcher nextLineMatcher = p.matcher(chatLines[i+entireMsgIndex]);
+                            Matcher onlyDateMatcher = onlyDateP.matcher(chatLines[i+entireMsgIndex]);
+                            Matcher onlyNewLineMatcher = onlyNewLineP.matcher(chatLines[i+entireMsgIndex]);
+                            //User used \n in sentence
+
+                            //check if not new msg and just new date
+//                            if(entireMsgIndex + i + 1 < chatLines.length && onlyNewLineMatcher.matches()){
+//                                Matcher onlyDateMatcher2 = onlyDateP.matcher(chatLines[i+entireMsgIndex+1]);
+//                                if(onlyDateMatcher2.matches()){
+//                                    break;
+//                                }
+//                            }
+
+                            //next line is continuation of previous line
+                            if(!nextLineMatcher.matches() && !onlyDateMatcher.matches()){
+                                //append lines to chatline content
+                                chat += '\n' + chatLines[i+entireMsgIndex];
+                            } else {
+                                break;
+                            }
+                            entireMsgIndex++;
+                        }
+
                         chatLineModelArrayList.add(new ChatLineModel(lineId, date, dateKey, person, chat));
                         String[] splitWords = chat.split(" ");
                         for(int w=0; w<splitWords.length; w++){
@@ -183,6 +211,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         }
                         lineId++;
                     }
+
+
                 }
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
