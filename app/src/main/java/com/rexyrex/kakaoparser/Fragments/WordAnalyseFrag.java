@@ -37,7 +37,6 @@ public class WordAnalyseFrag extends Fragment {
     TextView wordCountTV;
 
     private MainDatabase database;
-    private ChatLineDAO chatLineDao;
     private WordDAO wordDao;
 
     ListView wordLV;
@@ -62,7 +61,6 @@ public class WordAnalyseFrag extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             database = MainDatabase.getDatabase(getContext());
-            chatLineDao = database.getChatLineDAO();
             wordDao = database.getWordDAO();
         }
     }

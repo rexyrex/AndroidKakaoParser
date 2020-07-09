@@ -93,7 +93,14 @@ public class GeneralStatsFrag extends Fragment {
         pairs.add(new StringStringPair("분석 일 수", "" + StringParseUtils.numberCommaFormat(chatLineDao.getDayCount()+"")));
         pairs.add(new StringStringPair("분석 대화 수", "" + StringParseUtils.numberCommaFormat(chatLineDao.getCount()+"")));
         pairs.add(new StringStringPair("분석 단어 수", "" + StringParseUtils.numberCommaFormat(wordDao.getDistinctCount()+"")));
-        pairs.add(new StringStringPair("분석 소요 시간 (초)", "" + cd.getLoadElapsedSeconds()));
+        pairs.add(new StringStringPair("분석 소요 시간 (초)", "" + String.format("%.1f", cd.getLoadElapsedSeconds())));
+        pairs.add(new StringStringPair("문장 평균 단어 수", "" + String.format("%.1f", chatLineDao.getAverageWordCount())));
+        pairs.add(new StringStringPair("평균 단어 길이", "" + String.format("%.1f", wordDao.getAverageLetterCount())));
+        pairs.add(new StringStringPair("링크 개수", "" + StringParseUtils.numberCommaFormat(wordDao.getLinkCount()+"")));
+        pairs.add(new StringStringPair("사진 개수", "" + StringParseUtils.numberCommaFormat(wordDao.getPicCount()+"")));
+        pairs.add(new StringStringPair("동영상 개수", "" + StringParseUtils.numberCommaFormat(wordDao.getVideoCount()+"")));
+        pairs.add(new StringStringPair("PPT 개수", "" + StringParseUtils.numberCommaFormat(wordDao.getPowerpointCount()+"")));
+        pairs.add(new StringStringPair("삭제된 메시지", "" + StringParseUtils.numberCommaFormat(chatLineDao.getDeletedMsgCount()+"")));
 
         CustomAdapter customAdapter = new CustomAdapter(pairs);
         generalStatsLV.setAdapter(customAdapter);

@@ -30,7 +30,7 @@
         android:fontFamily="@font/nanum_square_round_r"
         android:text="100번"
         android:textColor="@color/design_default_color_error"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/personFreqElemTitleTV"
         app:layout_constraintEnd_toEndOf="parent"

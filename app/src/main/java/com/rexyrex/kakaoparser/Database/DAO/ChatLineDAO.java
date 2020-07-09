@@ -73,4 +73,19 @@ public interface ChatLineDAO {
 
     @Query("SELECT * FROM tb_chat_line WHERE id < :id+30 AND id > :id-30")
     public List<ChatLineModel> getSurroundingChatLines(int id);
+
+    @Query("SELECT AVG(wordCount) FROM tb_chat_line")
+    public double getAverageWordCount();
+
+    //get frequency by day between two dates
+    @Query("SELECT COUNT(*) as frequency, dateDayOfWeekString as word FROM tb_chat_line GROUP BY dateDayOfWeekString")
+    public List<StringIntPair> getFreqByDayOfWeek();
+
+    //get max frequency by dayOfWeek
+    @Query("SELECT COUNT(*) as frequency FROM tb_chat_line GROUP BY dateDayOfWeekString ORDER BY frequency desc LIMIT 1")
+    public int getMaxFreqDayOfWeek();
+
+    //get deleted msgs count
+    @Query("SELECT COUNT(*) FROM tb_chat_line WHERE content = '삭제된 메시지입니다.'")
+    public int getDeletedMsgCount();
 }

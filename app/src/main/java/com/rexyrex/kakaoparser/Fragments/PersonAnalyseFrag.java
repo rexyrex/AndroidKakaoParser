@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Fragments;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -24,6 +26,9 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
+import com.rexyrex.kakaoparser.Activities.MainActivity;
+import com.rexyrex.kakaoparser.Activities.PersonListActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
@@ -122,7 +127,9 @@ public class PersonAnalyseFrag extends Fragment {
 
         ListView freqLV = view.findViewById(R.id.pafPersonFreqLV);
 
-        CustomAdapter customAdapter = new CustomAdapter(chatLineDao.getTop10Chatters());
+        int totalCount = chatLineDao.getCount();
+
+        CustomAdapter customAdapter = new CustomAdapter(chatLineDao.getTop10Chatters(), totalCount);
         freqLV.setAdapter(customAdapter);
 
         return view;
@@ -139,12 +146,11 @@ public class PersonAnalyseFrag extends Fragment {
 
         ArrayList chatAmountArrayList = new ArrayList();
         ArrayList chatNicknameArrayList = new ArrayList();
-        int tmpIndex = 0;
+        int totalCount = chatLineDao.getCount();
 
         for(StringIntPair chatter : chatters){
-            chatAmountArrayList.add(new PieEntry(chatter.getFrequency(),chatter.getword()));
+            chatAmountArrayList.add(new PieEntry(chatter.getFrequency(),chatter.getword() + "(" + String.format("%.1f", (double)chatter.getFrequency()/totalCount*100) + "%)"));
             chatNicknameArrayList.add(chatter);
-            tmpIndex++;
         }
         PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "채팅 비율");
 
@@ -174,9 +180,11 @@ public class PersonAnalyseFrag extends Fragment {
     class CustomAdapter extends BaseAdapter {
 
         List<StringIntPair> pairs;
+        int totalCount;
 
-        CustomAdapter(List<StringIntPair> pairs){
+        CustomAdapter(List<StringIntPair> pairs, int totalCount){
             this.pairs = pairs;
+            this.totalCount = totalCount;
         }
 
         @Override
@@ -198,6 +206,14 @@ public class PersonAnalyseFrag extends Fragment {
         public View getView(int position, View convertView, ViewGroup parent) {
             if(position == pairs.size()){
                 convertView = getLayoutInflater().inflate(R.layout.list_view_elem_show_more_btn, null);
+                Button seeMoreBtn = convertView.findViewById(R.id.showMoreBtn);
+                seeMoreBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent moreIntent = new Intent(PersonAnalyseFrag.this.getActivity(), PersonListActivity.class);
+                        PersonAnalyseFrag.this.getActivity().startActivity(moreIntent);
+                    }
+                });
                 return convertView;
             }
 
@@ -206,8 +222,8 @@ public class PersonAnalyseFrag extends Fragment {
             TextView titleTV = convertView.findViewById(R.id.personFreqElemTitleTV);
             TextView valueTV = convertView.findViewById(R.id.personFreqElemFreqTV);
 
-            titleTV.setText(pairs.get(position).getword());
-            valueTV.setText(pairs.get(position).getFrequency() + "");
+            titleTV.setText(position+1 + ". "+ pairs.get(position).getword());
+            valueTV.setText(pairs.get(position).getFrequency() + " (" + String.format("%.1f", (double)pairs.get(position).getFrequency()/totalCount*100) + "%)");
 
             return convertView;
         }

@@ -1,9 +1,11 @@
 package com.rexyrex.kakaoparser.Activities;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
@@ -13,6 +15,7 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager.widget.ViewPager;
@@ -29,6 +32,8 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -68,6 +73,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     ChatData cd;
     ProgressBar popupPB;
+    TextView popupPBProgressTV;
     TextView loadingTextTV;
     ImageView loadingGifIV;
 
@@ -87,6 +93,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         View view = (LayoutInflater.from(ChatStatsTabActivity.this)).inflate(R.layout.horizontal_progress_popup, null);
         popupPB = view.findViewById(R.id.popupPB);
+        popupPBProgressTV = view.findViewById(R.id.popupPBProgressTV);
         loadingTextTV = view.findViewById(R.id.loadingTextTV);
         loadingGifIV = view.findViewById(R.id.loadingGifIV);
         Glide.with(this).asGif().load(R.drawable.loading1).into(loadingGifIV);
@@ -99,6 +106,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         chatLineDao = database.getChatLineDAO();
         wordDao = database.getWordDAO();
 
+        //DecelerateInterpolator ai = new DecelerateInterpolator();
+        //ai.getInterpolation(500);
+        //popupPB.setInterpolator(ai);
+
+        //popupPB.setMax(1000);
+        //ObjectAnimator progressAnimator = ObjectAnimator.ofInt(popupPB, "progress", 10000, 0);
+        //progressAnimator.start();
+
         AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(ChatStatsTabActivity.this, R.style.PopupStyle);
         rexAlertBuilder.setView(view);
         rexAlertBuilder.setCancelable(false);
@@ -109,7 +124,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         cd = ChatData.getInstance();
         final File chatFile = cd.getChatFile();
 
-        @SuppressLint("StaticFieldLeak") AsyncTask<String, Void, String> statsTask = new AsyncTask<String, Void, String>() {
+        AsyncTask<String, Void, String> statsTask = new AsyncTask<String, Void, String>() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
@@ -141,6 +156,10 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
                 SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 (E)");
+                SimpleDateFormat monthFormat = new SimpleDateFormat("yyyy년 M월");
+                SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy년");
+                SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat("E");
+                SimpleDateFormat hourOfDayFormat = new SimpleDateFormat("H");
 
                 int lineId = 0;
 
@@ -152,14 +171,24 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 Pattern onlyDateP = Pattern.compile("^(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2})$");
                 Pattern onlyNewLineP = Pattern.compile("^\\n$");
 
+                //Array to keep track of progress bar updates (improve performance)
+                boolean[] progressBools = new boolean[101];
+
+                for(int i=0; i<progressBools.length; i++){
+                    progressBools[i] = false;
+                }
+
                 for(int i=0; i<chatLines.length; i++){
                     final int progress = (int) (((double)i/chatLines.length) * 100);
 
-                    if(progress % 2 == 0){
+                    if(!progressBools[progress]){
+                        progressBools[progress] = true;
                         ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
                             public void run() {
-                                popupPB.setProgress( progress);
+                                popupPBProgressTV.setText(progress + "%");
+                                popupPB.setProgress( progress, true);
                             }
                         });
                     }
@@ -175,22 +204,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         person = m.group(2);
                         chat = m.group(3);
 
-                        String dateKey = format.format(date);
-
                         int entireMsgIndex = 1;
                         while(entireMsgIndex + i < chatLines.length){
                             Matcher nextLineMatcher = p.matcher(chatLines[i+entireMsgIndex]);
                             Matcher onlyDateMatcher = onlyDateP.matcher(chatLines[i+entireMsgIndex]);
-                            Matcher onlyNewLineMatcher = onlyNewLineP.matcher(chatLines[i+entireMsgIndex]);
                             //User used \n in sentence
-
-                            //check if not new msg and just new date
-//                            if(entireMsgIndex + i + 1 < chatLines.length && onlyNewLineMatcher.matches()){
-//                                Matcher onlyDateMatcher2 = onlyDateP.matcher(chatLines[i+entireMsgIndex+1]);
-//                                if(onlyDateMatcher2.matches()){
-//                                    break;
-//                                }
-//                            }
 
                             //next line is continuation of previous line
                             if(!nextLineMatcher.matches() && !onlyDateMatcher.matches()){
@@ -201,23 +219,40 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                             }
                             entireMsgIndex++;
                         }
+                        String[] splitWords = chat.split("\\s");
 
-                        chatLineModelArrayList.add(new ChatLineModel(lineId, date, dateKey, person, chat));
-                        String[] splitWords = chat.split(" ");
+                        String dayKey = format.format(date);
+                        String monthKey = monthFormat.format(date);
+                        String yearKey = yearFormat.format(date);
+                        String dayOfWeekKey = dayOfWeekFormat.format(date);
+                        String hourOfDayKey = hourOfDayFormat.format(date);
+
+                        chatLineModelArrayList.add(
+                                new ChatLineModel(lineId, date, dayKey,
+                                        monthKey, yearKey, dayOfWeekKey,
+                                        hourOfDayKey, person, chat, splitWords.length));
+
                         for(int w=0; w<splitWords.length; w++){
-                            if(splitWords[w].length()>0){
-                                wordModelArrayList.add(new WordModel(lineId, date, person, splitWords[w]));
+                            String splitWord = splitWords[w];
+                            if(splitWord.length()>0){
+                                Pattern urlP = Pattern.compile("(http|https):\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?");
+                                Matcher urlMatcher = urlP.matcher(splitWord);
+                                int letterCount = splitWord.length();
+                                boolean isLink = urlMatcher.matches();
+                                boolean isPic = splitWord.matches(".+(\\.jpg|\\.jpeg|\\.png)$");
+                                boolean isVideo = splitWord.matches(".+(\\.avi|\\.mov|\\.mkv)$");
+                                boolean isPowerpoint = splitWord.matches(".+(\\.ppt|\\.pptx)$");
+                                wordModelArrayList.add(new WordModel(lineId, date, person, splitWords[w], isLink, isPic, isVideo, isPowerpoint, letterCount));
                             }
                         }
                         lineId++;
                     }
-
-
                 }
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        popupPBProgressTV.setVisibility(View.INVISIBLE);
                         popupPB.setVisibility(View.INVISIBLE);
                         loadingTextTV.setText("정밀 분석중...");
                         loadingGifIV.setVisibility(View.VISIBLE);

@@ -53,4 +53,19 @@ public interface WordDAO {
     //get lines containing word
     @Query("SELECT * FROM tb_chat_line WHERE id IN (SELECT lineId FROM tb_word WHERE word = :word)")
     public List<ChatLineModel> getChatLinesContainingWord(String word);
+
+    @Query("SELECT COUNT(*) FROM tb_word WHERE isPic = 1")
+    public int getPicCount();
+
+    @Query("SELECT COUNT(*) FROM tb_word WHERE isVideo = 1")
+    public int getVideoCount();
+
+    @Query("SELECT COUNT(*) FROM tb_word WHERE isLink = 1")
+    public int getLinkCount();
+
+    @Query("SELECT COUNT(*) FROM tb_word WHERE isPowerpoint = 1")
+    public int getPowerpointCount();
+
+    @Query("SELECT AVG(letterCount) FROM tb_word")
+    public double getAverageLetterCount();
 }

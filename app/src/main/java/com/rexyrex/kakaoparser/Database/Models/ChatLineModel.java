@@ -18,18 +18,71 @@ public class ChatLineModel {
     private String author;
     private Date date;
     private String dateDayString;
+    private String dateMonthString;
+    private String dateYearString;
+    private String dateDayOfWeekString;
+    private String dateHourOfDayString;
     private String content;
+    private int wordCount;
 
     public ChatLineModel(){
 
     }
 
-    public ChatLineModel(int id, Date date, String dateDayString, String author, String content){
+    public ChatLineModel(int id, Date date, String dateDayString, String dateMonthString,
+                         String dateYearString, String dateDayOfWeekString, String dateHourOfDayString,
+                         String author, String content, int wordCount){
         this.id = id;
         this.date = date;
         this.dateDayString = dateDayString;
+        this.dateMonthString = dateMonthString;
+        this.dateYearString = dateYearString;
+        this.dateDayOfWeekString = dateDayOfWeekString;
+        this.dateHourOfDayString = dateHourOfDayString;
         this.author = author;
         this.content = content;
+        this.wordCount = wordCount;
+
+    }
+
+    public String getDateMonthString() {
+        return dateMonthString;
+    }
+
+    public void setDateMonthString(String dateMonthString) {
+        this.dateMonthString = dateMonthString;
+    }
+
+    public String getDateYearString() {
+        return dateYearString;
+    }
+
+    public void setDateYearString(String dateYearString) {
+        this.dateYearString = dateYearString;
+    }
+
+    public String getDateDayOfWeekString() {
+        return dateDayOfWeekString;
+    }
+
+    public void setDateDayOfWeekString(String dateDayOfWeekString) {
+        this.dateDayOfWeekString = dateDayOfWeekString;
+    }
+
+    public String getDateHourOfDayString() {
+        return dateHourOfDayString;
+    }
+
+    public void setDateHourOfDayString(String dateHourOfDayString) {
+        this.dateHourOfDayString = dateHourOfDayString;
+    }
+
+    public int getWordCount() {
+        return wordCount;
+    }
+
+    public void setWordCount(int wordCount) {
+        this.wordCount = wordCount;
     }
 
     public int getId() {
