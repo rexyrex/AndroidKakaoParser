@@ -188,7 +188,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 popupPBProgressTV.setText(progress + "%");
-                                popupPB.setProgress( progress, true);
+                                popupPB.setProgress( progress, false);
                             }
                         });
                     }
