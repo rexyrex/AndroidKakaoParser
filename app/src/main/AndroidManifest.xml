@@ -2,12 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.rexyrex.kakaoparser">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <application
         android:allowBackup="false"
         android:alwaysRetainTaskState="true"
-        android:hardwareAccelerated="false"
         android:icon="@mipmap/kakao_ic_launcher_analyze"
         android:label="@string/app_name"
         android:largeHeap="true"
@@ -15,7 +12,8 @@
         android:roundIcon="@mipmap/kakao_ic_launcher_analyze_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.PersonListActivity"></activity>
+        <activity android:name=".Activities.ChatPeekActivity"></activity>
+        <activity android:name=".Activities.PersonListActivity" />
         <activity android:name=".Activities.WordDetailAnalyseActivity" />
         <activity
             android:name=".Activities.SplashActivity"
@@ -42,5 +40,7 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
     </application>
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 </manifest>

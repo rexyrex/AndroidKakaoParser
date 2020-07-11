@@ -32,6 +32,7 @@ import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
 import java.io.File;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +52,8 @@ public class GeneralStatsFrag extends Fragment {
     private MainDatabase database;
     private ChatLineDAO chatLineDao;
     private WordDAO wordDao;
+
+    NumberFormat numberFormat;
 
     public GeneralStatsFrag() {
         // Required empty public constructor
@@ -74,6 +77,8 @@ public class GeneralStatsFrag extends Fragment {
             database = MainDatabase.getDatabase(getContext());
             chatLineDao = database.getChatLineDAO();
             wordDao = database.getWordDAO();
+            numberFormat = NumberFormat.getInstance();
+            numberFormat.setGroupingUsed(true);
         }
     }
 
@@ -90,17 +95,17 @@ public class GeneralStatsFrag extends Fragment {
         ArrayList<StringStringPair> pairs = new ArrayList<>();
         //pairs.add(new StringStringPair("분석 기간", "" + dateRange));
         pairs.add(new StringStringPair("대화 참여 인원", ""+ chatLineDao.getChatterCount()));
-        pairs.add(new StringStringPair("분석 일 수", "" + StringParseUtils.numberCommaFormat(chatLineDao.getDayCount()+"")));
-        pairs.add(new StringStringPair("분석 대화 수", "" + StringParseUtils.numberCommaFormat(chatLineDao.getCount()+"")));
-        pairs.add(new StringStringPair("분석 단어 수", "" + StringParseUtils.numberCommaFormat(wordDao.getDistinctCount()+"")));
+        pairs.add(new StringStringPair("분석 일 수", "" + numberFormat.format(chatLineDao.getDayCount())));
+        pairs.add(new StringStringPair("분석 대화 수", "" + numberFormat.format(chatLineDao.getCount())));
+        pairs.add(new StringStringPair("분석 단어 수", "" + numberFormat.format(wordDao.getDistinctCount())));
         pairs.add(new StringStringPair("분석 소요 시간 (초)", "" + String.format("%.1f", cd.getLoadElapsedSeconds())));
         pairs.add(new StringStringPair("문장 평균 단어 수", "" + String.format("%.1f", chatLineDao.getAverageWordCount())));
         pairs.add(new StringStringPair("평균 단어 길이", "" + String.format("%.1f", wordDao.getAverageLetterCount())));
-        pairs.add(new StringStringPair("링크 개수", "" + StringParseUtils.numberCommaFormat(wordDao.getLinkCount()+"")));
-        pairs.add(new StringStringPair("사진 개수", "" + StringParseUtils.numberCommaFormat(wordDao.getPicCount()+"")));
-        pairs.add(new StringStringPair("동영상 개수", "" + StringParseUtils.numberCommaFormat(wordDao.getVideoCount()+"")));
-        pairs.add(new StringStringPair("PPT 개수", "" + StringParseUtils.numberCommaFormat(wordDao.getPowerpointCount()+"")));
-        pairs.add(new StringStringPair("삭제된 메시지", "" + StringParseUtils.numberCommaFormat(chatLineDao.getDeletedMsgCount()+"")));
+        pairs.add(new StringStringPair("링크 개수", "" + numberFormat.format(wordDao.getLinkCount())));
+        pairs.add(new StringStringPair("사진 개수", "" + numberFormat.format(wordDao.getPicCount())));
+        pairs.add(new StringStringPair("동영상 개수", "" + numberFormat.format(wordDao.getVideoCount())));
+        pairs.add(new StringStringPair("PPT 개수", "" + numberFormat.format(wordDao.getPowerpointCount())));
+        pairs.add(new StringStringPair("삭제된 메시지", "" + numberFormat.format(chatLineDao.getDeletedMsgCount())));
 
         CustomAdapter customAdapter = new CustomAdapter(pairs);
         generalStatsLV.setAdapter(customAdapter);

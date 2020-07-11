@@ -24,6 +24,7 @@ import com.rexyrex.kakaoparser.Utils.PicUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
 import java.io.File;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     File[] files;
     File[] reversedFilesArr;
     ChatData cd;
+
+    NumberFormat numberFormat;
 
     private static long lastBackAttemptTime;
 
@@ -45,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
 
         cd = ChatData.getInstance();
         lastBackAttemptTime = 0;
+
+        numberFormat = NumberFormat.getInstance();
+        numberFormat.setGroupingUsed(true);
+
 
         String folderPath = Environment.getExternalStorageDirectory()
                 + File.separator + "KakaoTalk/Chats/";
@@ -131,7 +138,9 @@ public class MainActivity extends AppCompatActivity {
             iv.setImageDrawable(titleProfilePicMap.get(title));
             tv3.setText(StringParseUtils.chatFileNameToDate(chatFiles[position].getName()));
             tv.setText(title);
-            tv2.setText(StringParseUtils.numberCommaFormat(Long.toString(chatFiles[position].length())) + " bytes");
+            //tv2.setText(StringParseUtils.numberCommaFormat(Long.toString(chatFiles[position].length())) + " bytes");
+            tv2.setText(FileParseUtils.humanReadableByteCountBin(FileParseUtils.getChatFileSize((chatFiles[position]))));
+            LogUtils.e("Size: " + FileParseUtils.humanReadableByteCountBin(FileParseUtils.getChatFileSize((chatFiles[position]))));
 
             return convertView;
         }

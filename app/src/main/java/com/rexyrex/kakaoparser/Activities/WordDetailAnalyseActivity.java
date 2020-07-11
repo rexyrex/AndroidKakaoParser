@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.Entities.ChatSnippetData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.DialogUtils;
@@ -68,9 +70,14 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         chatLinesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View viewz, int position, long id) {
-                DialogUtils du = new DialogUtils(WordDetailAnalyseActivity.this, chatLineDao.getSurroundingChatLines(popupChatLineList.get(position).getId()));
-                du.setHighlightText(popupChatLineList.get(position));
-                du.openDialog();
+//                DialogUtils du = new DialogUtils(WordDetailAnalyseActivity.this, chatLineDao.getSurroundingChatLines(popupChatLineList.get(position).getId()));
+//                du.setHighlightText(popupChatLineList.get(position));
+//                du.openDialog();
+                ChatSnippetData csd = ChatSnippetData.getInstance();
+                csd.setClm(chatLineDao.getSurroundingChatLines(popupChatLineList.get(position).getId()));
+                csd.setHighlightChatLine(popupChatLineList.get(position));
+                Intent statsIntent = new Intent(WordDetailAnalyseActivity.this, ChatPeekActivity.class);
+                WordDetailAnalyseActivity.this.startActivity(statsIntent);
             }
         });
 

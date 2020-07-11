@@ -1,63 +1,49 @@
-package com.rexyrex.kakaoparser.Utils;
+package com.rexyrex.kakaoparser.Activities;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
-import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
-
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.Entities.ChatSnippetData;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.DialogUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-public class DialogUtils {
-    Context context;
+public class ChatPeekActivity extends AppCompatActivity {
+
     List<ChatLineModel> clm;
-    String author;
-    AlertDialog dialog;
-
     ChatLineModel highlightChatLine;
+    String author;
 
-    public DialogUtils(Context context, List<ChatLineModel> clm, String author){
-        this.context = context;
-        this.clm = clm;
-        this.author = author;
-    }
+    ListView chatLV;
 
-    public DialogUtils(Context context, List<ChatLineModel> clm){
-        this.context = context;
-        this.clm = clm;
-        this.author = "회원님";
-    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat_peek);
 
-    public void setHighlightText(ChatLineModel clm){
-        highlightChatLine = clm;
-    }
+        chatLV = findViewById(R.id.chatSnippetLV);
 
-    public void openDialog(){
-        View view = (LayoutInflater.from(context)).inflate(R.layout.chat_snippet, null);
-        final ListView chatLV = view.findViewById(R.id.chatSnippetPopLV);
+        author = "회원님";
+
+        ChatSnippetData csd = ChatSnippetData.getInstance();
+        clm = csd.getClm();
+        highlightChatLine = csd.getHighlightChatLine();
 
         ChatListAdapter cla = new ChatListAdapter(clm);
         chatLV.setAdapter(cla);
-        //chatLV.setSelection((int)(clm.size()/2 - 5));
-
-        AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(context, R.style.PopupStyleLight);
-        rexAlertBuilder.setView(view);
-        rexAlertBuilder.setCancelable(true);
-        dialog = rexAlertBuilder.create();
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.show();
 
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -77,10 +63,6 @@ public class DialogUtils {
             }
         }
         return 0;
-    }
-
-    public void closeDialog(){
-        dialog.cancel();
     }
 
     class ChatListAdapter extends BaseAdapter {
@@ -160,7 +142,7 @@ public class DialogUtils {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            Activity activity = (Activity) context;
+            Activity activity = (Activity) ChatPeekActivity.this;
             TextView sentenceTV;
             TextView dateTV;
             TextView authorTV;
@@ -216,7 +198,7 @@ public class DialogUtils {
 
             //highlight
             if(highlightChatLine!=null && highlightChatLine.getId() == clm.getId()){
-                sentenceTV.setBackground(context.getDrawable(R.drawable.chat_bubble_highlight));
+                sentenceTV.setBackground(ChatPeekActivity.this.getDrawable(R.drawable.chat_bubble_highlight));
             }
 
             return convertView;

@@ -36,6 +36,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
@@ -48,11 +49,14 @@ import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
+import com.rexyrex.kakaoparser.Utils.TimeUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
 
 import java.io.File;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -92,6 +96,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     String[] chatLines;
 
+    NumberFormat numberFormat;
+
     boolean isKorean = true;
 
     @Override
@@ -116,6 +122,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         database = MainDatabase.getDatabase(this);
         chatLineDao = database.getChatLineDAO();
         wordDao = database.getWordDAO();
+
+        numberFormat = NumberFormat.getInstance();
+        numberFormat.setGroupingUsed(true);
 
         //DecelerateInterpolator ai = new DecelerateInterpolator();
         //ai.getInterpolation(500);
@@ -218,13 +227,12 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
 
                         ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                            @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
                             public void run() {
-                                double eta = elapsedSeconds / progressD - elapsedSeconds;
+                                double eta = elapsedSeconds / progressD - elapsedSeconds + 1;
                                 popupPBProgressTV.setText(progress + "%");
                                 if(showPopupPBDtl){
-                                    popupPBProgressDtlTV.setText("분석 대화 : " + tmpInd + "/" + chatLines.length + "\n분석 단어 : "+ wordModelArrayList.size() +"\n예상 소요 시간 : " + String.format("%d초", (int) eta));
+                                    popupPBProgressDtlTV.setText("분석 대화 : " + numberFormat.format(tmpInd) + " / " + numberFormat.format(chatLines.length) + "\n분석 단어 : "+ numberFormat.format(wordModelArrayList.size()) +"\n예상 소요 시간 : " + TimeUtils.getTimeLeftKorean((long)eta));
                                 }
                                 popupPB.setProgress( progress, false);
                             }
@@ -329,16 +337,32 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        popupPBProgressTV.setVisibility(View.INVISIBLE);
+                        popupPBProgressTV.setVisibility(View.GONE);
                         popupPB.setVisibility(View.INVISIBLE);
-                        popupPBProgressDtlTV.setVisibility(View.INVISIBLE);
+                        popupPBProgressDtlTV.setVisibility(View.GONE);
                         popupPBCancelBtn.setVisibility(View.GONE);
-                        loadingTextTV.setText("정밀 분석중...");
+                        loadingTextTV.setText("대화 정리... ⌛\n\n단어 정리...");
                         loadingGifIV.setVisibility(View.VISIBLE);
                     }
                 });
                 chatLineDao.insertAll(chatLineModelArrayList);
+
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadingTextTV.setText("대화 정리... ✅\n\n단어 정리... ⌛");
+                    }
+                });
+
                 wordDao.insertAll(wordModelArrayList);
+
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadingTextTV.setText("대화 정리... ✅\n\n단어 정리... ✅");
+                    }
+                });
+
                 long loadTime = System.currentTimeMillis() - loadStartTime;
                 double loadElapsedSeconds = loadTime/1000.0;
                 cd.setLoadElapsedSeconds(loadElapsedSeconds);
@@ -378,6 +402,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         popupPBCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(ChatStatsTabActivity.this, "채팅 분석이 사용자에 의해 취소됐습니다.", Toast.LENGTH_LONG).show();
                 ChatStatsTabActivity.this.finish();
             }
         });
