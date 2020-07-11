@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    >
+
+    <TextView
+        android:id="@+id/incomingNewChatContentTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/chat_bubble_incoming"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:maxWidth="300dp"
+        android:text="TextView Blah \nblahblah"
+        app:layout_constraintStart_toStartOf="@+id/incomingNewChatAuthorTV"
+        app:layout_constraintTop_toBottomOf="@+id/incomingNewChatAuthorTV" />
+
+    <TextView
+        android:id="@+id/incomingNewChatDateTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="TextView"
+        android:textSize="8sp"
+        app:layout_constraintBottom_toBottomOf="@+id/incomingNewChatContentTV"
+        app:layout_constraintStart_toEndOf="@+id/incomingNewChatContentTV" />
+
+    <TextView
+        android:id="@+id/incomingNewChatAuthorTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/nanum_square_round_b"
+        android:text="TextView"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

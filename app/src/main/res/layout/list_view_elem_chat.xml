@@ -19,7 +19,7 @@
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/generalStatsElemTitleTV"
+        android:id="@+id/elemTV3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -41,11 +41,11 @@
         android:textColor="@color/textColor1"
         android:textSize="14sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/generalStatsElemValueTV"
-        app:layout_constraintTop_toBottomOf="@+id/generalStatsElemValueTV" />
+        app:layout_constraintStart_toStartOf="@+id/elemTV1"
+        app:layout_constraintTop_toBottomOf="@+id/elemTV1" />
 
     <TextView
-        android:id="@+id/generalStatsElemValueTV"
+        android:id="@+id/elemTV1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -54,6 +54,6 @@
         android:textColor="@color/textColor1"
         android:textSize="14sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/generalStatsElemTitleTV"
-        app:layout_constraintTop_toBottomOf="@+id/generalStatsElemTitleTV" />
+        app:layout_constraintStart_toStartOf="@+id/elemTV3"
+        app:layout_constraintTop_toBottomOf="@+id/elemTV3" />
 </androidx.constraintlayout.widget.ConstraintLayout>

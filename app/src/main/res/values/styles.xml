@@ -19,6 +19,10 @@
         <item name="android:background">@color/colorPrimary</item>
     </style>
 
+    <style name="PopupStyleLight" parent="@android:style/Theme.Dialog">
+        <item name="android:background">@color/lightBrown</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
