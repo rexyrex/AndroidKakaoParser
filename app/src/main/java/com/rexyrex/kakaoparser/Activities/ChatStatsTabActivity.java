@@ -9,10 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.RequiresApi;
@@ -32,9 +28,11 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -76,6 +74,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     TextView popupPBProgressTV;
     TextView loadingTextTV;
     ImageView loadingGifIV;
+    TextView popupPBProgressDtlTV;
+    Button popupPBCancelBtn;
+    boolean showPopupPBDtl = false;
 
     SectionsPagerAdapter sectionsPagerAdapter;
     ViewPager viewPager;
@@ -85,6 +86,13 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     MainDatabase database;
     ChatLineDAO chatLineDao;
     WordDAO wordDao;
+
+    AsyncTask<String, Void, String> statsTask;
+    AlertDialog dialog;
+
+    String[] chatLines;
+
+    boolean isKorean = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +104,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         popupPBProgressTV = view.findViewById(R.id.popupPBProgressTV);
         loadingTextTV = view.findViewById(R.id.loadingTextTV);
         loadingGifIV = view.findViewById(R.id.loadingGifIV);
+        popupPBProgressDtlTV = view.findViewById(R.id.popupPBProgressDetailTV);
+        popupPBCancelBtn = view.findViewById(R.id.popupPBCancelBtn);
+
         Glide.with(this).asGif().load(R.drawable.loading1).into(loadingGifIV);
 
         viewPager = findViewById(R.id.view_pager);
@@ -116,15 +127,18 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(ChatStatsTabActivity.this, R.style.PopupStyle);
         rexAlertBuilder.setView(view);
+        //rexAlertBuilder.setTitle("대화 내용 분석중...");
         rexAlertBuilder.setCancelable(false);
-        final AlertDialog dialog = rexAlertBuilder.create();
+        dialog = rexAlertBuilder.create();
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
         cd = ChatData.getInstance();
         final File chatFile = cd.getChatFile();
 
-        AsyncTask<String, Void, String> statsTask = new AsyncTask<String, Void, String>() {
+
+        statsTask = new AsyncTask<String, Void, String>() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
@@ -149,12 +163,17 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     }
                 });
 
-                final String[] chatLines = chatStr.split("\n");
+                if(chatTitle.contains("KakaoTalk Chats with ")){
+                    isKorean = false;
+                }
+
+                chatLines = chatStr.split("\n");
 
                 final ArrayList<ChatLineModel> chatLineModelArrayList = new ArrayList<>();
                 final ArrayList<WordModel> wordModelArrayList = new ArrayList<>();
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
+                SimpleDateFormat sdfEnglish = new SimpleDateFormat("MMMM d, yyyy, h:m a", Locale.ENGLISH);
                 SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 (E)");
                 SimpleDateFormat monthFormat = new SimpleDateFormat("yyyy년 M월");
                 SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy년");
@@ -168,7 +187,10 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 String chat = null;
 
                 Pattern p = Pattern.compile("(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2}),? (.+?) : ?(.+)");
+                Pattern pEnglish = Pattern.compile("(\\w{3,9} \\d{1,2}, \\d{4}, \\d{1,2}:\\d{1,2} (?:PM|AM)), (.+?) : ?(.+)");
+
                 Pattern onlyDateP = Pattern.compile("^(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2})$");
+                Pattern onlyDatePEnlgish = Pattern.compile("^(\\w{3,9} \\d{1,2}, \\d{4}, \\d{1,2}:\\d{1,2} (?:PM|AM))$");
                 Pattern onlyNewLineP = Pattern.compile("^\\n$");
 
                 //Array to keep track of progress bar updates (improve performance)
@@ -179,35 +201,87 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 }
 
                 for(int i=0; i<chatLines.length; i++){
+
+                    if(isCancelled()){
+                        return "";
+                    }
+
                     final int progress = (int) (((double)i/chatLines.length) * 100);
+                    final double progressD = (double) (((double)i/chatLines.length));
+                    final int tmpInd = i;
 
                     if(!progressBools[progress]){
                         progressBools[progress] = true;
+
+                        long elapseedTime = System.currentTimeMillis() - loadStartTime;
+                        final double elapsedSeconds = elapseedTime/1000.0;
+
+
                         ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                             @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
                             public void run() {
+                                double eta = elapsedSeconds / progressD - elapsedSeconds;
                                 popupPBProgressTV.setText(progress + "%");
+                                if(showPopupPBDtl){
+                                    popupPBProgressDtlTV.setText("분석 대화 : " + tmpInd + "/" + chatLines.length + "\n분석 단어 : "+ wordModelArrayList.size() +"\n예상 소요 시간 : " + String.format("%d초", (int) eta));
+                                }
                                 popupPB.setProgress( progress, false);
                             }
                         });
                     }
 
-                    Matcher m = p.matcher(chatLines[i]);
+                    Matcher m = null;
+                    Matcher mEnglish = null;
+                    boolean matches;
 
-                    if(m.matches()){
-                        try {
-                            date = sdf.parse(m.group(1));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
+                    if(isKorean){
+                        m = p.matcher(chatLines[i]);
+                        matches = m.matches();
+                    } else {
+                        mEnglish = pEnglish.matcher(chatLines[i]);
+                        matches = mEnglish.matches();
+                    }
+
+                    if(matches){
+                        if(isKorean){
+                            try {
+                                date = sdf.parse(m.group(1));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            //English
+                            try {
+                                date = sdfEnglish.parse(mEnglish.group(1));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         }
-                        person = m.group(2);
-                        chat = m.group(3);
+
+                        if(isKorean){
+                            person = m.group(2);
+                            chat = m.group(3);
+                        } else {
+                            //English
+                            person = mEnglish.group(2);
+                            chat = mEnglish.group(3);
+                        }
+
 
                         int entireMsgIndex = 1;
                         while(entireMsgIndex + i < chatLines.length){
-                            Matcher nextLineMatcher = p.matcher(chatLines[i+entireMsgIndex]);
-                            Matcher onlyDateMatcher = onlyDateP.matcher(chatLines[i+entireMsgIndex]);
+                            Matcher nextLineMatcher = null;
+                            Matcher onlyDateMatcher = null;
+                            if(isKorean){
+                                nextLineMatcher = p.matcher(chatLines[i+entireMsgIndex]);
+                                onlyDateMatcher = onlyDateP.matcher(chatLines[i+entireMsgIndex]);
+                            } else {
+                                //English
+                                nextLineMatcher = pEnglish.matcher(chatLines[i+entireMsgIndex]);
+                                onlyDateMatcher = onlyDatePEnlgish.matcher(chatLines[i+entireMsgIndex]);
+                            }
+
                             //User used \n in sentence
 
                             //next line is continuation of previous line
@@ -233,6 +307,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                         hourOfDayKey, person, chat, splitWords.length));
 
                         for(int w=0; w<splitWords.length; w++){
+                            if(isCancelled()){
+                                return "";
+                            }
                             String splitWord = splitWords[w];
                             if(splitWord.length()>0){
                                 Pattern urlP = Pattern.compile("(http|https):\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?");
@@ -254,6 +331,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     public void run() {
                         popupPBProgressTV.setVisibility(View.INVISIBLE);
                         popupPB.setVisibility(View.INVISIBLE);
+                        popupPBProgressDtlTV.setVisibility(View.INVISIBLE);
+                        popupPBCancelBtn.setVisibility(View.GONE);
                         loadingTextTV.setText("정밀 분석중...");
                         loadingGifIV.setVisibility(View.VISIBLE);
                     }
@@ -279,6 +358,12 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             }
 
             @Override
+            protected void onCancelled() {
+                super.onCancelled();
+                LogUtils.e("CANCELED TASK");
+            }
+
+            @Override
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
                 dialog.cancel();
@@ -287,7 +372,41 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 tabs.setupWithViewPager(viewPager);
             }
         };
+
+
+
+        popupPBCancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ChatStatsTabActivity.this.finish();
+            }
+        });
+
+        popupPBProgressDtlTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!showPopupPBDtl){
+                    popupPBProgressDtlTV.setText("분석 대화 수 : 계산중...\n분석 단어 : 계산중...\n예상 소요 시간 : " + "계산중...");
+                }
+
+                showPopupPBDtl = true;
+                popupPBProgressDtlTV.setTextColor(Color.WHITE);
+            }
+        });
+
         statsTask.execute();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(!statsTask.isCancelled()){
+            statsTask.cancel(true);
+        }
+        dialog.cancel();
+        //chatLineDao.truncateTable();
+        //wordDao.truncateTable();
+
     }
 
     private SpannableString generateTitleSpannableText(String title, String dateRangeStr) {
