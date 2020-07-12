@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -7,14 +8,17 @@ import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
@@ -98,40 +102,56 @@ public class WordAnalyseFrag extends Fragment {
             }
         });
 
-        wordSearchET.addTextChangedListener(new TextWatcher() {
+        wordSearchET.setOnKeyListener(new View.OnKeyListener() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    String text = wordSearchET.getText().toString();
+                    search(text);
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String text = wordSearchET.getText().toString();
-                search(text);
+                    hideKeyboard();
+                    return true;
+                }
+                return false;
             }
         });
 
         return view;
     }
 
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = getActivity().getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(getActivity());
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
     public void search(String charText) {
         freqList.clear();
-        if (charText.length() == 0) {
-            freqList.addAll(wordFreqArrList);
-        } else
-        {
-            for(int i = 0;i < wordFreqArrList.size(); i++)
-            {
-                if (wordFreqArrList.get(i).getword().toLowerCase().contains(charText))
-                {
-                    freqList.add(wordFreqArrList.get(i));
-                }
-            }
+//        if (charText.length() == 0) {
+//            freqList.addAll(wordFreqArrList);
+//        } else
+//        {
+//            for(int i = 0;i < wordFreqArrList.size(); i++)
+//            {
+//                if (wordFreqArrList.get(i).getword().toLowerCase().contains(charText))
+//                {
+//                    freqList.add(wordFreqArrList.get(i));
+//                }
+//            }
+//        }
+        if(charText.length() == 0){
+            freqList.addAll(cd.getWordFreqArrList());
+        } else {
+            freqList.addAll(wordDao.searchFreqWordList(charText));
         }
+
         wordCountTV.setText("검색 결과 " + freqList.size() + "건");
         ca.notifyDataSetChanged();
     }

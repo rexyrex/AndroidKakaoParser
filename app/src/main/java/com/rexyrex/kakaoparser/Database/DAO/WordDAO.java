@@ -42,6 +42,9 @@ public interface WordDAO {
     @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word GROUP BY word ORDER BY frequency desc LIMIT 10000")
     public List<StringIntPair> getFreqWordList();
 
+    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word WHERE instr(word, :word) GROUP BY word ORDER BY frequency desc LIMIT 10000")
+    public List<StringIntPair> searchFreqWordList(String word);
+
     //get frequency of given word
     @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word WHERE word = :searchTerm GROUP BY word ORDER BY frequency desc LIMIT 1")
     public StringIntPair getFreqWordListSearch(String searchTerm);
