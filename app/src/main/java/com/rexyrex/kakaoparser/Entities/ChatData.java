@@ -1,34 +1,44 @@
 package com.rexyrex.kakaoparser.Entities;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StyleSpan;
-
-import androidx.core.content.res.ResourcesCompat;
-
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.PercentFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.rexyrex.kakaoparser.R;
-
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 public class ChatData {
 
     double loadElapsedSeconds;
     File chatFile;
+
+    int chatterCount;
+    int dayCount;
+    int chatLineCount;
+    int wordCount;
+    double avgWordCount;
+    double avgLetterCount;
+    int linkCount;
+    int picCount;
+    int videoCount;
+    int pptCount;
+    int deletedMsgCount;
+
+    List<StringIntPair> chatterFreqArrList;
+    List<StringIntPair> top10Chatters;
+    List<StringIntPair> wordFreqArrList;
+    List<StringIntPair> freqByDayOfWeek;
+    int maxFreqByDayOfWeek;
+
+    public ChatData() {
+
+    }
+
+    private static ChatData the_instance;
+    public static ChatData getInstance() {
+        if (the_instance == null) {
+            the_instance = new ChatData();
+        }
+
+        return the_instance;
+    }
+
 
     public File getChatFile() {
         return chatFile;
@@ -46,16 +56,131 @@ public class ChatData {
         this.loadElapsedSeconds = loadElapsedSeconds;
     }
 
-    public ChatData() {
-
+    public List<StringIntPair> getFreqByDayOfWeek() {
+        return freqByDayOfWeek;
     }
 
-    private static ChatData the_instance;
-    public static ChatData getInstance() {
-        if (the_instance == null) {
-            the_instance = new ChatData();
-        }
+    public void setFreqByDayOfWeek(List<StringIntPair> freqByDayOfWeek) {
+        this.freqByDayOfWeek = freqByDayOfWeek;
+    }
 
-        return the_instance;
+    public int getMaxFreqByDayOfWeek() {
+        return maxFreqByDayOfWeek;
+    }
+
+    public void setMaxFreqByDayOfWeek(int maxFreqByDayOfWeek) {
+        this.maxFreqByDayOfWeek = maxFreqByDayOfWeek;
+    }
+
+    public List<StringIntPair> getWordFreqArrList() {
+        return wordFreqArrList;
+    }
+
+    public void setWordFreqArrList(List<StringIntPair> wordFreqArrList) {
+        this.wordFreqArrList = wordFreqArrList;
+    }
+
+    public List<StringIntPair> getTop10Chatters() {
+        return top10Chatters;
+    }
+
+    public void setTop10Chatters(List<StringIntPair> top10Chatters) {
+        this.top10Chatters = top10Chatters;
+    }
+
+    public List<StringIntPair> getChatterFreqArrList() {
+        return chatterFreqArrList;
+    }
+
+    public void setChatterFreqArrList(List<StringIntPair> chatterFreqArrList) {
+        this.chatterFreqArrList = chatterFreqArrList;
+    }
+
+    public int getDayCount() {
+        return dayCount;
+    }
+
+    public void setDayCount(int dayCount) {
+        this.dayCount = dayCount;
+    }
+
+    public int getChatterCount() {
+        return chatterCount;
+    }
+
+    public void setChatterCount(int chatterCount) {
+        this.chatterCount = chatterCount;
+    }
+
+    public int getChatLineCount() {
+        return chatLineCount;
+    }
+
+    public void setChatLineCount(int chatLineCount) {
+        this.chatLineCount = chatLineCount;
+    }
+
+    public int getWordCount() {
+        return wordCount;
+    }
+
+    public void setWordCount(int wordCount) {
+        this.wordCount = wordCount;
+    }
+
+    public double getAvgWordCount() {
+        return avgWordCount;
+    }
+
+    public void setAvgWordCount(double avgWordCount) {
+        this.avgWordCount = avgWordCount;
+    }
+
+    public double getAvgLetterCount() {
+        return avgLetterCount;
+    }
+
+    public void setAvgLetterCount(double avgLetterCount) {
+        this.avgLetterCount = avgLetterCount;
+    }
+
+    public int getLinkCount() {
+        return linkCount;
+    }
+
+    public void setLinkCount(int linkCount) {
+        this.linkCount = linkCount;
+    }
+
+    public int getPicCount() {
+        return picCount;
+    }
+
+    public void setPicCount(int picCount) {
+        this.picCount = picCount;
+    }
+
+    public int getVideoCount() {
+        return videoCount;
+    }
+
+    public void setVideoCount(int videoCount) {
+        this.videoCount = videoCount;
+    }
+
+    public int getPptCount() {
+        return pptCount;
+    }
+
+    public void setPptCount(int pptCount) {
+        this.pptCount = pptCount;
+    }
+
+    public int getDeletedMsgCount() {
+        return deletedMsgCount;
+    }
+
+    public void setDeletedMsgCount(int deletedMsgCount) {
+        this.deletedMsgCount = deletedMsgCount;
     }
 }

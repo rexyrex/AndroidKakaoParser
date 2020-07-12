@@ -36,6 +36,8 @@ public class WordAnalyseFrag extends Fragment {
     WordListAdapter ca;
     TextView wordCountTV;
 
+    ChatData cd;
+
     private MainDatabase database;
     private WordDAO wordDao;
 
@@ -62,6 +64,7 @@ public class WordAnalyseFrag extends Fragment {
         if (getArguments() != null) {
             database = MainDatabase.getDatabase(getContext());
             wordDao = database.getWordDAO();
+            cd = ChatData.getInstance();
         }
     }
 
@@ -76,7 +79,7 @@ public class WordAnalyseFrag extends Fragment {
 
         freqList = new ArrayList<>();
 
-        wordFreqArrList = wordDao.getFreqWordList();
+        wordFreqArrList = cd.getWordFreqArrList();
 
         for(StringIntPair element : wordFreqArrList) freqList.add(element);
 
@@ -162,7 +165,7 @@ public class WordAnalyseFrag extends Fragment {
             TextView wordFreqTV = convertView.findViewById(R.id.elemWordFreqTV);
 
             StringIntPair wordData = wordFreqArrList.get(position);
-            wordTV.setText(wordData.getword());
+            wordTV.setText(position+1 + ". " + wordData.getword());
             wordFreqTV.setText(wordData.getFrequency() + "회");
             return convertView;
         }

@@ -1,37 +1,25 @@
 package com.rexyrex.kakaoparser.Activities;
 
-import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.text.Layout;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.AlignmentSpan;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -44,8 +32,6 @@ import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
-import com.rexyrex.kakaoparser.Entities.ChatLine;
-import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
@@ -56,18 +42,9 @@ import java.io.File;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,6 +76,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     NumberFormat numberFormat;
 
     boolean isKorean = true;
+
+    String finalStatusText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,11 +134,28 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
             @Override
             protected String doInBackground(String... params) {
-                long loadStartTime = System.currentTimeMillis();
+
+                //Text to alert user loading not started yet (DB clear can take some time)
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadingTextTV.setText("분석 준비중...");
+                    }
+                });
 
                 //clear tables
                 wordDao.truncateTable();
                 chatLineDao.truncateTable();
+
+                //Actual analysis start
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadingTextTV.setText("대화 내용 분석중...");
+                    }
+                });
+
+                long loadStartTime = System.currentTimeMillis();
 
                 String chatStr = FileParseUtils.parseFile(chatFile);
 
@@ -334,6 +330,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     }
                 }
 
+
+
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -341,7 +339,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         popupPB.setVisibility(View.INVISIBLE);
                         popupPBProgressDtlTV.setVisibility(View.GONE);
                         popupPBCancelBtn.setVisibility(View.GONE);
-                        loadingTextTV.setText("대화 정리... ⌛\n\n단어 정리...");
+                        loadingTextTV.setText(getLoadStatusText("대화 정리", false));
                         loadingGifIV.setVisibility(View.VISIBLE);
                     }
                 });
@@ -350,7 +348,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loadingTextTV.setText("대화 정리... ✅\n\n단어 정리... ⌛");
+                        loadingTextTV.setText(getLoadStatusText("단어 정리", false));
                     }
                 });
 
@@ -359,13 +357,38 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loadingTextTV.setText("대화 정리... ✅\n\n단어 정리... ✅");
+                        loadingTextTV.setText(getLoadStatusText("기타 정리", false));
                     }
                 });
 
                 long loadTime = System.currentTimeMillis() - loadStartTime;
                 double loadElapsedSeconds = loadTime/1000.0;
                 cd.setLoadElapsedSeconds(loadElapsedSeconds);
+
+                cd.setChatterCount(chatLineDao.getChatterCount());
+                cd.setDayCount(chatLineDao.getDayCount());
+                cd.setChatLineCount(chatLineDao.getCount());
+                cd.setWordCount(wordDao.getDistinctCount());
+                cd.setAvgWordCount(chatLineDao.getAverageWordCount());
+                cd.setAvgLetterCount(wordDao.getAverageLetterCount());
+                cd.setLinkCount(wordDao.getLinkCount());
+                cd.setPicCount(wordDao.getPicCount());
+                cd.setVideoCount(wordDao.getVideoCount());
+                cd.setPptCount(wordDao.getPowerpointCount());
+                cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
+
+                cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
+                cd.setTop10Chatters(chatLineDao.getTop10Chatters());
+                cd.setWordFreqArrList(wordDao.getFreqWordList());
+                cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
+                cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
+
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadingTextTV.setText(getLoadStatusText("", true));
+                    }
+                });
 
                 //Change Title to include date
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
@@ -420,6 +443,15 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         });
 
         statsTask.execute();
+    }
+
+    public String getLoadStatusText(String newStatus, boolean last){
+        finalStatusText = finalStatusText.replace('⌛', '✅');
+        if(last){
+            return finalStatusText;
+        }
+        finalStatusText += "\n\n" + newStatus + "... ⌛";
+        return finalStatusText;
     }
 
     @Override

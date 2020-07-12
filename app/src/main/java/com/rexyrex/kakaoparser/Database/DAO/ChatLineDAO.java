@@ -52,7 +52,7 @@ public interface ChatLineDAO {
     public List<String> getChatters();
 
     //get chatter-frequency pairs
-    @Query("SELECT author as word, count(author) as frequency FROM tb_chat_line GROUP BY author ORDER BY count(author) desc")
+    @Query("SELECT author as word, count(author) as frequency FROM tb_chat_line GROUP BY author ORDER BY count(author) desc LIMIT 10000")
     public List<StringIntPair> getChatterFrequencyPairs();
 
     //get top 10 most freq chatters

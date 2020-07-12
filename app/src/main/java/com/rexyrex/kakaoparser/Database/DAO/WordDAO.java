@@ -39,7 +39,7 @@ public interface WordDAO {
     @Query("SELECT COUNT(DISTINCT(word)) FROM tb_word")
     public int getDistinctCount();
 
-    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word GROUP BY word ORDER BY frequency desc")
+    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word GROUP BY word ORDER BY frequency desc LIMIT 10000")
     public List<StringIntPair> getFreqWordList();
 
     //get frequency of given word

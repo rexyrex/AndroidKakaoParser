@@ -31,9 +31,11 @@ import com.rexyrex.kakaoparser.Activities.MainActivity;
 import com.rexyrex.kakaoparser.Activities.PersonListActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
+import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +47,9 @@ import java.util.List;
 public class PersonAnalyseFrag extends Fragment {
     private static final String ARG_PARAM1 = "param1";
 
-    private MainDatabase database;
-    private ChatLineDAO chatLineDao;
+    ChatData cd;
+
+    NumberFormat numberFormat;
 
     public PersonAnalyseFrag() {
         // Required empty public constructor
@@ -64,8 +67,9 @@ public class PersonAnalyseFrag extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            database = MainDatabase.getDatabase(getContext());
-            chatLineDao = database.getChatLineDAO();
+            numberFormat = NumberFormat.getInstance();
+            numberFormat.setGroupingUsed(true);
+            cd = ChatData.getInstance();
         }
     }
 
@@ -127,9 +131,9 @@ public class PersonAnalyseFrag extends Fragment {
 
         ListView freqLV = view.findViewById(R.id.pafPersonFreqLV);
 
-        int totalCount = chatLineDao.getCount();
+        int totalCount = cd.getChatLineCount();
 
-        CustomAdapter customAdapter = new CustomAdapter(chatLineDao.getTop10Chatters(), totalCount);
+        CustomAdapter customAdapter = new CustomAdapter(cd.getTop10Chatters(), totalCount);
         freqLV.setAdapter(customAdapter);
 
         return view;
@@ -142,11 +146,11 @@ public class PersonAnalyseFrag extends Fragment {
     }
 
     public PieData getChatAmountPieData(){
-        List<StringIntPair> chatters = chatLineDao.getTop10Chatters();
+        List<StringIntPair> chatters = cd.getTop10Chatters();
 
         ArrayList chatAmountArrayList = new ArrayList();
         ArrayList chatNicknameArrayList = new ArrayList();
-        int totalCount = chatLineDao.getCount();
+        int totalCount = cd.getChatLineCount();
 
         for(StringIntPair chatter : chatters){
             chatAmountArrayList.add(new PieEntry(chatter.getFrequency(),chatter.getword() + "(" + String.format("%.1f", (double)chatter.getFrequency()/totalCount*100) + "%)"));
@@ -223,7 +227,7 @@ public class PersonAnalyseFrag extends Fragment {
             TextView valueTV = convertView.findViewById(R.id.personFreqElemFreqTV);
 
             titleTV.setText(position+1 + ". "+ pairs.get(position).getword());
-            valueTV.setText(pairs.get(position).getFrequency() + " (" + String.format("%.1f", (double)pairs.get(position).getFrequency()/totalCount*100) + "%)");
+            valueTV.setText(numberFormat.format(pairs.get(position).getFrequency()) + " (" + String.format("%.1f", (double)pairs.get(position).getFrequency()/totalCount*100) + "%)");
 
             return convertView;
         }

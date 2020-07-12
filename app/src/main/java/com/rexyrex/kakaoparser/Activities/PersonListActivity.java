@@ -2,24 +2,21 @@ package com.rexyrex.kakaoparser.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
-import com.rexyrex.kakaoparser.Database.MainDatabase;
+import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
-import com.rexyrex.kakaoparser.Fragments.PersonAnalyseFrag;
 import com.rexyrex.kakaoparser.R;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +25,13 @@ public class PersonListActivity extends AppCompatActivity {
     EditText searchET;
     ListView searchLV;
 
-    private MainDatabase database;
-    private ChatLineDAO chatLineDao;
+    NumberFormat numberFormat;
+
+    ChatData cd;
 
     ArrayList<StringIntPair> freqList;
-    private List<StringIntPair> wordFreqArrList;
+    private List<StringIntPair> chatterFreqArrList;
+
 
     CustomAdapter customAdapter;
 
@@ -41,19 +40,20 @@ public class PersonListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person_list);
 
-        database = MainDatabase.getDatabase(this);
-        chatLineDao = database.getChatLineDAO();
-
         searchET = findViewById(R.id.chatterFreqET);
         searchLV = findViewById(R.id.chatterFreqLV);
 
-        int totalCount = chatLineDao.getCount();
+        numberFormat = NumberFormat.getInstance();
+        numberFormat.setGroupingUsed(true);
+
+        cd = ChatData.getInstance();
+        int totalCount = cd.getChatLineCount();
 
         freqList = new ArrayList<>();
 
-        wordFreqArrList = chatLineDao.getChatterFrequencyPairs();
+        chatterFreqArrList = cd.getChatterFreqArrList();
 
-        for(StringIntPair element : wordFreqArrList) freqList.add(element);
+        for(StringIntPair element : chatterFreqArrList) freqList.add(element);
 
         customAdapter = new CustomAdapter(freqList, totalCount);
         searchLV.setAdapter(customAdapter);
@@ -79,14 +79,14 @@ public class PersonListActivity extends AppCompatActivity {
     public void search(String charText) {
         freqList.clear();
         if (charText.length() == 0) {
-            freqList.addAll(wordFreqArrList);
+            freqList.addAll(chatterFreqArrList);
         } else
         {
-            for(int i = 0;i < wordFreqArrList.size(); i++)
+            for(int i = 0; i < chatterFreqArrList.size(); i++)
             {
-                if (wordFreqArrList.get(i).getword().toLowerCase().contains(charText))
+                if (chatterFreqArrList.get(i).getword().toLowerCase().contains(charText))
                 {
-                    freqList.add(wordFreqArrList.get(i));
+                    freqList.add(chatterFreqArrList.get(i));
                 }
             }
         }
@@ -127,7 +127,7 @@ public class PersonListActivity extends AppCompatActivity {
             TextView valueTV = convertView.findViewById(R.id.personFreqElemFreqTV);
 
             titleTV.setText(position+1 + ". " + pairs.get(position).getword());
-            valueTV.setText(pairs.get(position).getFrequency() + " (" + String.format("%.1f", (double)pairs.get(position).getFrequency()/totalCount*100) + "%)");
+            valueTV.setText(numberFormat.format(pairs.get(position).getFrequency()) + " (" + String.format("%.1f", (double)pairs.get(position).getFrequency()/totalCount*100) + "%)");
 
             return convertView;
         }

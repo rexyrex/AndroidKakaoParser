@@ -39,6 +39,8 @@ public class TimeAnalyseFrag extends Fragment {
     private MainDatabase database;
     private ChatLineDAO cld;
 
+    ChatData cd;
+
     String[] daysOfWeek = {"월", "화", "수", "목", "금", "토", "일"};
 
     public TimeAnalyseFrag() {
@@ -59,6 +61,7 @@ public class TimeAnalyseFrag extends Fragment {
         super.onCreate(savedInstanceState);
         database = MainDatabase.getDatabase(getContext());
         cld = database.getChatLineDAO();
+        cd = ChatData.getInstance();
 
         if (getArguments() != null) {
 
@@ -103,7 +106,7 @@ public class TimeAnalyseFrag extends Fragment {
         });
         xAxis.setTextColor(Color.BLACK);
 
-        int maxVal = cld.getMaxFreqDayOfWeek();
+        int maxVal = cd.getMaxFreqByDayOfWeek();
 
         YAxis yAxis = chart.getYAxis();
         //yAxis.setTypeface(tfLight);
@@ -141,7 +144,7 @@ public class TimeAnalyseFrag extends Fragment {
 //            entries2.add(new RadarEntry(val2));
 //        }
 
-        List<StringIntPair> res = cld.getFreqByDayOfWeek();
+        List<StringIntPair> res = cd.getFreqByDayOfWeek();
 
         for(StringIntPair sip : res){
             LogUtils.e("Day: " + sip.getword() + ", Freq: " + sip.getFrequency() );
