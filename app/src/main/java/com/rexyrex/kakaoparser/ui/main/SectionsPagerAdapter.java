@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.Fragments.ChatAnalyseFragment;
 import com.rexyrex.kakaoparser.Fragments.PersonAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.GeneralStatsFrag;
 import com.rexyrex.kakaoparser.Fragments.TimeAnalyseFrag;
@@ -19,7 +20,7 @@ import com.rexyrex.kakaoparser.Fragments.WordAnalyseFrag;
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    private static final String[] TAB_TITLES = new String[]{"분석 개요", "사람 분석", "단어 분석", "시간 분석"};
+    private static final String[] TAB_TITLES = new String[]{"개요", "사람", "대화", "단어", "시간"};
     private final Context mContext;
     private final ChatData cd;
 
@@ -34,14 +35,17 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         // getItem is called to instantiate the fragment for the given page.
         // Return a PlaceholderFragment (defined as a static inner class below).
 
-        switch(position){
-            case 0 :
+
+        switch(TAB_TITLES[position]){
+            case "개요" :
                 GeneralStatsFrag gsf = GeneralStatsFrag.newInstance(); return gsf;
-            case 1 :
+            case "사람" :
                 PersonAnalyseFrag cff = PersonAnalyseFrag.newInstance(); return cff;
-            case 2 :
+            case "대화" :
+                ChatAnalyseFragment caf = ChatAnalyseFragment.newInstance(); return caf;
+            case "단어" :
                 WordAnalyseFrag waf = WordAnalyseFrag.newInstance(); return waf;
-            case 3 :
+            case "시간" :
                 TimeAnalyseFrag taf = TimeAnalyseFrag.newInstance(); return taf;
             default : return null;
         }

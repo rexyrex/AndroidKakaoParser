@@ -88,4 +88,28 @@ public interface ChatLineDAO {
     //get deleted msgs count
     @Query("SELECT COUNT(*) FROM tb_chat_line WHERE content = '삭제된 메시지입니다.'")
     public int getDeletedMsgCount();
+
+    //get chats by date desc
+    @Query("SELECT * FROM tb_chat_line ORDER BY date DESC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByDateDesc();
+
+    //get chats by date asc
+    @Query("SELECT * FROM tb_chat_line ORDER BY date ASC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByDateAsc();
+
+    //get chats by date desc (Filter Author)
+    @Query("SELECT * FROM tb_chat_line WHERE author = :author ORDER BY date DESC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByDateDescFilterAuthor(String author);
+
+    //get chats by date asc (Filter Author)
+    @Query("SELECT * FROM tb_chat_line WHERE author = :author ORDER BY date ASC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByDateAscFilterAuthor(String author);
+
+    //get chats by date asc (Filter Chat)
+    @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) ORDER BY date ASC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByDateAscFilterChat(String search);
+
+    //get chats by date desc (Filter Chat)
+    @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) ORDER BY date DESC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByDateDescFilterChat(String search);
 }

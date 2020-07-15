@@ -27,6 +27,7 @@ import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.KeyboardUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 
 import java.util.ArrayList;
@@ -111,7 +112,7 @@ public class WordAnalyseFrag extends Fragment {
                     String text = wordSearchET.getText().toString();
                     search(text);
 
-                    hideKeyboard();
+                    KeyboardUtils.hideKeyboard(getActivity());
                     return true;
                 }
                 return false;
@@ -119,17 +120,6 @@ public class WordAnalyseFrag extends Fragment {
         });
 
         return view;
-    }
-
-    public void hideKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = getActivity().getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null) {
-            view = new View(getActivity());
-        }
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     public void search(String charText) {
