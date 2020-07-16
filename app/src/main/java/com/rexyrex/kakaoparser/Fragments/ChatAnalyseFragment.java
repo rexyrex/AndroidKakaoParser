@@ -2,19 +2,23 @@ package com.rexyrex.kakaoparser.Fragments;
 
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
@@ -43,6 +47,8 @@ public class ChatAnalyseFragment extends Fragment {
     ChatListAdapter cla;
 
     String[] authors;
+
+    AlertDialog dialog;
 
     public ChatAnalyseFragment() {
         // Required empty public constructor
@@ -75,9 +81,24 @@ public class ChatAnalyseFragment extends Fragment {
 
         EditText searchET = view.findViewById(R.id.chatSearchET);
         Spinner authorSpinner = view.findViewById(R.id.chatAnalyseAuthorSpinner);
-        RadioGroup sortRG = view.findViewById(R.id.chatAnalyseSortRG);
+        Button sortPopBtn = view.findViewById(R.id.chatAnalyseSortPopBtn);
         ListView chatLV = view.findViewById(R.id.chatAnalyseChatLV);
         TextView searchResTV = view.findViewById(R.id.chatSearchResTV);
+
+        sortPopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View popView = (LayoutInflater.from(ChatAnalyseFragment.this.getContext())).inflate(R.layout.chat_analysis_sort_pop, null);
+
+                AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(ChatAnalyseFragment.this.getActivity(), R.style.PopupStyle);
+                rexAlertBuilder.setView(popView);
+                rexAlertBuilder.setCancelable(true);
+                dialog = rexAlertBuilder.create();
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+            }
+        });
 
         chatList = new ArrayList<>();
 

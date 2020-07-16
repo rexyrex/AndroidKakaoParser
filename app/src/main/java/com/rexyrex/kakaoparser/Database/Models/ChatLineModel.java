@@ -1,7 +1,10 @@
 package com.rexyrex.kakaoparser.Database.Models;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
@@ -9,10 +12,11 @@ import com.rexyrex.kakaoparser.Database.Converters.DateConverter;
 
 import java.util.Date;
 
-@Entity(tableName = "tb_chat_line")
+@Entity(tableName = "tb_chat_line", indices = {@Index("id")})
 @TypeConverters(DateConverter.class)
 public class ChatLineModel {
     @PrimaryKey(autoGenerate = false)
+    @ColumnInfo(name="id")
     @NonNull
     private int id;
     private String author;
@@ -25,6 +29,7 @@ public class ChatLineModel {
     private String content;
     private int wordCount;
 
+    @Ignore
     public ChatLineModel(){
 
     }

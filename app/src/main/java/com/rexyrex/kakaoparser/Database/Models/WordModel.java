@@ -1,8 +1,11 @@
 package com.rexyrex.kakaoparser.Database.Models;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
@@ -10,7 +13,7 @@ import com.rexyrex.kakaoparser.Database.Converters.DateConverter;
 
 import java.util.Date;
 
-@Entity(tableName = "tb_word", foreignKeys = @ForeignKey(entity = ChatLineModel.class, parentColumns = "id", childColumns = "lineId", onDelete = ForeignKey.CASCADE))
+@Entity(tableName = "tb_word", indices = {@Index("line_id")}, foreignKeys = @ForeignKey(entity = ChatLineModel.class, parentColumns = "id", childColumns = "line_id", onDelete = ForeignKey.CASCADE))
 @TypeConverters(DateConverter.class)
 public class WordModel {
 
@@ -18,6 +21,7 @@ public class WordModel {
     @NonNull
     private int id;
 
+    @ColumnInfo(name="line_id")
     private int lineId;
 
     private Date date;
@@ -30,6 +34,7 @@ public class WordModel {
     private boolean isVideo;
     private boolean isPowerpoint;
 
+    @Ignore
     public WordModel(){
 
     }

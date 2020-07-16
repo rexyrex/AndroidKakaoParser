@@ -10,8 +10,9 @@
     <EditText
         android:id="@+id/chatSearchET"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="35dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/custom_edittext"
         android:ems="10"
@@ -21,7 +22,6 @@
         android:textColor="@color/textColor1"
         android:textCursorDrawable="@drawable/text_cursor_color"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chatSearchResTV" />
 
@@ -37,41 +37,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <RadioGroup
-        android:id="@+id/chatAnalyseSortRG"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chatSearchET">
-
-        <RadioButton
-            android:id="@+id/radioButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="오름차 순" />
-
-        <RadioButton
-            android:id="@+id/radioButton2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="내림차 순" />
-    </RadioGroup>
-
     <Spinner
         android:id="@+id/chatAnalyseAuthorSpinner"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/chatAnalyseSortRG"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="35dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@color/brown1"
+        app:layout_constraintEnd_toStartOf="@+id/chatAnalyseSortPopBtn"
+        app:layout_constraintStart_toStartOf="@+id/chatSearchET"
         app:layout_constraintTop_toBottomOf="@+id/chatSearchET" />
 
     <ListView
         android:id="@+id/chatAnalyseChatLV"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chatAnalyseSortRG" />
+        app:layout_constraintTop_toBottomOf="@+id/chatAnalyseAuthorSpinner">
+
+    </ListView>
+
+    <Button
+        android:id="@+id/chatAnalyseSortPopBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/custom_show_more_btn"
+        android:text="순열"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/chatAnalyseAuthorSpinner" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
