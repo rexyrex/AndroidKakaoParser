@@ -308,7 +308,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         chatLineModelArrayList.add(
                                 new ChatLineModel(lineId, date, dayKey,
                                         monthKey, yearKey, dayOfWeekKey,
-                                        hourOfDayKey, person, chat, splitWords.length));
+                                        hourOfDayKey, person, chat, splitWords.length, chat.length()));
 
                         for(int w=0; w<splitWords.length; w++){
                             if(isCancelled()){
