@@ -77,7 +77,11 @@ public interface ChatLineDAO {
     @Query("SELECT AVG(wordCount) FROM tb_chat_line")
     public double getAverageWordCount();
 
-    //get frequency by day between two dates
+    //get frequency by day
+    @Query("SELECT COUNT(*) as frequency, dateDayString as word FROM tb_chat_line GROUP BY dateDayString ORDER BY date")
+    public List<StringIntPair> getFreqByDay();
+
+    //get frequency by day
     @Query("SELECT COUNT(*) as frequency, dateDayOfWeekString as word FROM tb_chat_line GROUP BY dateDayOfWeekString")
     public List<StringIntPair> getFreqByDayOfWeek();
 

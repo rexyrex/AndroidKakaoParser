@@ -8,24 +8,32 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.Spinner;
 
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.RadarChart;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.RadarData;
 import com.github.mikephil.charting.data.RadarDataSet;
 import com.github.mikephil.charting.data.RadarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IRadarDataSet;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
-import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
+import com.rexyrex.kakaoparser.ValueFormatters.DayAxisValueFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +42,8 @@ public class TimeAnalyseFrag extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
 
-    private RadarChart chart;
+    private RadarChart radarChart;
+    private BarChart barChart;
 
     private MainDatabase database;
     private ChatLineDAO cld;
@@ -73,15 +82,64 @@ public class TimeAnalyseFrag extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_time_analyse, container, false);
 
-        chart = view.findViewById(R.id.dayOfWeekRadarChart);
-        chart.setBackgroundColor(getActivity().getColor(R.color.lightBrown));
-        chart.getDescription().setEnabled(false);
+        Spinner typeSpinner = view.findViewById(R.id.timeAnalyseTypeSpinner);
 
-        chart.setWebLineWidth(1f);
-        chart.setWebColor(getActivity().getColor(R.color.colorPrimary));
-        chart.setWebLineWidthInner(1f);
-        chart.setWebColorInner(getActivity().getColor(R.color.colorPrimaryDark));
-        chart.setWebAlpha(100);
+        barChart = view.findViewById(R.id.dayBarChart);
+        barChart.getDescription().setEnabled(false);
+
+        barChart.setMaxVisibleValueCount(50);
+
+        // scaling can now only be done on x- and y-axis separately
+        barChart.setPinchZoom(false);
+
+        barChart.setDrawBarShadow(false);
+        barChart.setDrawGridBackground(false);
+
+        ValueFormatter xAxisFormatter = new DayAxisValueFormatter(barChart);
+
+        XAxis barXAxis = barChart.getXAxis();
+        barXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        barXAxis.setDrawGridLines(false);
+        barXAxis.setGranularity(1f);
+        barXAxis.setLabelCount(6);
+        barXAxis.setValueFormatter(xAxisFormatter);
+
+        barChart.getAxisLeft().setDrawGridLines(false);
+
+        //set data
+        ArrayList<BarEntry> barEntryArrayList = new ArrayList<>();
+        List<StringIntPair> freqByDayPairs = cld.getFreqByDay();
+        for(int i=0; i<freqByDayPairs.size(); i++){
+            StringIntPair tmpPair = freqByDayPairs.get(i);
+            barEntryArrayList.add(new BarEntry(i, tmpPair.getFrequency()));
+        }
+
+        BarDataSet barDataSet = new BarDataSet(barEntryArrayList, "일별 채팅량");
+
+        ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+        dataSets.add(barDataSet);
+
+        BarData data = new BarData(dataSets);
+        data.setValueTextSize(10f);
+        data.setBarWidth(0.9f);
+
+        barChart.setData(data);
+
+        // add a nice and smooth animation
+        barChart.animateY(1500);
+        barChart.getLegend().setEnabled(false);
+
+
+
+        radarChart = view.findViewById(R.id.dayOfWeekRadarChart);
+        radarChart.setBackgroundColor(getActivity().getColor(R.color.lightBrown));
+        radarChart.getDescription().setEnabled(false);
+
+        radarChart.setWebLineWidth(1f);
+        radarChart.setWebColor(getActivity().getColor(R.color.colorPrimary));
+        radarChart.setWebLineWidthInner(1f);
+        radarChart.setWebColorInner(getActivity().getColor(R.color.colorPrimaryDark));
+        radarChart.setWebAlpha(100);
 
 
 //        MarkerView mv = new MarkerView(getContext(), R.layout.radar_markerview);
@@ -90,7 +148,7 @@ public class TimeAnalyseFrag extends Fragment {
 
         setData();
 
-        XAxis xAxis = chart.getXAxis();
+        XAxis xAxis = radarChart.getXAxis();
         //xAxis.setTypeface(tfLight);
         xAxis.setTextSize(16f);
         xAxis.setYOffset(12f);
@@ -108,7 +166,7 @@ public class TimeAnalyseFrag extends Fragment {
 
         int maxVal = cd.getMaxFreqByDayOfWeek();
 
-        YAxis yAxis = chart.getYAxis();
+        YAxis yAxis = radarChart.getYAxis();
         //yAxis.setTypeface(tfLight);
         yAxis.setLabelCount(5, false);
         yAxis.setTextSize(9f);
@@ -116,7 +174,7 @@ public class TimeAnalyseFrag extends Fragment {
         yAxis.setAxisMaximum(maxVal * 1.2f);
         yAxis.setDrawLabels(false);
 
-        Legend l = chart.getLegend();
+        Legend l = radarChart.getLegend();
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
         l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
@@ -125,6 +183,31 @@ public class TimeAnalyseFrag extends Fragment {
         l.setXEntrySpace(7f);
         l.setYEntrySpace(5f);
         l.setTextColor(Color.BLACK);
+
+        final ImageView testIV = view.findViewById(R.id.imageTestView);
+
+        final View[] viewItems = new View[]{radarChart, testIV, barChart};
+        final String[] items = new String[]{"Radar", "Pic", "BarChart"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_dropdown_item, items);
+        typeSpinner.setAdapter(adapter);
+
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                for(int i=0; i<viewItems.length; i++){
+                    if(position == i){
+                        viewItems[i].setVisibility(View.VISIBLE);
+                    } else {
+                        viewItems[i].setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         return view;
     }
@@ -186,7 +269,7 @@ public class TimeAnalyseFrag extends Fragment {
         data.setDrawValues(false);
         data.setValueTextColor(Color.WHITE);
 
-        chart.setData(data);
-        chart.invalidate();
+        radarChart.setData(data);
+        radarChart.invalidate();
     }
 }
