@@ -92,7 +92,7 @@ public class ChatAnalyseFragment extends Fragment {
 
         orderSpinner = view.findViewById(R.id.chatAnalyseOrderSpinner);
 
-        String[] items = new String[]{"시간 (↑)", "시간 (↓)", "단어 (↑)", "단어 (↓)"};
+        String[] items = new String[]{"시간 ▲", "시간 ▼", "단어 ▲", "단어 ▼"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_dropdown_item, items);
         orderSpinner.setAdapter(adapter);
 
