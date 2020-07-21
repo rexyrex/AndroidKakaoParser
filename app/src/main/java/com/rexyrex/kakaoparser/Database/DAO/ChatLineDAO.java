@@ -9,6 +9,7 @@ import androidx.room.Update;
 
 import com.rexyrex.kakaoparser.Database.Converters.DateConverter;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.Entities.DateIntPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 
 import java.util.ArrayList;
@@ -78,8 +79,8 @@ public interface ChatLineDAO {
     public double getAverageWordCount();
 
     //get frequency by day
-    @Query("SELECT COUNT(*) as frequency, dateDayString as word FROM tb_chat_line GROUP BY dateDayString ORDER BY date")
-    public List<StringIntPair> getFreqByDay();
+    @Query("SELECT COUNT(*) as frequency, date as date FROM tb_chat_line GROUP BY dateDayString ORDER BY date")
+    public List<DateIntPair> getFreqByDay();
 
     //get frequency by day
     @Query("SELECT COUNT(*) as frequency, dateDayOfWeekString as word FROM tb_chat_line GROUP BY dateDayOfWeekString")

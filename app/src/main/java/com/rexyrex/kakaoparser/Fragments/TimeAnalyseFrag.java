@@ -27,9 +27,11 @@ import com.github.mikephil.charting.data.RadarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IRadarDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.Entities.DateIntPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
@@ -87,7 +89,7 @@ public class TimeAnalyseFrag extends Fragment {
         barChart = view.findViewById(R.id.dayBarChart);
         barChart.getDescription().setEnabled(false);
 
-        barChart.setMaxVisibleValueCount(50);
+        barChart.setMaxVisibleValueCount(60);
 
         // scaling can now only be done on x- and y-axis separately
         barChart.setPinchZoom(false);
@@ -100,7 +102,7 @@ public class TimeAnalyseFrag extends Fragment {
         XAxis barXAxis = barChart.getXAxis();
         barXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         barXAxis.setDrawGridLines(false);
-        barXAxis.setGranularity(1f);
+        barXAxis.setGranularity(86400f);
         barXAxis.setLabelCount(6);
         barXAxis.setValueFormatter(xAxisFormatter);
 
@@ -108,20 +110,21 @@ public class TimeAnalyseFrag extends Fragment {
 
         //set data
         ArrayList<BarEntry> barEntryArrayList = new ArrayList<>();
-        List<StringIntPair> freqByDayPairs = cld.getFreqByDay();
+        List<DateIntPair> freqByDayPairs = cld.getFreqByDay();
         for(int i=0; i<freqByDayPairs.size(); i++){
-            StringIntPair tmpPair = freqByDayPairs.get(i);
-            barEntryArrayList.add(new BarEntry(i, tmpPair.getFrequency()));
+            DateIntPair tmpPair = freqByDayPairs.get(i);
+            barEntryArrayList.add(new BarEntry((float) tmpPair.getDate().getTime()/1000, tmpPair.getFrequency()));
         }
 
         BarDataSet barDataSet = new BarDataSet(barEntryArrayList, "일별 채팅량");
+        barDataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
 
         ArrayList<IBarDataSet> dataSets = new ArrayList<>();
         dataSets.add(barDataSet);
 
         BarData data = new BarData(dataSets);
         data.setValueTextSize(10f);
-        data.setBarWidth(0.9f);
+        data.setBarWidth(86400f);
 
         barChart.setData(data);
 
@@ -129,10 +132,9 @@ public class TimeAnalyseFrag extends Fragment {
         barChart.animateY(1500);
         barChart.getLegend().setEnabled(false);
 
-
-
         radarChart = view.findViewById(R.id.dayOfWeekRadarChart);
         radarChart.setBackgroundColor(getActivity().getColor(R.color.lightBrown));
+
         radarChart.getDescription().setEnabled(false);
 
         radarChart.setWebLineWidth(1f);
