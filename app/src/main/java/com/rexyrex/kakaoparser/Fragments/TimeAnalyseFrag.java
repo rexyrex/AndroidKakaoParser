@@ -37,8 +37,11 @@ import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.ValueFormatters.DayAxisValueFormatter;
 
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TimeAnalyseFrag extends Fragment {
 
@@ -97,23 +100,28 @@ public class TimeAnalyseFrag extends Fragment {
         barChart.setDrawBarShadow(false);
         barChart.setDrawGridBackground(false);
 
-        ValueFormatter xAxisFormatter = new DayAxisValueFormatter(barChart);
+        ArrayList<BarEntry> barEntryArrayList = new ArrayList<>();
+        List<DateIntPair> freqByDayPairs = cld.getFreqByDay();
+        Date startDate = freqByDayPairs.get(0).getDate();
+
+        ValueFormatter xAxisFormatter = new DayAxisValueFormatter(barChart, startDate);
 
         XAxis barXAxis = barChart.getXAxis();
         barXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         barXAxis.setDrawGridLines(false);
-        barXAxis.setGranularity(86400f);
+        barXAxis.setGranularity(1f);
         barXAxis.setLabelCount(6);
         barXAxis.setValueFormatter(xAxisFormatter);
 
         barChart.getAxisLeft().setDrawGridLines(false);
 
         //set data
-        ArrayList<BarEntry> barEntryArrayList = new ArrayList<>();
-        List<DateIntPair> freqByDayPairs = cld.getFreqByDay();
+
         for(int i=0; i<freqByDayPairs.size(); i++){
             DateIntPair tmpPair = freqByDayPairs.get(i);
-            barEntryArrayList.add(new BarEntry((float) tmpPair.getDate().getTime()/1000, tmpPair.getFrequency()));
+            long dateDiff = tmpPair.getDate().getTime() - startDate.getTime();
+            int daysDiff = (int)( (tmpPair.getDate().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+            barEntryArrayList.add(new BarEntry((float) daysDiff, tmpPair.getFrequency()));
         }
 
         BarDataSet barDataSet = new BarDataSet(barEntryArrayList, "일별 채팅량");
@@ -124,7 +132,7 @@ public class TimeAnalyseFrag extends Fragment {
 
         BarData data = new BarData(dataSets);
         data.setValueTextSize(10f);
-        data.setBarWidth(86400f);
+        data.setBarWidth(0.9f);
 
         barChart.setData(data);
 
