@@ -103,6 +103,8 @@ public class TimeAnalyseFrag extends Fragment {
         ArrayList<BarEntry> barEntryArrayList = new ArrayList<>();
         List<DateIntPair> freqByDayPairs = cld.getFreqByDay();
         Date startDate = freqByDayPairs.get(0).getDate();
+        Long startTime = startDate.getTime();
+        startDate = new Date(startTime - startTime % (24 * 60 * 60 * 1000));
 
         ValueFormatter xAxisFormatter = new DayAxisValueFormatter(barChart, startDate);
 
