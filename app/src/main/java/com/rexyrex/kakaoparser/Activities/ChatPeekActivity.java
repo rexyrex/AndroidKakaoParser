@@ -121,7 +121,6 @@ public class ChatPeekActivity extends AppCompatActivity {
                     isNewMsg[i] = true;
                 }
             }
-
         }
 
         @Override

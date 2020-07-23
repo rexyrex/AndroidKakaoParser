@@ -9,6 +9,7 @@ import androidx.room.Update;
 
 import com.rexyrex.kakaoparser.Database.Converters.DateConverter;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.Entities.DateIntPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 
 import java.util.ArrayList;
@@ -77,7 +78,11 @@ public interface ChatLineDAO {
     @Query("SELECT AVG(wordCount) FROM tb_chat_line")
     public double getAverageWordCount();
 
-    //get frequency by day between two dates
+    //get frequency by day
+    @Query("SELECT COUNT(*) as frequency, date as date FROM tb_chat_line GROUP BY dateDayString ORDER BY date asc")
+    public List<DateIntPair> getFreqByDay();
+
+    //get frequency by day
     @Query("SELECT COUNT(*) as frequency, dateDayOfWeekString as word FROM tb_chat_line GROUP BY dateDayOfWeekString")
     public List<StringIntPair> getFreqByDayOfWeek();
 
@@ -97,6 +102,14 @@ public interface ChatLineDAO {
     @Query("SELECT * FROM tb_chat_line ORDER BY date ASC LIMIT 10000")
     public List<ChatLineModel> getAllChatsByDateAsc();
 
+    //get chats by length desc
+    @Query("SELECT * FROM tb_chat_line ORDER BY length DESC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByLengthDesc();
+
+    //get chats by length asc
+    @Query("SELECT * FROM tb_chat_line ORDER BY length ASC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByLengthAsc();
+
     //get chats by date desc (Filter Author)
     @Query("SELECT * FROM tb_chat_line WHERE author = :author ORDER BY date DESC LIMIT 10000")
     public List<ChatLineModel> getAllChatsByDateDescFilterAuthor(String author);
@@ -105,6 +118,14 @@ public interface ChatLineDAO {
     @Query("SELECT * FROM tb_chat_line WHERE author = :author ORDER BY date ASC LIMIT 10000")
     public List<ChatLineModel> getAllChatsByDateAscFilterAuthor(String author);
 
+    //get chats by WordCount desc (Filter Author)
+    @Query("SELECT * FROM tb_chat_line WHERE author = :author ORDER BY length DESC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByLengthDescFilterAuthor(String author);
+
+    //get chats by WordCount asc (Filter Author)
+    @Query("SELECT * FROM tb_chat_line WHERE author = :author ORDER BY length ASC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByLengthAscFilterAuthor(String author);
+
     //get chats by date asc (Filter Chat)
     @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) ORDER BY date ASC LIMIT 10000")
     public List<ChatLineModel> getAllChatsByDateAscFilterChat(String search);
@@ -112,4 +133,29 @@ public interface ChatLineDAO {
     //get chats by date desc (Filter Chat)
     @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) ORDER BY date DESC LIMIT 10000")
     public List<ChatLineModel> getAllChatsByDateDescFilterChat(String search);
+
+    //get chats by length asc (Filter Chat)
+    @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) ORDER BY length ASC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByLengthAscFilterChat(String search);
+
+    //get chats by length desc (Filter Chat)
+    @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) ORDER BY length DESC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByLengthDescFilterChat(String search);
+
+    //get chats by length asc (Filter Chat, Filter Author)
+    @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) AND author = :author ORDER BY length ASC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByLengthAscFilterChatFilterAuthor(String search, String author);
+
+    //get chats by length desc (Filter Chat, Filter Author)
+    @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) AND author = :author ORDER BY length DESC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByLengthDescFilterChatFilterAuthor(String search, String author);
+
+    //get chats by date asc (Filter Chat, Filter Author)
+    @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) AND author = :author ORDER BY date ASC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByDateAscFilterChatFilterAuthor(String search, String author);
+
+    //get chats by date desc (Filter Chat, Filter Author)
+    @Query("SELECT * FROM tb_chat_line WHERE instr(content, :search) AND author = :author ORDER BY date DESC LIMIT 10000")
+    public List<ChatLineModel> getAllChatsByDateDescFilterChatFilterAuthor(String search, String author);
+
 }

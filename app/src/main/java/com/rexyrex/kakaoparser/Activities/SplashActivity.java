@@ -40,6 +40,8 @@ public class SplashActivity extends AppCompatActivity {
         appTitleTV = findViewById(R.id.appTitleTV);
         splashIV = findViewById(R.id.splashIV);
 
+        //LogUtils("splashIV isnull? : " + (splashIV == null));
+
         //요청할 권한들
         permissions = new String[] {
                 Manifest.permission.READ_EXTERNAL_STORAGE
@@ -56,8 +58,6 @@ public class SplashActivity extends AppCompatActivity {
         } else {
             scheduleSplashScreen(2500L);
         }
-
-
     }
 
     //splashScreenDuration이후 activity이동, splash activity는 finish

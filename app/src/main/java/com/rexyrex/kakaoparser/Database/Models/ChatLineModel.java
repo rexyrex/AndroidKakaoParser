@@ -28,6 +28,7 @@ public class ChatLineModel {
     private String dateHourOfDayString;
     private String content;
     private int wordCount;
+    private int length;
 
     @Ignore
     public ChatLineModel(){
@@ -36,7 +37,7 @@ public class ChatLineModel {
 
     public ChatLineModel(int id, Date date, String dateDayString, String dateMonthString,
                          String dateYearString, String dateDayOfWeekString, String dateHourOfDayString,
-                         String author, String content, int wordCount){
+                         String author, String content, int wordCount, int length){
         this.id = id;
         this.date = date;
         this.dateDayString = dateDayString;
@@ -47,7 +48,16 @@ public class ChatLineModel {
         this.author = author;
         this.content = content;
         this.wordCount = wordCount;
+        this.length = length;
 
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
     }
 
     public String getDateMonthString() {

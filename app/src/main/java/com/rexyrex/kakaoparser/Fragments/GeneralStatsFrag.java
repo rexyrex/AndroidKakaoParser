@@ -119,11 +119,15 @@ public class GeneralStatsFrag extends Fragment {
                 }
                 if(position==1){
                     ViewPager vp = GeneralStatsFrag.this.getActivity().findViewById(R.id.view_pager);
-                    vp.setCurrentItem(3);
+                    vp.setCurrentItem(4);
+                }
+                if(position==2){
+                    ViewPager vp = GeneralStatsFrag.this.getActivity().findViewById(R.id.view_pager);
+                    vp.setCurrentItem(2);
                 }
                 if(position==3){
                     ViewPager vp = GeneralStatsFrag.this.getActivity().findViewById(R.id.view_pager);
-                    vp.setCurrentItem(2);
+                    vp.setCurrentItem(3);
                 }
             }
         });
