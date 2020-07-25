@@ -27,7 +27,6 @@ import com.github.mikephil.charting.data.RadarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IRadarDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
@@ -37,11 +36,10 @@ import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.ValueFormatters.DayAxisValueFormatter;
 import com.rexyrex.kakaoparser.ValueFormatters.MonthAxisValueFormatter;
+import com.rexyrex.kakaoparser.ValueFormatters.WeekDayAxisValueFormatter;
 import com.rexyrex.kakaoparser.ValueFormatters.YearAxisValueFormatter;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
@@ -49,7 +47,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class TimeAnalyseFrag extends Fragment {
 
@@ -64,6 +61,8 @@ public class TimeAnalyseFrag extends Fragment {
     ChatData cd;
 
     String[] daysOfWeek = {"월", "화", "수", "목", "금", "토", "일"};
+    String[] items = {"시간 분석", "요일 분석", "일 분석", "월 분석", "연 분석"};
+    String[] timeOfDayStrs = {"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23"};
 
     public TimeAnalyseFrag() {
         // Required empty public constructor
@@ -94,6 +93,7 @@ public class TimeAnalyseFrag extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_time_analyse, container, false);
+        LogUtils.e("FRAGMENT ON CREATE VIEW");
 
         Spinner typeSpinner = view.findViewById(R.id.timeAnalyseTypeSpinner);
 
@@ -101,112 +101,16 @@ public class TimeAnalyseFrag extends Fragment {
         // Data
         // AxisValueFormatter
         // xAxis granularity, bar width should be reliant on this val
-
         barChart = view.findViewById(R.id.dayBarChart);
-
-
-        //makeBarChart(cld.getFreqByDay(), "day");
-        //makeBarChart(cld.getFreqByMonth(), "month");
-        makeBarChart(cld.getFreqByYear(), "year");
-
         radarChart = view.findViewById(R.id.dayOfWeekRadarChart);
-        radarChart.setBackgroundColor(getActivity().getColor(R.color.lightBrown));
 
-        radarChart.getDescription().setEnabled(false);
-
-        radarChart.setWebLineWidth(1f);
-        radarChart.setWebColor(getActivity().getColor(R.color.colorPrimary));
-        radarChart.setWebLineWidthInner(1f);
-        radarChart.setWebColorInner(getActivity().getColor(R.color.colorPrimaryDark));
-        radarChart.setWebAlpha(100);
-
-
-//        MarkerView mv = new MarkerView(getContext(), R.layout.radar_markerview);
-//        mv.setChartView(chart); // For bounds control
-//        chart.setMarker(mv); // Set the marker to the chart
-
-        setData();
-
-        XAxis xAxis = radarChart.getXAxis();
-        //xAxis.setTypeface(tfLight);
-        xAxis.setTextSize(16f);
-        xAxis.setYOffset(12f);
-        xAxis.setXOffset(12f);
-        xAxis.setValueFormatter(new ValueFormatter() {
-
-            private final String[] mActivities = daysOfWeek;
-
-            @Override
-            public String getFormattedValue(float value) {
-                return mActivities[(int) value % mActivities.length];
-            }
-        });
-        xAxis.setTextColor(Color.BLACK);
-
-        int maxVal = cd.getMaxFreqByDayOfWeek();
-
-        YAxis yAxis = radarChart.getYAxis();
-        //yAxis.setTypeface(tfLight);
-        yAxis.setLabelCount(5, false);
-        yAxis.setTextSize(9f);
-        yAxis.setAxisMinimum(0f);
-        yAxis.setAxisMaximum(maxVal * 1.2f);
-        yAxis.setDrawLabels(false);
-
-        Legend l = radarChart.getLegend();
-        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        l.setDrawInside(false);
-        //l.setTypeface(tfLight);
-        l.setXEntrySpace(7f);
-        l.setYEntrySpace(5f);
-        l.setTextColor(Color.BLACK);
-
-        final ImageView testIV = view.findViewById(R.id.imageTestView);
-
-        final View[] viewItems = new View[]{radarChart, testIV, barChart, barChart, barChart};
-        final String[] items = new String[]{"요일 분석", "시간 분석", "일 분석", "월 분석", "연 분석"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_dropdown_item, items);
         typeSpinner.setAdapter(adapter);
 
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                boolean isBar = true;
-                switch(items[position]){
-                    case "일 분석":
-                        LogUtils.e("일별");
-                        makeBarChart(cld.getFreqByDay(), "day");
-                        barChart.invalidate();
-                        break;
-                    case "월 분석":
-                        makeBarChart(cld.getFreqByMonth(), "month");
-                        barChart.invalidate();
-                        break;
-                    case "연 분석":
-                        makeBarChart(cld.getFreqByYear(), "year");
-                        barChart.invalidate();
-                        break;
-                    default:
-                        isBar = false;
-                        break;
-                }
-
-                for(int i=0; i<viewItems.length; i++){
-                    if(position == i){
-                        viewItems[i].setVisibility(View.VISIBLE);
-                    } else {
-                        LogUtils.e("isBar: " + isBar);
-                        if(i > 1 && isBar){
-                            LogUtils.e("Not Hide : " + i);
-                        } else {
-                            LogUtils.e("Hiding: " + i);
-                            viewItems[i].setVisibility(View.GONE);
-                        }
-
-                    }
-                }
+                loadGraph(position);
             }
 
             @Override
@@ -215,7 +119,60 @@ public class TimeAnalyseFrag extends Fragment {
             }
         });
 
+        typeSpinner.setSelection(0);
+
+        LogUtils.e("Loading : " + typeSpinner.getSelectedItemPosition());
+        loadGraph(typeSpinner.getSelectedItemPosition());
+
         return view;
+    }
+
+    private void loadGraph(int position){
+        boolean isBar = true;
+        View[] viewItems = {radarChart, barChart, barChart, barChart, barChart};
+
+
+        switch(items[position]){
+            case "일 분석":
+                LogUtils.e("일별");
+                makeBarChart(cld.getFreqByDay(), "day");
+                barChart.invalidate();
+                break;
+            case "월 분석":
+                makeBarChart(cld.getFreqByMonth(), "month");
+                barChart.invalidate();
+                break;
+            case "연 분석":
+                makeBarChart(cld.getFreqByYear(), "year");
+                barChart.invalidate();
+                break;
+            case "요일 분석":
+                makeBarChart(cld.getFreqByDayOfWeek(), "dayOfWeek");
+                barChart.invalidate();
+                break;
+            case "시간 분석":
+                isBar = false;
+                makeRadarChart();
+                break;
+            default:
+                isBar = false;
+                break;
+        }
+
+        for(int i=0; i<viewItems.length; i++){
+            if(position == i){
+                viewItems[i].setVisibility(View.VISIBLE);
+            } else {
+                //LogUtils.e("isBar: " + isBar);
+                if(i > 0 && isBar){
+                    //LogUtils.e("Not Hide : " + i);
+                } else {
+                    //LogUtils.e("Hiding: " + i);
+                    viewItems[i].setVisibility(View.GONE);
+                }
+
+            }
+        }
     }
 
     private void makeBarChart(List listData, String type) {
@@ -223,13 +180,18 @@ public class TimeAnalyseFrag extends Fragment {
 
         barChart.setBackgroundColor(getActivity().getColor(R.color.lightBrown));
 
-        barChart.setMaxVisibleValueCount(60);
+        barChart.setMaxVisibleValueCount(50);
 
         // scaling can now only be done on x- and y-axis separately
         barChart.setPinchZoom(false);
 
         barChart.setDrawBarShadow(false);
         barChart.setDrawGridBackground(false);
+
+        //barChart.resetZoom();
+        while(!barChart.isFullyZoomedOut()){
+            barChart.zoomOut();
+        }
 
         ArrayList<BarEntry> barEntryArrayList = new ArrayList<>();
 
@@ -264,12 +226,9 @@ public class TimeAnalyseFrag extends Fragment {
                 List<StringIntPair> freqByMonthPairs = listData;
                 String startDateStr = freqByMonthPairs.get(0).getword();
 
-
                 Date startMonthDate = null;
                 try{
                     startMonthDate = monthFormat.parse(startDateStr);
-
-
                     xAxisFormatter = new MonthAxisValueFormatter(barChart, startMonthDate);
 
                     for(int i=0; i<freqByMonthPairs.size(); i++){
@@ -324,6 +283,23 @@ public class TimeAnalyseFrag extends Fragment {
                     e.printStackTrace();
                 }
                 break;
+
+            case "dayOfWeek" :
+                List<StringIntPair> freqByDayOfWeekPairs = listData;
+
+                int tmpInd = 0;
+
+                xAxisFormatter = new WeekDayAxisValueFormatter();
+
+                for(String day : daysOfWeek){
+                    for(StringIntPair sip : freqByDayOfWeekPairs){
+                        if(day.equals(sip.getword())){
+                            barEntryArrayList.add(new BarEntry(tmpInd, sip.getFrequency()));
+                            tmpInd++;
+                        }
+                    }
+                }
+                break;
             default : break;
         }
 
@@ -353,7 +329,22 @@ public class TimeAnalyseFrag extends Fragment {
         barChart.getLegend().setEnabled(false);
     }
 
-    private void setData() {
+    private void makeRadarChart() {
+
+        radarChart.setBackgroundColor(getActivity().getColor(R.color.lightBrown));
+
+        radarChart.getDescription().setEnabled(false);
+
+        radarChart.setWebLineWidth(1f);
+        radarChart.setWebColor(getActivity().getColor(R.color.colorPrimary));
+        radarChart.setWebLineWidthInner(1f);
+        radarChart.setWebColorInner(getActivity().getColor(R.color.colorPrimaryDark));
+        radarChart.setWebAlpha(100);
+
+
+//        MarkerView mv = new MarkerView(getContext(), R.layout.radar_markerview);
+//        mv.setChartView(chart); // For bounds control
+//        chart.setMarker(mv); // Set the marker to the chart
 
         ArrayList<RadarEntry> entries1 = new ArrayList<>();
         ArrayList<RadarEntry> entries2 = new ArrayList<>();
@@ -368,19 +359,31 @@ public class TimeAnalyseFrag extends Fragment {
 //            entries2.add(new RadarEntry(val2));
 //        }
 
-        List<StringIntPair> res = cd.getFreqByDayOfWeek();
+        List<StringIntPair> res = cld.getFreqByTimeOfDay();
+
+
 
         for(StringIntPair sip : res){
-            LogUtils.e("Day: " + sip.getword() + ", Freq: " + sip.getFrequency() );
+            LogUtils.e("Key: " + sip.getword() + ", Freq: " + sip.getFrequency() );
         }
 
-        for(String day : daysOfWeek){
+        for(String tString : timeOfDayStrs){
+            LogUtils.e("searching for " + tString);
+            boolean atLeastOne = false;
             for(StringIntPair sip : res){
-                if(day.equals(sip.getword())){
+                if(tString.equals(sip.getword())){
                     entries1.add(new RadarEntry(sip.getFrequency()));
+                    LogUtils.e("added! " + sip.getFrequency());
+                    atLeastOne = true;
                 }
             }
+            LogUtils.e("DONE searching for " + tString);
+            if(!atLeastOne){
+                entries1.add(new RadarEntry(0));
+            }
         }
+
+        LogUtils.e("entries size : " + entries1.size());
 
         RadarDataSet set1 = new RadarDataSet(entries1, "Last Week");
         set1.setColor(getActivity().getColor(R.color.colorPrimary));
@@ -412,5 +415,36 @@ public class TimeAnalyseFrag extends Fragment {
 
         radarChart.setData(data);
         radarChart.invalidate();
+
+        XAxis xAxis = radarChart.getXAxis();
+        //xAxis.setTypeface(tfLight);
+        xAxis.setTextSize(12f);
+        xAxis.setYOffset(22f);
+        xAxis.setXOffset(22f);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return timeOfDayStrs[(int) value % timeOfDayStrs.length] + "시";
+            }
+        });
+        xAxis.setTextColor(Color.BLACK);
+
+        YAxis yAxis = radarChart.getYAxis();
+        //yAxis.setTypeface(tfLight);
+        yAxis.setLabelCount(10, false);
+        yAxis.setTextSize(9f);
+        yAxis.setAxisMinimum(0f);
+        //yAxis.setAxisMaximum(maxVal * 1.2f);
+        yAxis.setDrawLabels(false);
+
+        Legend l = radarChart.getLegend();
+        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        l.setDrawInside(false);
+        //l.setTypeface(tfLight);
+        l.setXEntrySpace(7f);
+        l.setYEntrySpace(5f);
+        l.setTextColor(Color.BLACK);
     }
 }

@@ -21,9 +21,8 @@
     <com.github.mikephil.charting.charts.RadarChart
         android:id="@+id/dayOfWeekRadarChart"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="350dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/timeAnalyseTypeSpinner">
@@ -33,7 +32,7 @@
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/dayBarChart"
         android:layout_width="0dp"
-        android:layout_height="400dp"
+        android:layout_height="350dp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
