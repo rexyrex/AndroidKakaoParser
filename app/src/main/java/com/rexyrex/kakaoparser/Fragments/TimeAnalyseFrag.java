@@ -36,8 +36,16 @@ import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.ValueFormatters.DayAxisValueFormatter;
+import com.rexyrex.kakaoparser.ValueFormatters.MonthAxisValueFormatter;
+import com.rexyrex.kakaoparser.ValueFormatters.YearAxisValueFormatter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -89,58 +97,17 @@ public class TimeAnalyseFrag extends Fragment {
 
         Spinner typeSpinner = view.findViewById(R.id.timeAnalyseTypeSpinner);
 
+        //
+        // Data
+        // AxisValueFormatter
+        // xAxis granularity, bar width should be reliant on this val
+
         barChart = view.findViewById(R.id.dayBarChart);
-        barChart.getDescription().setEnabled(false);
 
-        barChart.setMaxVisibleValueCount(60);
 
-        // scaling can now only be done on x- and y-axis separately
-        barChart.setPinchZoom(false);
-
-        barChart.setDrawBarShadow(false);
-        barChart.setDrawGridBackground(false);
-
-        ArrayList<BarEntry> barEntryArrayList = new ArrayList<>();
-        List<DateIntPair> freqByDayPairs = cld.getFreqByDay();
-        Date startDate = freqByDayPairs.get(0).getDate();
-        Long startTime = startDate.getTime();
-        startDate = new Date(startTime - startTime % (24 * 60 * 60 * 1000));
-
-        ValueFormatter xAxisFormatter = new DayAxisValueFormatter(barChart, startDate);
-
-        XAxis barXAxis = barChart.getXAxis();
-        barXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        barXAxis.setDrawGridLines(false);
-        barXAxis.setGranularity(1f);
-        barXAxis.setLabelCount(6);
-        barXAxis.setValueFormatter(xAxisFormatter);
-
-        barChart.getAxisLeft().setDrawGridLines(false);
-
-        //set data
-
-        for(int i=0; i<freqByDayPairs.size(); i++){
-            DateIntPair tmpPair = freqByDayPairs.get(i);
-            long dateDiff = tmpPair.getDate().getTime() - startDate.getTime();
-            int daysDiff = (int)( (tmpPair.getDate().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-            barEntryArrayList.add(new BarEntry((float) daysDiff, tmpPair.getFrequency()));
-        }
-
-        BarDataSet barDataSet = new BarDataSet(barEntryArrayList, "일별 채팅량");
-        barDataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
-
-        ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-        dataSets.add(barDataSet);
-
-        BarData data = new BarData(dataSets);
-        data.setValueTextSize(10f);
-        data.setBarWidth(0.9f);
-
-        barChart.setData(data);
-
-        // add a nice and smooth animation
-        barChart.animateY(1500);
-        barChart.getLegend().setEnabled(false);
+        //makeBarChart(cld.getFreqByDay(), "day");
+        //makeBarChart(cld.getFreqByMonth(), "month");
+        makeBarChart(cld.getFreqByYear(), "year");
 
         radarChart = view.findViewById(R.id.dayOfWeekRadarChart);
         radarChart.setBackgroundColor(getActivity().getColor(R.color.lightBrown));
@@ -198,19 +165,46 @@ public class TimeAnalyseFrag extends Fragment {
 
         final ImageView testIV = view.findViewById(R.id.imageTestView);
 
-        final View[] viewItems = new View[]{radarChart, testIV, barChart};
-        final String[] items = new String[]{"Radar", "Pic", "BarChart"};
+        final View[] viewItems = new View[]{radarChart, testIV, barChart, barChart, barChart};
+        final String[] items = new String[]{"요일 분석", "시간 분석", "일 분석", "월 분석", "연 분석"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_dropdown_item, items);
         typeSpinner.setAdapter(adapter);
 
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                boolean isBar = true;
+                switch(items[position]){
+                    case "일 분석":
+                        LogUtils.e("일별");
+                        makeBarChart(cld.getFreqByDay(), "day");
+                        barChart.invalidate();
+                        break;
+                    case "월 분석":
+                        makeBarChart(cld.getFreqByMonth(), "month");
+                        barChart.invalidate();
+                        break;
+                    case "연 분석":
+                        makeBarChart(cld.getFreqByYear(), "year");
+                        barChart.invalidate();
+                        break;
+                    default:
+                        isBar = false;
+                        break;
+                }
+
                 for(int i=0; i<viewItems.length; i++){
                     if(position == i){
                         viewItems[i].setVisibility(View.VISIBLE);
                     } else {
-                        viewItems[i].setVisibility(View.GONE);
+                        LogUtils.e("isBar: " + isBar);
+                        if(i > 1 && isBar){
+                            LogUtils.e("Not Hide : " + i);
+                        } else {
+                            LogUtils.e("Hiding: " + i);
+                            viewItems[i].setVisibility(View.GONE);
+                        }
+
                     }
                 }
             }
@@ -222,6 +216,141 @@ public class TimeAnalyseFrag extends Fragment {
         });
 
         return view;
+    }
+
+    private void makeBarChart(List listData, String type) {
+        barChart.getDescription().setEnabled(false);
+
+        barChart.setBackgroundColor(getActivity().getColor(R.color.lightBrown));
+
+        barChart.setMaxVisibleValueCount(60);
+
+        // scaling can now only be done on x- and y-axis separately
+        barChart.setPinchZoom(false);
+
+        barChart.setDrawBarShadow(false);
+        barChart.setDrawGridBackground(false);
+
+        ArrayList<BarEntry> barEntryArrayList = new ArrayList<>();
+
+        XAxis barXAxis = barChart.getXAxis();
+        barXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        barXAxis.setDrawGridLines(false);
+
+        barXAxis.setLabelCount(6);
+
+        ValueFormatter xAxisFormatter = null;
+        float xAxisGranularity = 1f;
+
+        SimpleDateFormat monthFormat = new SimpleDateFormat("yyyy년 M월");
+        SimpleDateFormat parsableFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        switch(type){
+            case "day" :
+                List<DateIntPair> freqByDayPairs = listData;
+                Date startDate = freqByDayPairs.get(0).getDate();
+                Long startTime = startDate.getTime();
+                startDate = new Date(startTime - startTime % (24 * 60 * 60 * 1000));
+                xAxisFormatter = new DayAxisValueFormatter(barChart, startDate);
+                xAxisGranularity = 1f;
+
+                for(int i=0; i<freqByDayPairs.size(); i++){
+                    DateIntPair tmpPair = freqByDayPairs.get(i);
+                    int daysDiff = (int)( (tmpPair.getDate().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+                    barEntryArrayList.add(new BarEntry((float) daysDiff, tmpPair.getFrequency()));
+                }
+                break;
+            case "month" :
+                List<StringIntPair> freqByMonthPairs = listData;
+                String startDateStr = freqByMonthPairs.get(0).getword();
+
+
+                Date startMonthDate = null;
+                try{
+                    startMonthDate = monthFormat.parse(startDateStr);
+
+
+                    xAxisFormatter = new MonthAxisValueFormatter(barChart, startMonthDate);
+
+                    for(int i=0; i<freqByMonthPairs.size(); i++){
+                        StringIntPair tmpPair = freqByMonthPairs.get(i);
+
+                        Date tmpDate = monthFormat.parse(tmpPair.getword());
+
+                        long monthsBetween = ChronoUnit.MONTHS.between(
+                                YearMonth.from(LocalDate.parse(parsableFormat.format(startMonthDate))),
+                                YearMonth.from(LocalDate.parse(parsableFormat.format(tmpDate)))
+                        );
+
+                        barEntryArrayList.add(new BarEntry((float) monthsBetween, tmpPair.getFrequency()));
+                    }
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+                break;
+            case "year" :
+                List<StringIntPair> freqByYearPairs = listData;
+                String startDateYearStr = freqByYearPairs.get(0).getword();
+                SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy년");
+
+                Date startYearDate = null;
+                try{
+                    startYearDate = yearFormat.parse(startDateYearStr);
+
+                    LogUtils.e("Start YEar Date: " + startYearDate.toString());
+                    LogUtils.e(" freqByYearPairs.size() size: " + freqByYearPairs.size());
+
+
+                    xAxisFormatter = new YearAxisValueFormatter(barChart, startYearDate);
+
+                    for(int i=0; i<freqByYearPairs.size(); i++){
+                        StringIntPair tmpPair = freqByYearPairs.get(i);
+
+                        Date tmpDate = yearFormat.parse(tmpPair.getword());
+
+                        LogUtils.e("parsable: " + parsableFormat.format(startYearDate));
+                        LogUtils.e("parsable2: " + parsableFormat.format(tmpDate));
+
+                        long yearsBetween = ChronoUnit.YEARS.between(
+                                Year.from(LocalDate.parse(parsableFormat.format(startYearDate))),
+                                Year.from(LocalDate.parse(parsableFormat.format(tmpDate)))
+                        );
+
+                        LogUtils.e(" yearsBetween: " + yearsBetween);
+
+                        barEntryArrayList.add(new BarEntry((float) yearsBetween, tmpPair.getFrequency()));
+                    }
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+                break;
+            default : break;
+        }
+
+        barXAxis.setGranularity(xAxisGranularity);
+        barXAxis.setValueFormatter(xAxisFormatter);
+
+        barChart.getAxisLeft().setDrawGridLines(false);
+
+        //set data
+
+
+
+        BarDataSet barDataSet = new BarDataSet(barEntryArrayList, "일별 채팅량");
+        //barDataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
+        barDataSet.setColor(getActivity().getColor(R.color.colorPrimaryDark));
+
+        ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+        dataSets.add(barDataSet);
+
+        BarData data = new BarData(dataSets);
+        data.setValueTextSize(10f);
+        data.setBarWidth(xAxisGranularity*0.9f);
+
+        barChart.setData(data);
+
+        //barChart.animateY(1500);
+        barChart.getLegend().setEnabled(false);
     }
 
     private void setData() {

@@ -82,7 +82,15 @@ public interface ChatLineDAO {
     @Query("SELECT COUNT(*) as frequency, date as date FROM tb_chat_line GROUP BY dateDayString ORDER BY date asc")
     public List<DateIntPair> getFreqByDay();
 
-    //get frequency by day
+    //get frequency by month
+    @Query("SELECT COUNT(*) as frequency, dateMonthString as word FROM tb_chat_line GROUP BY dateMonthString ORDER BY date asc")
+    public List<StringIntPair> getFreqByMonth();
+
+    //get frequency by year
+    @Query("SELECT COUNT(*) as frequency, dateYearString as word FROM tb_chat_line GROUP BY dateYearString ORDER BY date asc")
+    public List<StringIntPair> getFreqByYear();
+
+    //get frequency by day of week
     @Query("SELECT COUNT(*) as frequency, dateDayOfWeekString as word FROM tb_chat_line GROUP BY dateDayOfWeekString")
     public List<StringIntPair> getFreqByDayOfWeek();
 
