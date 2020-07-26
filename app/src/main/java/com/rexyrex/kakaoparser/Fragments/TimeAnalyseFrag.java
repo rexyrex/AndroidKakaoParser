@@ -345,6 +345,7 @@ public class TimeAnalyseFrag extends Fragment {
 //        MarkerView mv = new MarkerView(getContext(), R.layout.radar_markerview);
 //        mv.setChartView(chart); // For bounds control
 //        chart.setMarker(mv); // Set the marker to the chart
+        radarChart.setClickable(false);
 
         ArrayList<RadarEntry> entries1 = new ArrayList<>();
         ArrayList<RadarEntry> entries2 = new ArrayList<>();
