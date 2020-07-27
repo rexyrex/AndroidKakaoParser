@@ -392,8 +392,9 @@ public class TimeAnalyseFrag extends Fragment {
         set1.setDrawFilled(true);
         set1.setFillAlpha(180);
         set1.setLineWidth(2f);
-        set1.setDrawHighlightCircleEnabled(true);
+        set1.setDrawHighlightCircleEnabled(false);
         set1.setDrawHighlightIndicators(false);
+        set1.setDrawValues(true);
 
         RadarDataSet set2 = new RadarDataSet(entries2, "This Week");
         set2.setColor(Color.rgb(121, 162, 175));
@@ -401,7 +402,7 @@ public class TimeAnalyseFrag extends Fragment {
         set2.setDrawFilled(true);
         set2.setFillAlpha(180);
         set2.setLineWidth(2f);
-        set2.setDrawHighlightCircleEnabled(true);
+        set2.setDrawHighlightCircleEnabled(false);
         set2.setDrawHighlightIndicators(false);
 
         ArrayList<IRadarDataSet> sets = new ArrayList<>();
@@ -416,6 +417,8 @@ public class TimeAnalyseFrag extends Fragment {
 
         radarChart.setData(data);
         radarChart.invalidate();
+
+        radarChart.getData().setHighlightEnabled(false);
 
         XAxis xAxis = radarChart.getXAxis();
         //xAxis.setTypeface(tfLight);
