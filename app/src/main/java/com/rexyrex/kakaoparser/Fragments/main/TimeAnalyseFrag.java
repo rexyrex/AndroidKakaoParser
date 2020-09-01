@@ -294,6 +294,8 @@ public class TimeAnalyseFrag extends Fragment {
                     for(StringIntPair sip : freqByDayOfWeekPairs){
                         if(day.equals(sip.getword())){
                             barEntryArrayList.add(new BarEntry(tmpInd, sip.getFrequency()));
+                            LogUtils.e("day:" + sip.getword());
+                            LogUtils.e("freq:" + sip.getFrequency());
                             tmpInd++;
                         }
                     }
@@ -310,7 +312,7 @@ public class TimeAnalyseFrag extends Fragment {
         //set data
 
 
-
+        LogUtils.e("data count:" + barEntryArrayList.size());
         BarDataSet barDataSet = new BarDataSet(barEntryArrayList, "일별 채팅량");
         //barDataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
         barDataSet.setColor(getActivity().getColor(R.color.colorPrimaryDark));

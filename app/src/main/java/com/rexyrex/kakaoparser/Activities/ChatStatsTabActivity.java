@@ -382,6 +382,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 cd.setWordFreqArrList(wordDao.getFreqWordList());
                 cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
                 cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
+                cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
+                cd.setAuthorsList(chatLineDao.getChatters());
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override

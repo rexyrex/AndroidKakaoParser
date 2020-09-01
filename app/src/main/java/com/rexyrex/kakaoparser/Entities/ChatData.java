@@ -1,5 +1,7 @@
 package com.rexyrex.kakaoparser.Entities;
 
+import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+
 import java.io.File;
 import java.util.List;
 
@@ -26,6 +28,10 @@ public class ChatData {
     List<StringIntPair> freqByDayOfWeek;
     int maxFreqByDayOfWeek;
 
+    List<ChatLineModel> allChatInit;
+
+    List<String> authorsList;
+
     public ChatData() {
 
     }
@@ -39,6 +45,21 @@ public class ChatData {
         return the_instance;
     }
 
+    public List<String> getAuthorsList() {
+        return authorsList;
+    }
+
+    public void setAuthorsList(List<String> authorsList) {
+        this.authorsList = authorsList;
+    }
+
+    public List<ChatLineModel> getAllChatInit() {
+        return allChatInit;
+    }
+
+    public void setAllChatInit(List<ChatLineModel> allChatInit) {
+        this.allChatInit = allChatInit;
+    }
 
     public File getChatFile() {
         return chatFile;

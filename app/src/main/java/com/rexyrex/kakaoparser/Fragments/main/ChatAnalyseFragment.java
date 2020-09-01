@@ -123,14 +123,15 @@ public class ChatAnalyseFragment extends Fragment {
 
         chatList = new ArrayList<>();
 
-        List<ChatLineModel> initChatList = chatLineDao.getAllChatsByDateDesc();
+        //<ChatLineModel> initChatList = chatLineDao.getAllChatsByDateDesc();
+        List<ChatLineModel> initChatList = cd.getAllChatInit();
         for(ChatLineModel element : initChatList) chatList.add(element);
 
         cla = new ChatListAdapter(chatList);
         chatLV.setAdapter(cla);
 
-        List<String> authorsList = chatLineDao.getChatters();
-
+        //List<String> authorsList = chatLineDao.getChatters();
+        List<String> authorsList = cd.getAuthorsList();
         authors = new String[authorsList.size() +1];
 
         for(int i=0; i<authorsList.size()+1; i++){
