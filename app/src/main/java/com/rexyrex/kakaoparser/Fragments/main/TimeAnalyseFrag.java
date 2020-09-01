@@ -1,4 +1,4 @@
-package com.rexyrex.kakaoparser.Fragments;
+package com.rexyrex.kakaoparser.Fragments.main;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.BarChart;

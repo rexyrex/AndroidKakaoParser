@@ -1,4 +1,4 @@
-package com.rexyrex.kakaoparser.Fragments;
+package com.rexyrex.kakaoparser.Fragments.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +18,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.rexyrex.kakaoparser.Activities.ChatPeekActivity;
-import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;

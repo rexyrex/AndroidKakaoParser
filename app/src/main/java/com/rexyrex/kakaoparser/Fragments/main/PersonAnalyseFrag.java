@@ -1,4 +1,4 @@
-package com.rexyrex.kakaoparser.Fragments;
+package com.rexyrex.kakaoparser.Fragments.main;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -26,11 +26,7 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
-import com.rexyrex.kakaoparser.Activities.MainActivity;
 import com.rexyrex.kakaoparser.Activities.PersonListActivity;
-import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
-import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
