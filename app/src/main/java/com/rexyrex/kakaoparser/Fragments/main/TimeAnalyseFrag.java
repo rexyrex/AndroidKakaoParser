@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Fragments.main;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -10,7 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.RadarChart;
@@ -26,6 +31,7 @@ import com.github.mikephil.charting.data.RadarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IRadarDataSet;
+import com.rexyrex.kakaoparser.Activities.PersonListActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
@@ -38,6 +44,7 @@ import com.rexyrex.kakaoparser.ValueFormatters.MonthAxisValueFormatter;
 import com.rexyrex.kakaoparser.ValueFormatters.WeekDayAxisValueFormatter;
 import com.rexyrex.kakaoparser.ValueFormatters.YearAxisValueFormatter;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Year;
@@ -57,7 +64,12 @@ public class TimeAnalyseFrag extends Fragment {
     private MainDatabase database;
     private ChatLineDAO cld;
 
+    CustomAdapter customAdapter;
+    ListView lv;
+
     ChatData cd;
+
+    NumberFormat numberFormat;
 
     String[] daysOfWeek = {"월", "화", "수", "목", "금", "토", "일"};
     String[] items = {"시간 분석", "요일 분석", "일 분석", "월 분석", "연 분석"};
@@ -83,6 +95,9 @@ public class TimeAnalyseFrag extends Fragment {
         cld = database.getChatLineDAO();
         cd = ChatData.getInstance();
 
+        numberFormat = NumberFormat.getInstance();
+        numberFormat.setGroupingUsed(true);
+
         if (getArguments() != null) {
 
         }
@@ -95,7 +110,7 @@ public class TimeAnalyseFrag extends Fragment {
         LogUtils.e("FRAGMENT ON CREATE VIEW");
 
         Spinner typeSpinner = view.findViewById(R.id.timeAnalyseTypeSpinner);
-
+        lv = view.findViewById(R.id.timeAnalyseLV);
         //
         // Data
         // AxisValueFormatter
@@ -130,26 +145,37 @@ public class TimeAnalyseFrag extends Fragment {
         boolean isBar = true;
         View[] viewItems = {radarChart, barChart, barChart, barChart, barChart};
 
+        List listData = new ArrayList<>();
+
 
         switch(items[position]){
             case "일 분석":
+                List<DateIntPair> tmp = cld.getFreqByDay();
+                for(int i=0; i<tmp.size(); i++){
+                    listData.add(new StringIntPair(tmp.get(i).getDate().toString(), tmp.get(i).getFrequency()));
+                }
+
                 LogUtils.e("일별");
-                makeBarChart(cld.getFreqByDay(), "day");
+                makeBarChart(tmp, "day");
                 barChart.invalidate();
                 break;
             case "월 분석":
-                makeBarChart(cld.getFreqByMonth(), "month");
+                listData = cld.getFreqByMonth();
+                makeBarChart(listData, "month");
                 barChart.invalidate();
                 break;
             case "연 분석":
-                makeBarChart(cld.getFreqByYear(), "year");
+                listData = cld.getFreqByYear();
+                makeBarChart(listData, "year");
                 barChart.invalidate();
                 break;
             case "요일 분석":
-                makeBarChart(cld.getFreqByDayOfWeek(), "dayOfWeek");
+                listData = cld.getFreqByDayOfWeek();
+                makeBarChart(listData, "dayOfWeek");
                 barChart.invalidate();
                 break;
             case "시간 분석":
+                listData = cld.getFreqByTimeOfDay();
                 isBar = false;
                 makeRadarChart();
                 break;
@@ -157,6 +183,9 @@ public class TimeAnalyseFrag extends Fragment {
                 isBar = false;
                 break;
         }
+
+        customAdapter = new CustomAdapter(listData);
+        lv.setAdapter(customAdapter);
 
         for(int i=0; i<viewItems.length; i++){
             if(position == i){
@@ -451,5 +480,42 @@ public class TimeAnalyseFrag extends Fragment {
         l.setXEntrySpace(7f);
         l.setYEntrySpace(5f);
         l.setTextColor(Color.BLACK);
+    }
+
+    class CustomAdapter extends BaseAdapter {
+
+        List<StringIntPair> pairs;
+
+        CustomAdapter(List<StringIntPair> pairs){
+            this.pairs = pairs;
+        }
+
+        @Override
+        public int getCount() {
+            return pairs.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            convertView = getLayoutInflater().inflate(R.layout.list_view_elem_basic, null);
+
+            TextView titleTV = convertView.findViewById(R.id.listElemBasicTitleTV);
+            TextView valueTV = convertView.findViewById(R.id.listElemBasicFreqTV);
+
+            titleTV.setText(position+1 + ". "+ pairs.get(position).getword());
+            valueTV.setText(numberFormat.format(pairs.get(position).getFrequency()));
+
+            return convertView;
+        }
     }
 }

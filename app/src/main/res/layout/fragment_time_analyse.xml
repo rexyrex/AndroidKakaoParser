@@ -7,17 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.main.TimeAnalyseFrag">
 
-    <ImageView
-        android:id="@+id/imageTestView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:src="@drawable/avatar0"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/timeAnalyseTypeSpinner" />
-
     <com.github.mikephil.charting.charts.RadarChart
         android:id="@+id/dayOfWeekRadarChart"
         android:layout_width="0dp"
@@ -51,6 +40,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ListView
+        android:id="@+id/timeAnalyseLV"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="350dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/dayOfWeekRadarChart" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
