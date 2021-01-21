@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "130150702474",
+    "project_id": "kakaoparser",
+    "storage_bucket": "kakaoparser.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:130150702474:android:b9ea2e40171ff661d57c73",
+        "android_client_info": {
+          "package_name": "com.rexyrex.kakaoparser"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "130150702474-jpgv66jn3m75u8kudimm5k1ko4eu2583.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOPY1mXL0ZrcgrVonAgyg6FgIiPZT_iPM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "130150702474-jpgv66jn3m75u8kudimm5k1ko4eu2583.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
