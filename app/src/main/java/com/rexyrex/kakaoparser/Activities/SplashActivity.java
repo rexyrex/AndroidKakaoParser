@@ -27,6 +27,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.rexyrex.kakaoparser.BuildConfig;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.DeviceInfoUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
@@ -40,6 +41,7 @@ public class SplashActivity extends AppCompatActivity {
 
     boolean backBtnPressed;
     TextView appTitleTV;
+    TextView versionTV;
     ImageView splashIV;
 
     String[] permissions;
@@ -77,6 +79,9 @@ public class SplashActivity extends AppCompatActivity {
 
         appTitleTV = findViewById(R.id.appTitleTV);
         splashIV = findViewById(R.id.splashIV);
+        versionTV = findViewById(R.id.versionTV);
+
+        versionTV.setText("Ver " + BuildConfig.VERSION_NAME);
 
         //LogUtils("splashIV isnull? : " + (splashIV == null));
 
@@ -117,8 +122,10 @@ public class SplashActivity extends AppCompatActivity {
     private void scheduleSplashScreen(long splashScreenDuration) {
         splashIV.setVisibility(View.VISIBLE);
         appTitleTV.setVisibility(View.VISIBLE);
+        versionTV.setVisibility(View.VISIBLE);
         runFadeInAnimation(splashIV);
         runFadeInAnimation(appTitleTV);
+        runFadeInAnimation(versionTV);
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
