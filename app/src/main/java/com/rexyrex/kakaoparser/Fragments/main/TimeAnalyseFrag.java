@@ -158,11 +158,13 @@ public class TimeAnalyseFrag extends Fragment {
         switch(items[position]){
             case "일 분석":
                 List<DateIntPair> tmp = cld.getFreqByDay();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일", Locale.KOREAN);
                 for(int i=0; i<tmp.size(); i++){
-                    listData.add(new StringIntPair(tmp.get(i).getDate().toString(), tmp.get(i).getFrequency()));
+                    listData.add(new StringIntPair(sdf.format(tmp.get(i).getDate()), tmp.get(i).getFrequency()));
                 }
 
                 makeBarChart(tmp, "day");
+
                 barChart.invalidate();
                 break;
             case "월 분석":
