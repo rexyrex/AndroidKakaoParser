@@ -46,6 +46,8 @@ public class ChatAnalyseFragment extends Fragment {
     private ChatLineDAO chatLineDao;
     NumberFormat numberFormat;
 
+    TextView countTV;
+
     ChatListAdapter cla;
 
     String[] authors;
@@ -85,6 +87,7 @@ public class ChatAnalyseFragment extends Fragment {
 
         searchET = view.findViewById(R.id.chatSearchET);
         authorSpinner = view.findViewById(R.id.chatAnalyseAuthorSpinner);
+        countTV = view.findViewById(R.id.chatSearchResTV);
 
         ListView chatLV = view.findViewById(R.id.chatAnalyseChatLV);
         TextView searchResTV = view.findViewById(R.id.chatSearchResTV);
@@ -175,6 +178,7 @@ public class ChatAnalyseFragment extends Fragment {
         chatList.clear();
         for(ChatLineModel element : chatLines) chatList.add(element);
         cla.notifyDataSetChanged();
+        countTV.setText("검색 결과 " + chatLines.size() + "건 (최대 10,000건)");
     }
 
     public void requestList(){

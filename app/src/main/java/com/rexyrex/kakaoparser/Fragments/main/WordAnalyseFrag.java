@@ -83,7 +83,7 @@ public class WordAnalyseFrag extends Fragment {
 
         ca = new WordListAdapter(freqList);
         wordLV.setAdapter(ca);
-        wordCountTV.setText("검색 결과 " + freqList.size() + "건");
+        wordCountTV.setText("검색 결과 " + freqList.size() + "건 (최대 10,000건)");
 
 
         wordLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -135,7 +135,7 @@ public class WordAnalyseFrag extends Fragment {
             freqList.addAll(wordDao.searchFreqWordList(charText));
         }
 
-        wordCountTV.setText("검색 결과 " + freqList.size() + "건");
+        wordCountTV.setText("검색 결과 " + freqList.size() + "건 (최대 10,000건)");
         ca.notifyDataSetChanged();
     }
 
