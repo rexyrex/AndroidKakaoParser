@@ -2,8 +2,10 @@ package com.rexyrex.kakaoparser.Fragments.main;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -51,8 +53,14 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
+import static java.util.Calendar.DATE;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
 public class TimeAnalyseFrag extends Fragment {
 
@@ -264,10 +272,15 @@ public class TimeAnalyseFrag extends Fragment {
 
                         Date tmpDate = monthFormat.parse(tmpPair.getword());
 
-                        long monthsBetween = ChronoUnit.MONTHS.between(
-                                YearMonth.from(LocalDate.parse(parsableFormat.format(startMonthDate))),
-                                YearMonth.from(LocalDate.parse(parsableFormat.format(tmpDate)))
-                        );
+                        long monthsBetween = monthsBetweenDates(startMonthDate, tmpDate);
+
+//                        long monthsBetween2 = ChronoUnit.MONTHS.between(
+//                                YearMonth.from(LocalDate.parse(parsableFormat.format(startMonthDate))),
+//                                YearMonth.from(LocalDate.parse(parsableFormat.format(tmpDate)))
+//                        );
+
+                        LogUtils.e(" monthsBetween: " + monthsBetween);
+//                        LogUtils.e(" monthsBetween2: " + monthsBetween2);
 
                         barEntryArrayList.add(new BarEntry((float) monthsBetween, tmpPair.getFrequency()));
                     }
@@ -298,12 +311,16 @@ public class TimeAnalyseFrag extends Fragment {
                         LogUtils.e("parsable: " + parsableFormat.format(startYearDate));
                         LogUtils.e("parsable2: " + parsableFormat.format(tmpDate));
 
-                        long yearsBetween = ChronoUnit.YEARS.between(
-                                Year.from(LocalDate.parse(parsableFormat.format(startYearDate))),
-                                Year.from(LocalDate.parse(parsableFormat.format(tmpDate)))
-                        );
+                        long yearsBetween = getDiffYears(startYearDate, tmpDate);
+
+//                         long  yearsBetween2=     ChronoUnit.YEARS.between(
+//                                Year.from(LocalDate.parse(parsableFormat.format(startYearDate))),
+//                                Year.from(LocalDate.parse(parsableFormat.format(tmpDate)))
+//                        );
+
 
                         LogUtils.e(" yearsBetween: " + yearsBetween);
+//                        LogUtils.e(" yearsBetween2: " + yearsBetween2);
 
                         barEntryArrayList.add(new BarEntry((float) yearsBetween, tmpPair.getFrequency()));
                     }
@@ -357,6 +374,58 @@ public class TimeAnalyseFrag extends Fragment {
 
         //barChart.animateY(1500);
         barChart.getLegend().setEnabled(false);
+    }
+
+    public static int getDiffYears(Date first, Date last) {
+        Calendar a = getCalendar(first);
+        Calendar b = getCalendar(last);
+        int diff = b.get(YEAR) - a.get(YEAR);
+        if (a.get(MONTH) > b.get(MONTH) ||
+                (a.get(MONTH) == b.get(MONTH) && a.get(DATE) > b.get(DATE))) {
+            diff--;
+        }
+        return diff;
+    }
+
+    public int monthsBetweenDates(Date first, Date last) {
+
+        Calendar dob = getCalendar(first);
+        Calendar today = getCalendar(last);
+
+        int monthsBetween = 0;
+        int dateDiff = today.get(Calendar.DAY_OF_MONTH) - dob.get(Calendar.DAY_OF_MONTH);
+
+        if (dateDiff < 0) {
+            int borrrow = today.getActualMaximum(Calendar.DAY_OF_MONTH);
+            dateDiff = (today.get(Calendar.DAY_OF_MONTH) + borrrow) - dob.get(Calendar.DAY_OF_MONTH);
+            monthsBetween--;
+
+            if (dateDiff > 0) {
+                monthsBetween++;
+            }
+        } else {
+            monthsBetween++;
+        }
+        monthsBetween += today.get(Calendar.MONTH) - dob.get(Calendar.MONTH);
+        monthsBetween += (today.get(Calendar.YEAR) - dob.get(Calendar.YEAR)) * 12;
+        return monthsBetween-1;
+    }
+
+    public static int getDiffMonths(Date first, Date last) {
+        Calendar a = getCalendar(first);
+        Calendar b = getCalendar(last);
+        int diff = b.get(MONTH) - a.get(MONTH);
+        if (a.get(MONTH) > b.get(MONTH) ||
+                (a.get(MONTH) == b.get(MONTH) && a.get(DATE) > b.get(DATE))) {
+            diff--;
+        }
+        return diff;
+    }
+
+    public static Calendar getCalendar(Date date) {
+        Calendar cal = Calendar.getInstance(Locale.KOREA);
+        cal.setTime(date);
+        return cal;
     }
 
     private void makeRadarChart() {
