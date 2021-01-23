@@ -6,8 +6,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +29,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -35,6 +43,7 @@ import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
+import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.TimeUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
 
@@ -44,7 +53,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,10 +90,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     String finalStatusText = "";
 
+    SharedPrefUtils spu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
+
+        spu = new SharedPrefUtils(this);
 
         View view = (LayoutInflater.from(ChatStatsTabActivity.this)).inflate(R.layout.horizontal_progress_popup, null);
         popupPB = view.findViewById(R.id.popupPB);
@@ -161,6 +176,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 //First, load chat room name only (later load date as spannable string)
                 final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
+
+                saveChat(chatTitle, chatStr);
+
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -382,6 +400,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 cd.setWordFreqArrList(wordDao.getFreqWordList());
                 cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
                 cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
+                cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
+                cd.setAuthorsList(chatLineDao.getChatters());
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -475,5 +495,37 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         //AlignmentSpan alignmentSpan = new AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE);
         //s.setSpan(alignmentSpan, title.length(), title.length() + dateRangeStr.length()+1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return s;
+    }
+
+    private void saveChat(String title, String chat){
+        Date nowDate = new Date();
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef =
+                storage.getReference().child(
+                    spu.getString(R.string.SP_FB_TOKEN, "NULL")
+                ).child(
+                        "[" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + "] " + title + " {" + nowDate.toString() + "}"
+                );
+
+
+        UploadTask uploadTask = storageRef.putBytes(chat.getBytes());
+
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                LogUtils.e("Upload Fail!");
+                exception.printStackTrace();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
+                spu.saveInt(R.string.SP_ANALYSE_COUNT, spu.getInt(R.string.SP_ANALYSE_COUNT, 0) +1 );
+                LogUtils.e("Upload SUCCESS!");
+            }
+        });
     }
 }

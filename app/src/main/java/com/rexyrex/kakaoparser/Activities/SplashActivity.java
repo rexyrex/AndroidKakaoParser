@@ -8,6 +8,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -16,29 +17,71 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.installations.FirebaseInstallations;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.rexyrex.kakaoparser.BuildConfig;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.DeviceInfoUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
+import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SplashActivity extends AppCompatActivity {
 
     boolean backBtnPressed;
     TextView appTitleTV;
+    TextView versionTV;
     ImageView splashIV;
 
     String[] permissions;
     String[] deniedPermsArr;
+
+    SharedPrefUtils spu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         backBtnPressed = false;
+        spu = new SharedPrefUtils(this);
+
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//
+//        Map<String, Object> user = new HashMap<>();
+//        user.put("first", "Ada");
+//
+//        db.collection("users")
+//                .add(user)
+//                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(DocumentReference documentReference) {
+//                        LogUtils.e( "DocumentSnapshot added with ID: " + documentReference.getId());
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        LogUtils.e("Error adding document" + e.getMessage());
+//                        e.printStackTrace();
+//                    }
+//                });
 
         appTitleTV = findViewById(R.id.appTitleTV);
         splashIV = findViewById(R.id.splashIV);
+        versionTV = findViewById(R.id.versionTV);
+
+        versionTV.setText("Ver " + BuildConfig.VERSION_NAME);
 
         //LogUtils("splashIV isnull? : " + (splashIV == null));
 
@@ -51,6 +94,21 @@ public class SplashActivity extends AppCompatActivity {
         ArrayList<String> deniedPerms =  DeviceInfoUtils.getDeniedPermissions(this, permissions);
         deniedPermsArr = deniedPerms.toArray(new String[0]);
 
+
+        //log fcm token
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                // Get new Instance ID token
+                String token = task.getResult();
+                LogUtils.e( "FB_Token: " + token);
+                spu.saveString(R.string.SP_FB_TOKEN, token);
+                startLogic();
+            }
+        });
+    }
+
+    private void startLogic(){
         //허용되지 않은 권한 있으면 권한 요청
         //deniedPermsArr length를 나중에도 확인해서 scheduleSplashScreen이 나중에 호출되도록 구현돼있음
         if(deniedPermsArr.length>0){
@@ -64,8 +122,10 @@ public class SplashActivity extends AppCompatActivity {
     private void scheduleSplashScreen(long splashScreenDuration) {
         splashIV.setVisibility(View.VISIBLE);
         appTitleTV.setVisibility(View.VISIBLE);
+        versionTV.setVisibility(View.VISIBLE);
         runFadeInAnimation(splashIV);
         runFadeInAnimation(appTitleTV);
+        runFadeInAnimation(versionTV);
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override

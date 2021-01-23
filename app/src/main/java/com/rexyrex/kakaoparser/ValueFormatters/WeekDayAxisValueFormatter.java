@@ -2,6 +2,7 @@ package com.rexyrex.kakaoparser.ValueFormatters;
 
 import com.github.mikephil.charting.charts.BarLineChartBase;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.rexyrex.kakaoparser.Utils.LogUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -16,6 +17,10 @@ public class WeekDayAxisValueFormatter extends ValueFormatter{
 
     @Override
     public String getFormattedValue(float value) {
+        if(value >= daysOfWeek.length){
+            LogUtils.e("Value is out of bounds! " + value);
+            value = daysOfWeek.length -1;
+        }
         return daysOfWeek[(int) value];
     }
 }

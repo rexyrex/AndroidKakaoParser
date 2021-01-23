@@ -5,7 +5,7 @@
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.PersonAnalyseFrag">
+    tools:context=".Fragments.main.PersonAnalyseFrag">
 
     <ListView
         android:id="@+id/pafPersonFreqLV"

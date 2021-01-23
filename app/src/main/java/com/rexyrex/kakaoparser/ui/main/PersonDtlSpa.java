@@ -9,22 +9,23 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Fragments.main.ChatAnalyseFragment;
-import com.rexyrex.kakaoparser.Fragments.main.PersonAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.main.GeneralStatsFrag;
+import com.rexyrex.kakaoparser.Fragments.main.PersonAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.main.TimeAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.main.WordAnalyseFrag;
+import com.rexyrex.kakaoparser.Fragments.person.PGeneralFrag;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
  * one of the sections/tabs/pages.
  */
-public class SectionsPagerAdapter extends FragmentPagerAdapter {
+public class PersonDtlSpa extends FragmentPagerAdapter {
 
-    private static final String[] TAB_TITLES = new String[]{"개요", "사람", "대화", "단어", "시간"};
+    private static final String[] TAB_TITLES = new String[]{"개요", "사람"};
     private final Context mContext;
     private final ChatData cd;
 
-    public SectionsPagerAdapter(Context context, FragmentManager fm) {
+    public PersonDtlSpa(Context context, FragmentManager fm) {
         super(fm);
         this.cd = ChatData.getInstance();
         mContext = context;
@@ -38,15 +39,10 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         switch(TAB_TITLES[position]){
             case "개요" :
-                GeneralStatsFrag gsf = GeneralStatsFrag.newInstance(); return gsf;
+                return PGeneralFrag.newInstance();
             case "사람" :
-                PersonAnalyseFrag cff = PersonAnalyseFrag.newInstance(); return cff;
-            case "대화" :
-                ChatAnalyseFragment caf = ChatAnalyseFragment.newInstance(); return caf;
-            case "단어" :
-                WordAnalyseFrag waf = WordAnalyseFrag.newInstance(); return waf;
-            case "시간" :
-                TimeAnalyseFrag taf = TimeAnalyseFrag.newInstance(); return taf;
+                return PGeneralFrag.newInstance();
+
             default : return null;
         }
     }

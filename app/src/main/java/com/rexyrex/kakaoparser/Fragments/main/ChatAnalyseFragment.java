@@ -1,4 +1,4 @@
-package com.rexyrex.kakaoparser.Fragments;
+package com.rexyrex.kakaoparser.Fragments.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +18,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.rexyrex.kakaoparser.Activities.ChatPeekActivity;
-import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
@@ -124,14 +123,15 @@ public class ChatAnalyseFragment extends Fragment {
 
         chatList = new ArrayList<>();
 
-        List<ChatLineModel> initChatList = chatLineDao.getAllChatsByDateDesc();
+        //<ChatLineModel> initChatList = chatLineDao.getAllChatsByDateDesc();
+        List<ChatLineModel> initChatList = cd.getAllChatInit();
         for(ChatLineModel element : initChatList) chatList.add(element);
 
         cla = new ChatListAdapter(chatList);
         chatLV.setAdapter(cla);
 
-        List<String> authorsList = chatLineDao.getChatters();
-
+        //List<String> authorsList = chatLineDao.getChatters();
+        List<String> authorsList = cd.getAuthorsList();
         authors = new String[authorsList.size() +1];
 
         for(int i=0; i<authorsList.size()+1; i++){
