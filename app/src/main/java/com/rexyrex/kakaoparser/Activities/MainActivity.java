@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     File[] reversedFilesArr;
     ChatData cd;
 
+    LinearLayout kakaoBtn;
+    LinearLayout instructionsBtn;
+
     NumberFormat numberFormat;
 
     private static long lastBackAttemptTime;
@@ -45,6 +49,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         chatLV = findViewById(R.id.chatLV);
+
+        kakaoBtn = findViewById(R.id.openKakaoLayout);
+        instructionsBtn = findViewById(R.id.instructionsLayout);
+
+        kakaoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.kakao.talk");
+                if (launchIntent != null) {
+                    startActivity(launchIntent);
+                }
+            }
+        });
+
+        instructionsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent instIntent = new Intent(MainActivity.this, InstructionsActivity.class);
+                MainActivity.this.startActivity(instIntent);
+            }
+        });
 
         cd = ChatData.getInstance();
         lastBackAttemptTime = 0;
