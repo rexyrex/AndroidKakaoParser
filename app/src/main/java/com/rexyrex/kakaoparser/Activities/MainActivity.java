@@ -71,6 +71,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        loadList();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadList();
+    }
+
+    public void loadList(){
         cd = ChatData.getInstance();
         lastBackAttemptTime = 0;
 
