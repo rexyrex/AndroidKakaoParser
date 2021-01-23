@@ -16,7 +16,7 @@
         android:fontFamily="@font/nanum_square_round_r"
         android:text="감자먹자"
         android:textColor="@color/white"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
