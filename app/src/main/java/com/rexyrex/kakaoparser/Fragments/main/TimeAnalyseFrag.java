@@ -87,7 +87,6 @@ public class TimeAnalyseFrag extends Fragment {
         // Required empty public constructor
     }
 
-
     public static TimeAnalyseFrag newInstance() {
         TimeAnalyseFrag fragment = new TimeAnalyseFrag();
         Bundle args = new Bundle();
@@ -154,7 +153,7 @@ public class TimeAnalyseFrag extends Fragment {
         View[] viewItems = {radarChart, barChart, barChart, barChart, barChart};
 
         List listData = new ArrayList<>();
-
+        List tmpList = new ArrayList();
 
         switch(items[position]){
             case "일 분석":
@@ -163,7 +162,6 @@ public class TimeAnalyseFrag extends Fragment {
                     listData.add(new StringIntPair(tmp.get(i).getDate().toString(), tmp.get(i).getFrequency()));
                 }
 
-                LogUtils.e("일별");
                 makeBarChart(tmp, "day");
                 barChart.invalidate();
                 break;
@@ -179,20 +177,59 @@ public class TimeAnalyseFrag extends Fragment {
                 break;
             case "요일 분석":
                 listData = cld.getFreqByDayOfWeek();
+
+                //fill missing entries as 0
+                for(int i=0; i<daysOfWeek.length; i++){
+                    boolean added = false;
+                    for(Object o : listData){
+                        StringIntPair sip = (StringIntPair) o;
+                        if(sip.getword().equals(daysOfWeek[i])){
+                            tmpList.add(sip);
+                            added = true;
+                        }
+                    }
+                    if(!added){
+                        tmpList.add(new StringIntPair(daysOfWeek[i], 0));
+                    }
+                }
+
+                listData = tmpList;
+
                 makeBarChart(listData, "dayOfWeek");
                 barChart.invalidate();
+
                 break;
             case "시간 분석":
                 listData = cld.getFreqByTimeOfDay();
+
+                //fill missing entries as 0
+                for(int i=0; i<timeOfDayStrs.length; i++){
+                    boolean added = false;
+                    for(Object o : listData){
+                        StringIntPair sip = (StringIntPair) o;
+                        if(sip.getword().equals(timeOfDayStrs[i])){
+                            sip.setword(sip.getword() + "시");
+                            tmpList.add(sip);
+                            added = true;
+                        }
+                    }
+                    if(!added){
+                        tmpList.add(new StringIntPair(timeOfDayStrs[i] + "시", 0));
+                    }
+                }
+
+                listData = tmpList;
+
                 isBar = false;
                 makeRadarChart();
+
                 break;
             default:
                 isBar = false;
                 break;
         }
 
-        customAdapter = new CustomAdapter(listData);
+        customAdapter = new CustomAdapter(listData, items[position]);
         lv.setAdapter(customAdapter);
 
         for(int i=0; i<viewItems.length; i++){
@@ -357,7 +394,6 @@ public class TimeAnalyseFrag extends Fragment {
 
         //set data
 
-
         LogUtils.e("data count:" + barEntryArrayList.size());
         BarDataSet barDataSet = new BarDataSet(barEntryArrayList, "일별 채팅량");
         //barDataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
@@ -485,7 +521,7 @@ public class TimeAnalyseFrag extends Fragment {
 
         LogUtils.e("entries size : " + entries1.size());
 
-        RadarDataSet set1 = new RadarDataSet(entries1, "Last Week");
+        RadarDataSet set1 = new RadarDataSet(entries1, "시간 분석");
         set1.setColor(getActivity().getColor(R.color.colorPrimary));
         set1.setFillColor(getActivity().getColor(R.color.colorPrimaryDark));
         set1.setDrawFilled(true);
@@ -554,9 +590,11 @@ public class TimeAnalyseFrag extends Fragment {
     class CustomAdapter extends BaseAdapter {
 
         List<StringIntPair> pairs;
+        String type;
 
-        CustomAdapter(List<StringIntPair> pairs){
+        CustomAdapter(List<StringIntPair> pairs, String type){
             this.pairs = pairs;
+            this.type = type;
         }
 
         @Override
@@ -581,7 +619,12 @@ public class TimeAnalyseFrag extends Fragment {
             TextView titleTV = convertView.findViewById(R.id.listElemBasicTitleTV);
             TextView valueTV = convertView.findViewById(R.id.listElemBasicFreqTV);
 
-            titleTV.setText(position+1 + ". "+ pairs.get(position).getword());
+            if(type.equals("시간 분석")){
+                titleTV.setText(pairs.get(position).getword());
+            } else {
+                titleTV.setText(position+1 + ". "+ pairs.get(position).getword());
+            }
+
             valueTV.setText(numberFormat.format(pairs.get(position).getFrequency()));
 
             return convertView;
