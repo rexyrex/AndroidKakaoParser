@@ -3,13 +3,19 @@ package com.rexyrex.kakaoparser.Activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreference;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.rexyrex.kakaoparser.R;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -73,6 +79,37 @@ public class SettingsActivity extends AppCompatActivity {
                 email.setType("message/rfc822");
 
                 startActivity(Intent.createChooser(email, "이메일 클라이언트 선택 :"));
+                return true;
+            }
+
+            if(key.equals("appNoti")){
+                boolean val = preference.getSharedPreferences().getBoolean("appNoti", false);
+                //subscribe to topic
+                if(val){
+                    FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.FirebaseTopicName))
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getActivity(), "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(getActivity(), "알림 구독 완료", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                } else {
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(getString(R.string.FirebaseTopicName))
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getActivity(), "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(getActivity(), "알림 구독 해제", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                }
                 return true;
             }
 

@@ -32,7 +32,9 @@
     <PreferenceCategory app:title="알림">
         <SwitchPreferenceCompat
             app:key="appNoti"
-            app:title="알림 받기" />
+            app:title="알림 받기"
+            app:defaultValue="true"
+            />
     </PreferenceCategory>
 
 </PreferenceScreen>

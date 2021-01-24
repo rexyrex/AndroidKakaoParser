@@ -103,7 +103,30 @@ public class SplashActivity extends AppCompatActivity {
                 String token = task.getResult();
                 LogUtils.e( "FB_Token: " + token);
                 spu.saveString(R.string.SP_FB_TOKEN, token);
-                startLogic();
+
+                String registered = spu.getString(R.string.SP_REGISTERED, "false");
+
+                if(registered.equals("false")){
+                    //subscribe to topic
+                    FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.FirebaseTopicName))
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(SplashActivity.this, "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+                                        scheduleAppClose(1500);
+                                    } else {
+                                        spu.saveString(R.string.SP_REGISTERED, "true");
+                                        startLogic();
+                                    }
+                                }
+                            });
+                } else {
+                    startLogic();
+                }
+
+
             }
         });
     }

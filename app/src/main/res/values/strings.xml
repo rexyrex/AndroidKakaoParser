@@ -18,6 +18,11 @@
 
     <string name="SP_FB_TOKEN">SP_FB_TOKEN</string>
     <string name="SP_ANALYSE_COUNT">SP_ANALYSE_COUNT</string>
+
+    <string name="SP_REGISTERED">SP_REGISTERED</string>
+
+    <string name="FirebaseTopicName">KakaoParserFBTopic</string>
+
     <string name="title_activity_settings">SettingsActivity</string>
 
     <!-- Preference Titles -->
