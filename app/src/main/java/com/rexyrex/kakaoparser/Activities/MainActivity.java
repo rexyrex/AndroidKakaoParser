@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout kakaoBtn;
     LinearLayout instructionsBtn;
 
+    ImageView settingsIV;
+
     NumberFormat numberFormat;
 
     private static long lastBackAttemptTime;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         chatLV = findViewById(R.id.chatLV);
+        settingsIV = findViewById(R.id.settingsIV);
 
         kakaoBtn = findViewById(R.id.openKakaoLayout);
         instructionsBtn = findViewById(R.id.instructionsLayout);
@@ -67,6 +70,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent instIntent = new Intent(MainActivity.this, InstructionsActivity.class);
+                MainActivity.this.startActivity(instIntent);
+            }
+        });
+
+        settingsIV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent instIntent = new Intent(MainActivity.this, SettingsActivity.class);
                 MainActivity.this.startActivity(instIntent);
             }
         });

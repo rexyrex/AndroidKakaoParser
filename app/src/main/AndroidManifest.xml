@@ -13,7 +13,10 @@
         android:roundIcon="@mipmap/kakao_ic_launcher_analyze_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.InstructionsActivity"></activity>
+        <activity
+            android:name=".Activities.SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
+        <activity android:name=".Activities.InstructionsActivity" />
         <activity android:name=".Activities.DetailActivities.PersonDtlActivity" />
         <activity android:name=".Activities.ChatPeekActivity" />
         <activity android:name=".Activities.PersonListActivity" />
@@ -59,6 +62,7 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
         <service
             android:name=".Services.MyFirebaseMessagingService"
             android:exported="false">
