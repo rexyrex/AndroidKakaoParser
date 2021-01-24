@@ -485,7 +485,7 @@ public class TimeAnalyseFrag extends Fragment {
         radarChart.setClickable(false);
 
         ArrayList<RadarEntry> entries1 = new ArrayList<>();
-        ArrayList<RadarEntry> entries2 = new ArrayList<>();
+        //ArrayList<RadarEntry> entries2 = new ArrayList<>();
 
         // NOTE: The order of the entries when being added to the entries array determines their position around the center of
         // the chart.
@@ -533,18 +533,18 @@ public class TimeAnalyseFrag extends Fragment {
         set1.setDrawHighlightIndicators(false);
         set1.setDrawValues(true);
 
-        RadarDataSet set2 = new RadarDataSet(entries2, "This Week");
-        set2.setColor(Color.rgb(121, 162, 175));
-        set2.setFillColor(Color.rgb(121, 162, 175));
-        set2.setDrawFilled(true);
-        set2.setFillAlpha(180);
-        set2.setLineWidth(2f);
-        set2.setDrawHighlightCircleEnabled(false);
-        set2.setDrawHighlightIndicators(false);
+//        RadarDataSet set2 = new RadarDataSet(entries2, "This Week");
+//        set2.setColor(Color.rgb(121, 162, 175));
+//        set2.setFillColor(Color.rgb(121, 162, 175));
+//        set2.setDrawFilled(true);
+//        set2.setFillAlpha(180);
+//        set2.setLineWidth(2f);
+//        set2.setDrawHighlightCircleEnabled(false);
+//        set2.setDrawHighlightIndicators(false);
 
         ArrayList<IRadarDataSet> sets = new ArrayList<>();
         sets.add(set1);
-        sets.add(set2);
+//        sets.add(set2);
 
         RadarData data = new RadarData(sets);
         //data.setValueTypeface(tfLight);
