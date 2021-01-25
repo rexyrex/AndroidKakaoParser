@@ -26,10 +26,12 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rexyrex.kakaoparser.Activities.PersonListActivity;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.ShareUtils;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -46,6 +48,8 @@ public class PersonAnalyseFrag extends Fragment {
     ChatData cd;
 
     NumberFormat numberFormat;
+
+    private FloatingActionButton fab;
 
     public PersonAnalyseFrag() {
         // Required empty public constructor
@@ -75,6 +79,8 @@ public class PersonAnalyseFrag extends Fragment {
         View view = inflater.inflate(R.layout.fragment_person_analyse, container, false);
 
         PieChart chatAmountPieChart = view.findViewById(R.id.chatAmountPieChart);
+
+        fab = view.findViewById(R.id.fabPerson);
 
         chatAmountPieChart.setData(getChatAmountPieData());
 
@@ -127,10 +133,24 @@ public class PersonAnalyseFrag extends Fragment {
 
         ListView freqLV = view.findViewById(R.id.pafPersonFreqLV);
 
-        int totalCount = cd.getChatLineCount();
+        final int totalCount = cd.getChatLineCount();
 
         CustomAdapter customAdapter = new CustomAdapter(cd.getTop10Chatters(), totalCount);
         freqLV.setAdapter(customAdapter);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                List<StringIntPair> pairs = cd.getTop10Chatters();
+                String shareString = "";
+                for(int i=0; i<pairs.size(); i++){
+                    String p1 = (i+1) + ". "+ pairs.get(i).getword();
+                    String p2 = numberFormat.format(pairs.get(i).getFrequency()) + " (" + String.format("%.1f", (double)pairs.get(i).getFrequency()/totalCount*100) + "%)";
+                    shareString += p1 + " : " + p2 + "\n";
+                }
+                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "대화량 순위 (Top10)", shareString);
+            }
+        });
 
         return view;
     }

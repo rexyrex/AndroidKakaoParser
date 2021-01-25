@@ -7,6 +7,17 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.main.TimeAnalyseFrag">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="100dp"
+        android:layout_marginBottom="50dp"
+        android:clickable="true"
+        android:src="?attr/actionModeShareDrawable"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <com.github.mikephil.charting.charts.RadarChart
         android:id="@+id/dayOfWeekRadarChart"
         android:layout_width="0dp"

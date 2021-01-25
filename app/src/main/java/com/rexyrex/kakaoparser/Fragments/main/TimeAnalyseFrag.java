@@ -33,6 +33,7 @@ import com.github.mikephil.charting.data.RadarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IRadarDataSet;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rexyrex.kakaoparser.Activities.PersonListActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -41,6 +42,7 @@ import com.rexyrex.kakaoparser.Entities.DateIntPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
+import com.rexyrex.kakaoparser.Utils.ShareUtils;
 import com.rexyrex.kakaoparser.ValueFormatters.DayAxisValueFormatter;
 import com.rexyrex.kakaoparser.ValueFormatters.MonthAxisValueFormatter;
 import com.rexyrex.kakaoparser.ValueFormatters.WeekDayAxisValueFormatter;
@@ -71,6 +73,9 @@ public class TimeAnalyseFrag extends Fragment {
 
     private MainDatabase database;
     private ChatLineDAO cld;
+
+    private FloatingActionButton fab;
+    private Spinner typeSpinner;
 
     CustomAdapter customAdapter;
     ListView lv;
@@ -116,7 +121,7 @@ public class TimeAnalyseFrag extends Fragment {
         View view = inflater.inflate(R.layout.fragment_time_analyse, container, false);
         LogUtils.e("FRAGMENT ON CREATE VIEW");
 
-        Spinner typeSpinner = view.findViewById(R.id.timeAnalyseTypeSpinner);
+        typeSpinner = view.findViewById(R.id.timeAnalyseTypeSpinner);
         lv = view.findViewById(R.id.timeAnalyseLV);
         //
         // Data
@@ -124,6 +129,7 @@ public class TimeAnalyseFrag extends Fragment {
         // xAxis granularity, bar width should be reliant on this val
         barChart = view.findViewById(R.id.dayBarChart);
         radarChart = view.findViewById(R.id.dayOfWeekRadarChart);
+        fab = view.findViewById(R.id.fabTime);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_dropdown_item, items);
         typeSpinner.setAdapter(adapter);
@@ -144,6 +150,18 @@ public class TimeAnalyseFrag extends Fragment {
 
         LogUtils.e("Loading : " + typeSpinner.getSelectedItemPosition());
         loadGraph(typeSpinner.getSelectedItemPosition());
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String shareString = "";
+                List<StringIntPair> pairs = customAdapter.getPairs();
+                for(int i=0; i<pairs.size(); i++){
+                    shareString += (i+1) + ". "+ pairs.get(i).getword() + " : " + pairs.get(i).getFrequency() + "회\n";
+                }
+                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), items[typeSpinner.getSelectedItemPosition()] + " (대화량)", shareString);
+            }
+        });
 
         return view;
     }
@@ -379,8 +397,6 @@ public class TimeAnalyseFrag extends Fragment {
                     for(StringIntPair sip : freqByDayOfWeekPairs){
                         if(day.equals(sip.getword())){
                             barEntryArrayList.add(new BarEntry(tmpInd, sip.getFrequency()));
-                            LogUtils.e("day:" + sip.getword());
-                            LogUtils.e("freq:" + sip.getFrequency());
                             tmpInd++;
                         }
                     }
@@ -597,6 +613,10 @@ public class TimeAnalyseFrag extends Fragment {
         CustomAdapter(List<StringIntPair> pairs, String type){
             this.pairs = pairs;
             this.type = type;
+        }
+
+        public List<StringIntPair> getPairs(){
+            return pairs;
         }
 
         @Override

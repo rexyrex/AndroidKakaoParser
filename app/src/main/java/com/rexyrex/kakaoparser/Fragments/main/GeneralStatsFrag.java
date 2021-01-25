@@ -13,12 +13,14 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringStringPair;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.ShareUtils;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ public class GeneralStatsFrag extends Fragment {
     private MainDatabase database;
     private ChatLineDAO chatLineDao;
     private WordDAO wordDao;
+
+    private FloatingActionButton fab;
 
     NumberFormat numberFormat;
 
@@ -74,11 +78,14 @@ public class GeneralStatsFrag extends Fragment {
         View view = inflater.inflate(R.layout.fragment_general_stats, container, false);
 
         ListView generalStatsLV = view.findViewById(R.id.generalStatsLV);
+        fab = view.findViewById(R.id.fabGeneral);
+
+
 
         //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
         //String dateRange = dateFormat.format(chatLineDao.getStartDate()) + "~" + dateFormat.format(chatLineDao.getEndDate());
 
-        ArrayList<StringStringPair> pairs = new ArrayList<>();
+        final ArrayList<StringStringPair> pairs = new ArrayList<>();
         //pairs.add(new StringStringPair("분석 기간", "" + dateRange));
         pairs.add(new StringStringPair("대화 참여 인원", ""+ cd.getChatterCount()));
         pairs.add(new StringStringPair("분석 일 수", "" + numberFormat.format(cd.getDayCount())));
@@ -92,6 +99,17 @@ public class GeneralStatsFrag extends Fragment {
         pairs.add(new StringStringPair("동영상 개수", "" + numberFormat.format(cd.getVideoCount())));
         pairs.add(new StringStringPair("PPT 개수", "" + numberFormat.format(cd.getPptCount())));
         pairs.add(new StringStringPair("삭제된 메시지", "" + numberFormat.format(cd.getDeletedMsgCount())));
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String shareContent = "";
+                for(int i=0; i<pairs.size(); i++){
+                    shareContent += pairs.get(i).getTitle() + " : " + pairs.get(i).getValue() + "\n";
+                }
+                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "분석 개요", shareContent);
+            }
+        });
 
         CustomAdapter customAdapter = new CustomAdapter(pairs);
         generalStatsLV.setAdapter(customAdapter);

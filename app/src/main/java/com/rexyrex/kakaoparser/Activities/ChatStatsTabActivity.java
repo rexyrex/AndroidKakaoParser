@@ -177,6 +177,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 //First, load chat room name only (later load date as spannable string)
                 final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
 
+                cd.setChatFileTitle(chatTitle);
+
                 saveChat(chatTitle, chatStr);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {

@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -22,6 +23,7 @@ import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.KeyboardUtils;
+import com.rexyrex.kakaoparser.Utils.ShareUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,8 @@ public class WordAnalyseFrag extends Fragment {
     ArrayList<StringIntPair> freqList;
     WordListAdapter ca;
     TextView wordCountTV;
+
+    private FloatingActionButton fab;
 
     ChatData cd;
 
@@ -75,6 +79,8 @@ public class WordAnalyseFrag extends Fragment {
         final EditText wordSearchET = view.findViewById(R.id.wordSearchET);
         wordCountTV = view.findViewById(R.id.wordSearchResTV);
 
+        fab = view.findViewById(R.id.fabWord);
+
         freqList = new ArrayList<>();
 
         wordFreqArrList = cd.getWordFreqArrList();
@@ -109,6 +115,17 @@ public class WordAnalyseFrag extends Fragment {
                     return true;
                 }
                 return false;
+            }
+        });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String shareString = "";
+                for(int i=0; i<(freqList.size() > 20 ? 20 : freqList.size()); i++){
+                    shareString += (i+1) + ". "+ freqList.get(i).getword() + " : " + freqList.get(i).getFrequency() + "회" + "\n";
+                }
+                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "단어 사용량 순위 (Top20)", shareString);
             }
         });
 

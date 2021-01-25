@@ -9,6 +9,7 @@ public class ChatData {
 
     double loadElapsedSeconds;
     File chatFile;
+    String chatFileTitle;
 
     int chatterCount;
     int dayCount;
@@ -43,6 +44,15 @@ public class ChatData {
         }
 
         return the_instance;
+    }
+
+
+    public String getChatFileTitle() {
+        return chatFileTitle;
+    }
+
+    public void setChatFileTitle(String chatFileTitle) {
+        this.chatFileTitle = chatFileTitle;
     }
 
     public List<String> getAuthorsList() {
