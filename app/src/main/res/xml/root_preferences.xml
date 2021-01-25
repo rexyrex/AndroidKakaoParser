@@ -18,6 +18,11 @@
             app:title="공유하기"
             />
 
+        <Preference
+            app:key="appPrivacy"
+            app:title="개인정보처리방침"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="문의하기">

@@ -2,7 +2,10 @@ package com.rexyrex.kakaoparser.Activities;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -11,9 +14,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
@@ -27,9 +32,11 @@ import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.DialogUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class WordDetailAnalyseActivity extends AppCompatActivity {
     TextView titleTV;
@@ -60,8 +67,8 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
 
         final String word = this.getIntent().getStringExtra("word");
 
-        titleTV.setText(word+"");
-        freqTV.setText(wordDao.getFreqWordListSearch(word).getFrequency() + "회");
+        titleTV.setText("단어 : \"" + word+"\"");
+        freqTV.setText("빈도 : " + wordDao.getFreqWordListSearch(word).getFrequency() + "회");
 
         popupChatLineList = wordDao.getChatLinesContainingWord(word);
         WordListAdapter ca = new WordListAdapter(popupChatLineList);
@@ -80,15 +87,68 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
                 WordDetailAnalyseActivity.this.startActivity(statsIntent);
             }
         });
-
+        
         freqPieChart.setData(getWordUserFreqPieData(word));
+
+        Typeface tf = ResourcesCompat.getFont(this, R.font.nanum_square_round_r);
+
+        freqPieChart.setCenterTextTypeface(tf);
+        freqPieChart.setCenterText(generateCenterSpannableText(tf));
+        freqPieChart.setCenterTextSize(14);
+
+        freqPieChart.setExtraOffsets(20.f, 20.f, 20.f, 20.f);
+
+        freqPieChart.setDrawHoleEnabled(true);
+        freqPieChart.setHoleColor(this.getResources().getColor(R.color.lightBrown));
+
+        freqPieChart.setTransparentCircleColor(Color.WHITE);
+        freqPieChart.setTransparentCircleAlpha(110);
+
+        freqPieChart.setHoleRadius(58f);
+        freqPieChart.setTransparentCircleRadius(61f);
+
+        freqPieChart.setDrawCenterText(true);
+        freqPieChart.setMinAngleForSlices(10f);
+
+        freqPieChart.setEntryLabelColor(Color.BLACK);
+        freqPieChart.setEntryLabelTextSize(12);
+        freqPieChart.setEntryLabelTypeface(tf);
+
+        freqPieChart.getDescription().setEnabled(false);
+        freqPieChart.setDragDecelerationFrictionCoef(0.95f);
+
+        freqPieChart.setHighlightPerTapEnabled(false);
+
+        freqPieChart.highlightValues(null);
+
+        freqPieChart.invalidate();
+
+        freqPieChart.setDrawEntryLabels(true);
+
+        //freqPieChart.set
+
+        Legend l = freqPieChart.getLegend();
+        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+        l.setOrientation(Legend.LegendOrientation.VERTICAL);
+        l.setDrawInside(false);
+        l.setEnabled(false);
+        
+        
         //freqPieChart.animateXY(2000, 2000);
         freqPieChart.spin(500, freqPieChart.getRotationAngle(), freqPieChart.getRotationAngle() + 180, Easing.EaseInOutCubic);
+    }
+
+    private SpannableString generateCenterSpannableText(Typeface tf) {
+        SpannableString s = new SpannableString("사용 빈도");
+        s.setSpan(new StyleSpan(Typeface.BOLD), 0, s.length(), 0);
+        return s;
     }
 
 
     class WordListAdapter extends BaseAdapter {
         List<ChatLineModel> wordFreqArrList;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
 
         WordListAdapter(List<ChatLineModel> wordFreqArrList){
             this.wordFreqArrList = wordFreqArrList;
@@ -113,8 +173,12 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem_chat_line, null);
             TextView sentenceTV = convertView.findViewById(R.id.chatLineElemContentsTV);
+            TextView dtlTV = convertView.findViewById(R.id.chatLineElemDescTV);
+
+            String dtlStr = wordFreqArrList.get(position).getAuthor() + ", " + sdf.format(wordFreqArrList.get(position).getDate());
 
             sentenceTV.setText(wordFreqArrList.get(position).getContent());
+            dtlTV.setText(dtlStr);
 
             return convertView;
         }
@@ -124,8 +188,15 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
         ArrayList chatAmountArrayList = new ArrayList();
 
         List<StringIntPair> authorFrequencyList = wordDao.getFreqWordListSearchByAuthor(word);
+
+        //calculate total
+        int totalCount = 0;
         for (StringIntPair sip : authorFrequencyList) {
-            chatAmountArrayList.add(new PieEntry(sip.getFrequency(),sip.getword()));
+            totalCount += sip.getFrequency();
+        }
+
+        for (StringIntPair sip : authorFrequencyList) {
+            chatAmountArrayList.add(new PieEntry(sip.getFrequency(),sip.getword() + "(" + String.format("%.1f", (double)sip.getFrequency()/totalCount*100) + "%)"));
         }
 
         PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "단어 사용 비율");
