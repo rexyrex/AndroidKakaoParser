@@ -24,7 +24,7 @@ public class ShareUtils {
         shareGeneral(activity, msg + promoString);
     }
 
-    public static void shareAnalysisInfoWithPromo(Activity activity, String chatFileTitle, String title, String content){
+    public static void shareAnalysisInfoWithPromo(Activity activity, String chatFileTitle, String title, String content, int spKeyId){
         String appPackageName = "com.rexyrex.kakaoparser";
         String shareString = "[카카오톡 정밀 분석기]" + "\n";
         shareString += "분석 채팅방 : " + chatFileTitle + "\n";
@@ -32,6 +32,10 @@ public class ShareUtils {
         shareString += "==================" + "\n";
         shareString += content;
         shareString += "==================" + "\n";
+
+        SharedPrefUtils spu = new SharedPrefUtils(activity);
+        spu.saveInt(spKeyId, spu.getInt(spKeyId, 0) + 1);
+
         shareGeneralWithPromo(activity, shareString);
     }
 }

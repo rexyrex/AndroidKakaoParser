@@ -148,7 +148,7 @@ public class PersonAnalyseFrag extends Fragment {
                     String p2 = numberFormat.format(pairs.get(i).getFrequency()) + " (" + String.format("%.1f", (double)pairs.get(i).getFrequency()/totalCount*100) + "%)";
                     shareString += p1 + " : " + p2 + "\n";
                 }
-                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "대화량 순위 (Top10)", shareString);
+                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "대화량 순위 (Top10)", shareString, R.string.SP_SHARE_PERSON_ANALZ_COUNT);
             }
         });
 

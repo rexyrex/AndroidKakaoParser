@@ -22,6 +22,7 @@ import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.PicUtils;
+import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
 import java.io.File;
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
     NumberFormat numberFormat;
 
+    SharedPrefUtils spu;
+
     private static long lastBackAttemptTime;
 
     @Override
@@ -56,9 +59,12 @@ public class MainActivity extends AppCompatActivity {
         kakaoBtn = findViewById(R.id.openKakaoLayout);
         instructionsBtn = findViewById(R.id.instructionsLayout);
 
+        spu = new SharedPrefUtils(this);
+
         kakaoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                spu.saveInt(R.string.SP_OPEN_KAKAO_COUNT, spu.getInt(R.string.SP_OPEN_KAKAO_COUNT, 0) + 1);
                 Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.kakao.talk");
                 if (launchIntent != null) {
                     startActivity(launchIntent);
@@ -69,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         instructionsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                spu.saveInt(R.string.SP_OPEN_HOW_TO_COUNT, spu.getInt(R.string.SP_OPEN_HOW_TO_COUNT, 0) + 1);
                 Intent instIntent = new Intent(MainActivity.this, InstructionsActivity.class);
                 MainActivity.this.startActivity(instIntent);
             }
@@ -77,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         settingsIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                spu.saveInt(R.string.SP_OPEN_SETTINGS_COUNT, spu.getInt(R.string.SP_OPEN_SETTINGS_COUNT, 0) + 1);
                 Intent instIntent = new Intent(MainActivity.this, SettingsActivity.class);
                 MainActivity.this.startActivity(instIntent);
             }

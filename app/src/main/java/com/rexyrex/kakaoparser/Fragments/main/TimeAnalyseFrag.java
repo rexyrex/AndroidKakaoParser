@@ -159,7 +159,20 @@ public class TimeAnalyseFrag extends Fragment {
                 for(int i=0; i<pairs.size(); i++){
                     shareString += (i+1) + ". "+ pairs.get(i).getword() + " : " + pairs.get(i).getFrequency() + "회\n";
                 }
-                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), items[typeSpinner.getSelectedItemPosition()] + " (대화량)", shareString);
+                int[] spArr = {
+                        R.string.SP_SHARE_TIME_ANALZ_1_COUNT,
+                        R.string.SP_SHARE_TIME_ANALZ_2_COUNT,
+                        R.string.SP_SHARE_TIME_ANALZ_3_COUNT,
+                        R.string.SP_SHARE_TIME_ANALZ_4_COUNT,
+                        R.string.SP_SHARE_TIME_ANALZ_5_COUNT
+                };
+                ShareUtils.shareAnalysisInfoWithPromo(
+                        getActivity(),
+                        cd.getChatFileTitle(),
+                        items[typeSpinner.getSelectedItemPosition()] + " (대화량)",
+                        shareString,
+                        spArr[typeSpinner.getSelectedItemPosition()]
+                );
             }
         });
 

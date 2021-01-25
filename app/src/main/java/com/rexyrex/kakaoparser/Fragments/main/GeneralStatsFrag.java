@@ -107,7 +107,7 @@ public class GeneralStatsFrag extends Fragment {
                 for(int i=0; i<pairs.size(); i++){
                     shareContent += pairs.get(i).getTitle() + " : " + pairs.get(i).getValue() + "\n";
                 }
-                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "분석 개요", shareContent);
+                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "분석 개요", shareContent, R.string.SP_SHARE_GENERAL_ANALZ_COUNT);
             }
         });
 

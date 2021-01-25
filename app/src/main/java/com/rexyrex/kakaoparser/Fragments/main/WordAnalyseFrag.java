@@ -121,11 +121,12 @@ public class WordAnalyseFrag extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 String shareString = "";
                 for(int i=0; i<(freqList.size() > 20 ? 20 : freqList.size()); i++){
                     shareString += (i+1) + ". "+ freqList.get(i).getword() + " : " + freqList.get(i).getFrequency() + "회" + "\n";
                 }
-                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "단어 사용량 순위 (Top20)", shareString);
+                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "단어 사용량 순위 (Top20)", shareString, R.string.SP_SHARE_WORD_ANALZ_COUNT);
             }
         });
 

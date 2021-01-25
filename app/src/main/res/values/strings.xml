@@ -18,6 +18,21 @@
 
     <string name="SP_FB_TOKEN">SP_FB_TOKEN</string>
     <string name="SP_ANALYSE_COUNT">SP_ANALYSE_COUNT</string>
+    <string name="SP_LOGIN_COUNT">SP_LOGIN_COUNT</string>
+
+    <string name="SP_OPEN_SETTINGS_COUNT">SP_SETTINGS_OPEN_COUNT</string>
+    <string name="SP_OPEN_KAKAO_COUNT">SP_OPEN_KAKAO_COUNT</string>
+    <string name="SP_OPEN_HOW_TO_COUNT">SP_OPEN_HOW_TO_COUNT</string>
+    <string name="SP_OPEN_PRIV_POLICY_COUNT">SP_OPEN_PRIV_POLICY_COUNT</string>
+
+    <string name="SP_SHARE_GENERAL_ANALZ_COUNT">SP_SHARE_GENERAL_ANALZ_COUNT</string>
+    <string name="SP_SHARE_PERSON_ANALZ_COUNT">SP_SHARE_PERSON_ANALZ_COUNT</string>
+    <string name="SP_SHARE_WORD_ANALZ_COUNT">SP_SHARE_WORD_ANALZ_COUNT</string>
+    <string name="SP_SHARE_TIME_ANALZ_1_COUNT">SP_SHARE_TIME_ANALZ_1_COUNT</string>
+    <string name="SP_SHARE_TIME_ANALZ_2_COUNT">SP_SHARE_TIME_ANALZ_2_COUNT</string>
+    <string name="SP_SHARE_TIME_ANALZ_3_COUNT">SP_SHARE_TIME_ANALZ_3_COUNT</string>
+    <string name="SP_SHARE_TIME_ANALZ_4_COUNT">SP_SHARE_TIME_ANALZ_4_COUNT</string>
+    <string name="SP_SHARE_TIME_ANALZ_5_COUNT">SP_SHARE_TIME_ANALZ_5_COUNT</string>
 
     <string name="SP_REGISTERED">SP_REGISTERED</string>
 
