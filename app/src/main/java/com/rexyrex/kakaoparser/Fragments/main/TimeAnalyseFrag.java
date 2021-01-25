@@ -119,7 +119,7 @@ public class TimeAnalyseFrag extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_time_analyse, container, false);
-        LogUtils.e("FRAGMENT ON CREATE VIEW");
+        //LogUtils.e("FRAGMENT ON CREATE VIEW");
 
         typeSpinner = view.findViewById(R.id.timeAnalyseTypeSpinner);
         lv = view.findViewById(R.id.timeAnalyseLV);
@@ -148,7 +148,7 @@ public class TimeAnalyseFrag extends Fragment {
 
         typeSpinner.setSelection(0);
 
-        LogUtils.e("Loading : " + typeSpinner.getSelectedItemPosition());
+        //LogUtils.e("Loading : " + typeSpinner.getSelectedItemPosition());
         loadGraph(typeSpinner.getSelectedItemPosition());
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -256,11 +256,11 @@ public class TimeAnalyseFrag extends Fragment {
             if(position == i){
                 viewItems[i].setVisibility(View.VISIBLE);
             } else {
-                //LogUtils.e("isBar: " + isBar);
+                ////LogUtils.e("isBar: " + isBar);
                 if(i > 0 && isBar){
-                    //LogUtils.e("Not Hide : " + i);
+                    ////LogUtils.e("Not Hide : " + i);
                 } else {
-                    //LogUtils.e("Hiding: " + i);
+                    ////LogUtils.e("Hiding: " + i);
                     viewItems[i].setVisibility(View.GONE);
                 }
 
@@ -336,8 +336,8 @@ public class TimeAnalyseFrag extends Fragment {
 //                                YearMonth.from(LocalDate.parse(parsableFormat.format(tmpDate)))
 //                        );
 
-                        LogUtils.e(" monthsBetween: " + monthsBetween);
-//                        LogUtils.e(" monthsBetween2: " + monthsBetween2);
+                        //LogUtils.e(" monthsBetween: " + monthsBetween);
+//                        //LogUtils.e(" monthsBetween2: " + monthsBetween2);
 
                         barEntryArrayList.add(new BarEntry((float) monthsBetween, tmpPair.getFrequency()));
                     }
@@ -354,8 +354,8 @@ public class TimeAnalyseFrag extends Fragment {
                 try{
                     startYearDate = yearFormat.parse(startDateYearStr);
 
-                    LogUtils.e("Start YEar Date: " + startYearDate.toString());
-                    LogUtils.e(" freqByYearPairs.size() size: " + freqByYearPairs.size());
+                    //LogUtils.e("Start YEar Date: " + startYearDate.toString());
+                    //LogUtils.e(" freqByYearPairs.size() size: " + freqByYearPairs.size());
 
 
                     xAxisFormatter = new YearAxisValueFormatter(barChart, startYearDate);
@@ -365,8 +365,8 @@ public class TimeAnalyseFrag extends Fragment {
 
                         Date tmpDate = yearFormat.parse(tmpPair.getword());
 
-                        LogUtils.e("parsable: " + parsableFormat.format(startYearDate));
-                        LogUtils.e("parsable2: " + parsableFormat.format(tmpDate));
+                        //LogUtils.e("parsable: " + parsableFormat.format(startYearDate));
+                        //LogUtils.e("parsable2: " + parsableFormat.format(tmpDate));
 
                         long yearsBetween = getDiffYears(startYearDate, tmpDate);
 
@@ -376,8 +376,8 @@ public class TimeAnalyseFrag extends Fragment {
 //                        );
 
 
-                        LogUtils.e(" yearsBetween: " + yearsBetween);
-//                        LogUtils.e(" yearsBetween2: " + yearsBetween2);
+                        //LogUtils.e(" yearsBetween: " + yearsBetween);
+//                        //LogUtils.e(" yearsBetween2: " + yearsBetween2);
 
                         barEntryArrayList.add(new BarEntry((float) yearsBetween, tmpPair.getFrequency()));
                     }
@@ -412,7 +412,7 @@ public class TimeAnalyseFrag extends Fragment {
 
         //set data
 
-        LogUtils.e("data count:" + barEntryArrayList.size());
+        //LogUtils.e("data count:" + barEntryArrayList.size());
         BarDataSet barDataSet = new BarDataSet(barEntryArrayList, "일별 채팅량");
         //barDataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
         barDataSet.setColor(getActivity().getColor(R.color.colorPrimaryDark));
@@ -518,26 +518,26 @@ public class TimeAnalyseFrag extends Fragment {
 
 
         for(StringIntPair sip : res){
-            LogUtils.e("Key: " + sip.getword() + ", Freq: " + sip.getFrequency() );
+            //LogUtils.e("Key: " + sip.getword() + ", Freq: " + sip.getFrequency() );
         }
 
         for(String tString : timeOfDayStrs){
-            LogUtils.e("searching for " + tString);
+            //LogUtils.e("searching for " + tString);
             boolean atLeastOne = false;
             for(StringIntPair sip : res){
                 if(tString.equals(sip.getword())){
                     entries1.add(new RadarEntry(sip.getFrequency()));
-                    LogUtils.e("added! " + sip.getFrequency());
+                    //LogUtils.e("added! " + sip.getFrequency());
                     atLeastOne = true;
                 }
             }
-            LogUtils.e("DONE searching for " + tString);
+            //LogUtils.e("DONE searching for " + tString);
             if(!atLeastOne){
                 entries1.add(new RadarEntry(0));
             }
         }
 
-        LogUtils.e("entries size : " + entries1.size());
+        //LogUtils.e("entries size : " + entries1.size());
 
         RadarDataSet set1 = new RadarDataSet(entries1, "시간 분석");
         set1.setColor(getActivity().getColor(R.color.colorPrimary));

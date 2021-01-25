@@ -18,7 +18,7 @@ public class WeekDayAxisValueFormatter extends ValueFormatter{
     @Override
     public String getFormattedValue(float value) {
         if(value >= daysOfWeek.length){
-            LogUtils.e("Value is out of bounds! " + value);
+            //LogUtils.e("Value is out of bounds! " + value);
             value = daysOfWeek.length -1;
         }
         return daysOfWeek[(int) value];

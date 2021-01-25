@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
             tv.setText(title);
             //tv2.setText(StringParseUtils.numberCommaFormat(Long.toString(chatFiles[position].length())) + " bytes");
             tv2.setText(FileParseUtils.humanReadableByteCountBin(FileParseUtils.getChatFileSize((chatFiles[position]))));
-            LogUtils.e("Size: " + FileParseUtils.humanReadableByteCountBin(FileParseUtils.getChatFileSize((chatFiles[position]))));
+            //LogUtils.e("Size: " + FileParseUtils.humanReadableByteCountBin(FileParseUtils.getChatFileSize((chatFiles[position]))));
 
             return convertView;
         }
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
     //2초 안에 뒤로가기 버튼 2번 누를 시 앱 종료
     private void promptExit(){
-        LogUtils.e("PromptExit");
+        //LogUtils.e("PromptExit");
         long timeNow = System.currentTimeMillis();
         long tPassed = timeNow - lastBackAttemptTime;
         if(tPassed >2000){

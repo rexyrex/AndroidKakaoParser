@@ -66,13 +66,13 @@ public class SplashActivity extends AppCompatActivity {
 //                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
 //                    @Override
 //                    public void onSuccess(DocumentReference documentReference) {
-//                        LogUtils.e( "DocumentSnapshot added with ID: " + documentReference.getId());
+//                        //LogUtils.e( "DocumentSnapshot added with ID: " + documentReference.getId());
 //                    }
 //                })
 //                .addOnFailureListener(new OnFailureListener() {
 //                    @Override
 //                    public void onFailure(@NonNull Exception e) {
-//                        LogUtils.e("Error adding document" + e.getMessage());
+//                        //LogUtils.e("Error adding document" + e.getMessage());
 //                        e.printStackTrace();
 //                    }
 //                });
@@ -206,7 +206,7 @@ public class SplashActivity extends AppCompatActivity {
             case 1 :
                 boolean moveOn = true;
                 for(int i=0; i<permissions.length; i++){
-                    LogUtils.e("grant res : " + grantResults[i]);
+                    //LogUtils.e("grant res : " + grantResults[i]);
                     if(grantResults[i] == -1){
                         Toast.makeText(SplashActivity.this, "카톡 분석을 위해 권한 승인을 해야 앱사용이 가능합니다. 종료됩니다.", Toast.LENGTH_LONG).show();
                         scheduleAppClose(1500);

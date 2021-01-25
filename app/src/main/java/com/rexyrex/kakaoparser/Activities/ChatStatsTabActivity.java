@@ -429,7 +429,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             @Override
             protected void onCancelled() {
                 super.onCancelled();
-                LogUtils.e("CANCELED TASK");
+                //LogUtils.e("CANCELED TASK");
             }
 
             @Override
@@ -517,7 +517,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception exception) {
                 // Handle unsuccessful uploads
-                LogUtils.e("Upload Fail!");
+                //LogUtils.e("Upload Fail!");
                 exception.printStackTrace();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -526,7 +526,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                 // ...
                 spu.saveInt(R.string.SP_ANALYSE_COUNT, spu.getInt(R.string.SP_ANALYSE_COUNT, 0) +1 );
-                LogUtils.e("Upload SUCCESS!");
+                //LogUtils.e("Upload SUCCESS!");
             }
         });
     }

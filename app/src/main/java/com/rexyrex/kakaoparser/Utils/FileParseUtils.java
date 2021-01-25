@@ -24,9 +24,9 @@ public class FileParseUtils {
                 line = br.readLine();
             }
             chat = sb.toString();
-            LogUtils.e( "chat size: " + chat.length());
+            //LogUtils.e( "chat size: " + chat.length());
             String[] lines = chat.split("\n");
-            LogUtils.e( "lines: " + lines.length);
+            //LogUtils.e( "lines: " + lines.length);
             br.close();
         } catch (Exception e) {
             e.printStackTrace();
