@@ -19,7 +19,9 @@ import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.DateUtils;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
+import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.PicUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
@@ -90,8 +92,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loadList();
-
     }
 
     @Override
@@ -114,6 +114,9 @@ public class MainActivity extends AppCompatActivity {
         if (dir.isDirectory()) {
             files = dir.listFiles();
             reversedFilesArr = new File[files.length];
+
+            //update file count
+            spu.saveInt(R.string.SP_EXPORTED_CHAT_COUNT, files.length);
 
             for(int i=0; i<files.length; i++){
                 reversedFilesArr[i] = files[files.length-i-1];
@@ -218,6 +221,10 @@ public class MainActivity extends AppCompatActivity {
             lastBackAttemptTime = System.currentTimeMillis();
             Toast.makeText(this, "뒤로 버튼을 한번 더 누르면 종료됩니다", Toast.LENGTH_SHORT).show();
         } else {
+            //increment logoutCount
+            spu.saveInt(R.string.SP_LOGOUT_COUNT, spu.getInt(R.string.SP_LOGOUT_COUNT, 0) + 1);
+            spu.saveString(R.string.SP_LOGOUT_DT, DateUtils.getCurrentTimeStr());
+            FirebaseUtils.updateUserInfo(this, spu, "Logout");
             finishAndRemoveTask();
         }
     }

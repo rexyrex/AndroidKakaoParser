@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.rexyrex.kakaoparser.BuildConfig;
 import com.rexyrex.kakaoparser.R;
 
 import java.text.SimpleDateFormat;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 public class FirebaseUtils {
 
-    public static void updateUserInfo(Context c, SharedPrefUtils spu){
+    public static void updateUserInfo(Context c, SharedPrefUtils spu, String type){
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
 
         String manufacturer = Build.MANUFACTURER;
@@ -34,17 +35,27 @@ public class FirebaseUtils {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
 
         Map<String, Object> user = new HashMap<>();
-        user.put("manufacturer", manufacturer);
-        user.put("model", model);
-        user.put("version", version);
-        user.put("carrierName", carrierName);
-        user.put("loginCount", spu.getInt(R.string.SP_LOGIN_COUNT, 0));
-        user.put("analyzeCount", spu.getInt(R.string.SP_ANALYSE_COUNT, 0));
-        user.put("lastLoginDt", sdf.format(date));
-        user.put("firebaseToken", firebaseToken);
+        user.put("[B - DEVICE] Manufacturer", manufacturer);
+        user.put("[B - DEVICE] Model", model);
+        user.put("[B - DEVICE] Android Version", version);
+        user.put("[B - DEVICE] Carrier Name", carrierName);
+        user.put("[B - DEVICE] App Version", BuildConfig.VERSION_NAME);
+        user.put("[A - General] Login Count", spu.getInt(R.string.SP_LOGIN_COUNT, 0));
+        user.put("[A - General] Logout Count", spu.getInt(R.string.SP_LOGOUT_COUNT, 0));
+        user.put("[A - General] Analyze Count", spu.getInt(R.string.SP_ANALYSE_COUNT, 0));
+        user.put("[A - General] LastChangeDt", sdf.format(date));
+        user.put("[A - General] FirebaseToken", firebaseToken);
+        user.put("[A - General] Save Action", type);
+        user.put("[A - General] Exported Chat Count", spu.getInt(R.string.SP_EXPORTED_CHAT_COUNT, -1));
+
+        user.put("[A - General] LastLoginDt", spu.getString(R.string.SP_LOGIN_DT, "null"));
+        user.put("[A - General] LastLogoutDt", spu.getString(R.string.SP_LOGOUT_DT, "null"));
+        user.put("[A - General] FrstRegistDt", spu.getString(R.string.SP_REGIST_DT, "null"));
+
         user.put("[STATS Btn] Setting", spu.getInt(R.string.SP_OPEN_SETTINGS_COUNT, 0));
         user.put("[STATS Btn] Kakao", spu.getInt(R.string.SP_OPEN_KAKAO_COUNT, 0));
         user.put("[STATS Btn] Instructions", spu.getInt(R.string.SP_OPEN_HOW_TO_COUNT, 0));
+        user.put("[STATS Btn] Privacy Policy", spu.getInt(R.string.SP_OPEN_PRIV_POLICY_COUNT, 0));
 
         user.put("[SHARE STATS 1] General", spu.getInt(R.string.SP_SHARE_GENERAL_ANALZ_COUNT, 0));
         user.put("[SHARE STATS 2] Person", spu.getInt(R.string.SP_SHARE_PERSON_ANALZ_COUNT, 0));

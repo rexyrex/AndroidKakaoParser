@@ -19,6 +19,13 @@
     <string name="SP_FB_TOKEN">SP_FB_TOKEN</string>
     <string name="SP_ANALYSE_COUNT">SP_ANALYSE_COUNT</string>
     <string name="SP_LOGIN_COUNT">SP_LOGIN_COUNT</string>
+    <string name="SP_LOGOUT_COUNT">SP_LOGOUT_COUNT</string>
+
+    <string name="SP_LOGIN_DT">SP_LOGIN_DT</string>
+    <string name="SP_REGIST_DT">SP_REGIST_DT</string>
+    <string name="SP_LOGOUT_DT">SP_LOGOUT_DT</string>
+
+    <string name="SP_EXPORTED_CHAT_COUNT">SP_EXPORTED_CHAT_COUNT</string>
 
     <string name="SP_OPEN_SETTINGS_COUNT">SP_SETTINGS_OPEN_COUNT</string>
     <string name="SP_OPEN_KAKAO_COUNT">SP_OPEN_KAKAO_COUNT</string>

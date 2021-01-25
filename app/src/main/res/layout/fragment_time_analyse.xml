@@ -50,7 +50,7 @@
         android:layout_marginEnd="8dp"
         android:background="@color/brown1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView5"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
@@ -62,6 +62,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/dayOfWeekRadarChart" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/nanum_square_round_b"
+        android:text="분석 종류 :\n(눌러서 선택)"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/timeAnalyseTypeSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/timeAnalyseTypeSpinner" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

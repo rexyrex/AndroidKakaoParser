@@ -1,16 +1,20 @@
 package com.rexyrex.kakaoparser.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -23,10 +27,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.rexyrex.kakaoparser.BuildConfig;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.DateUtils;
 import com.rexyrex.kakaoparser.Utils.DeviceInfoUtils;
 import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
@@ -78,7 +85,59 @@ public class SplashActivity extends AppCompatActivity {
         ArrayList<String> deniedPerms =  DeviceInfoUtils.getDeniedPermissions(this, permissions);
         deniedPermsArr = deniedPerms.toArray(new String[0]);
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("Version").document("MinVersion");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Map<String,Object> map = document.getData();
+                        int version = Long.valueOf((long) map.get("minVersion")).intValue();
+                        String msg = (String) map.get("msg");
+                        int appVer = BuildConfig.VERSION_CODE;
+                        if(appVer < version){
+                            //Show forced update msg
+                            showForceUpdateMsg(msg);
+                        } else {
+                            //Continue with normal logic
+                            fcmCheck();
+                        }
+                    }
+                }
+            }
+        });
+    }
 
+    //필수 업데이트 있음
+    private void showForceUpdateMsg(String msg){
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
+        builder.setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton("앱 종료", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        SplashActivity.this.finishAndRemoveTask();
+                    }
+                })
+                .setNegativeButton("앱 업데이트", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        String appPackageName = "com.rexyrex.kakaoparser";
+                        try {
+                            SplashActivity.this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                        } catch (android.content.ActivityNotFoundException anfe) {
+                            SplashActivity.this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                        }
+                        builder.create().show();
+                    }
+                });
+        // Create the AlertDialog object and return it
+        builder.create().show();
+
+    }
+
+    private void fcmCheck(){
         //log fcm token
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
@@ -102,6 +161,7 @@ public class SplashActivity extends AppCompatActivity {
                                         scheduleAppClose(1500);
                                     } else {
                                         spu.saveString(R.string.SP_REGISTERED, "true");
+                                        spu.saveString(R.string.SP_REGIST_DT, DateUtils.getCurrentTimeStr());
                                         startLogic();
                                     }
                                 }
@@ -114,7 +174,8 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void startLogic(){
-        FirebaseUtils.updateUserInfo(this, spu);
+        spu.saveString(R.string.SP_LOGIN_DT, DateUtils.getCurrentTimeStr());
+        FirebaseUtils.updateUserInfo(this, spu, "Login");
         //허용되지 않은 권한 있으면 권한 요청
         //deniedPermsArr length를 나중에도 확인해서 scheduleSplashScreen이 나중에 호출되도록 구현돼있음
         if(deniedPermsArr.length>0){

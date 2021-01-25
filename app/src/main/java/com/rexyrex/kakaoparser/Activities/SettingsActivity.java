@@ -13,13 +13,14 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
+import com.google.android.gms.common.util.SharedPreferencesUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
 public class SettingsActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,10 +40,12 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
         String appPackageName = "com.rexyrex.kakaoparser";
+        private SharedPrefUtils spu;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+            spu = new SharedPrefUtils(getContext());
         }
 
         @Override
@@ -114,6 +117,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             if(key.equals("appPrivacy")){
+                spu.saveInt(R.string.SP_OPEN_PRIV_POLICY_COUNT, spu.getInt(R.string.SP_OPEN_PRIV_POLICY_COUNT, 0) + 1);
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW,
                         Uri.parse("https://rexyrex.com/kakaoParserAgree"));
                 startActivity(browserIntent);
