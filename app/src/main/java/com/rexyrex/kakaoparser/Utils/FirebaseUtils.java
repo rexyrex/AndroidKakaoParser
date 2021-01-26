@@ -2,12 +2,14 @@ package com.rexyrex.kakaoparser.Utils;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.telephony.TelephonyManager;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.rexyrex.kakaoparser.BuildConfig;
 import com.rexyrex.kakaoparser.R;
@@ -19,6 +21,15 @@ import java.util.Locale;
 import java.util.Map;
 
 public class FirebaseUtils {
+
+//    public static void logFirebaseEvent(Context c){
+//        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(c);
+//
+//        Bundle bundle = new Bundle();
+//        bundle.putString(FirebaseAnalytics.Param.METHOD, "Open App");
+//        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
+//
+//    }
 
     public static void updateUserInfo(Context c, SharedPrefUtils spu, String type){
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
