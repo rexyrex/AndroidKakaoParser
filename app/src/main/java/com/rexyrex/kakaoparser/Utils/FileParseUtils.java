@@ -57,6 +57,20 @@ public class FileParseUtils {
         return String.format("%.1f %cB", value / 1024.0, ci.current());
     }
 
+    public static long getSizeRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory()){
+            long size = 0;
+            for (File child : fileOrDirectory.listFiles()){
+                size += getSizeRecursive(child);
+            }
+            return size;
+        } else {
+            return fileOrDirectory.length();
+        }
+
+
+    }
+
     public static String parseFileForTitle(File file){
         String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
         String chat = "";

@@ -43,40 +43,40 @@ public class FirebaseUtils {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a hh:mm", Locale.KOREAN);
 
         Map<String, Object> user = new HashMap<>();
-        user.put("[B - DEVICE] Manufacturer", manufacturer);
-        user.put("[B - DEVICE] Model", model);
-        user.put("[B - DEVICE] Android Version", version);
-        user.put("[B - DEVICE] Carrier Name", carrierName);
-        user.put("[B - DEVICE] App Version", BuildConfig.VERSION_NAME);
-        user.put("[A - General] Login Count", spu.getInt(R.string.SP_LOGIN_COUNT, 0));
-        user.put("[A - General] Logout Count", spu.getInt(R.string.SP_LOGOUT_COUNT, 0));
-        user.put("[A - General] Analyze Count", spu.getInt(R.string.SP_ANALYSE_COUNT, 0));
-        user.put("[A - General] LastChangeDt", sdf.format(date));
-        user.put("[A - General] FirebaseToken", firebaseToken);
-        user.put("[A - General] Save Action", type);
-        user.put("[A - General] Exported Chat Count", spu.getInt(R.string.SP_EXPORTED_CHAT_COUNT, -1));
+        user.put("Manufacturer", manufacturer);
+        user.put("Model", model);
+        user.put("Android Version", version);
+        user.put("Carrier Name", carrierName);
+        user.put("App Version", BuildConfig.VERSION_NAME);
+        user.put("Login Count", spu.getInt(R.string.SP_LOGIN_COUNT, 0));
+        user.put("Logout Count", spu.getInt(R.string.SP_LOGOUT_COUNT, 0));
+        user.put("Analyze Count", spu.getInt(R.string.SP_ANALYSE_COUNT, 0));
+        user.put("LastChangeDt", sdf.format(date));
+        user.put("FirebaseToken", firebaseToken);
+        user.put("Save Action", type);
+        user.put("Exported Chat Count", spu.getInt(R.string.SP_EXPORTED_CHAT_COUNT, -1));
 
-        user.put("[A - General] LastLoginDt", spu.getString(R.string.SP_LOGIN_DT, "null"));
-        user.put("[A - General] LastLogoutDt", spu.getString(R.string.SP_LOGOUT_DT, "null"));
-        user.put("[A - General] FrstRegistDt", spu.getString(R.string.SP_REGIST_DT, "null"));
+        user.put("LastLoginDt", spu.getString(R.string.SP_LOGIN_DT, "null"));
+        user.put("LastLogoutDt", spu.getString(R.string.SP_LOGOUT_DT, "null"));
+        user.put("FrstRegistDt", spu.getString(R.string.SP_REGIST_DT, "null"));
 
-        user.put("[STATS Btn] Setting", spu.getInt(R.string.SP_OPEN_SETTINGS_COUNT, 0));
-        user.put("[STATS Btn] Kakao", spu.getInt(R.string.SP_OPEN_KAKAO_COUNT, 0));
-        user.put("[STATS Btn] Instructions", spu.getInt(R.string.SP_OPEN_HOW_TO_COUNT, 0));
-        user.put("[STATS Btn] Privacy Policy", spu.getInt(R.string.SP_OPEN_PRIV_POLICY_COUNT, 0));
+        user.put("SettingBtnCount", spu.getInt(R.string.SP_OPEN_SETTINGS_COUNT, 0));
+        user.put("KakaoBtnCount", spu.getInt(R.string.SP_OPEN_KAKAO_COUNT, 0));
+        user.put("InstructionsBtnCount", spu.getInt(R.string.SP_OPEN_HOW_TO_COUNT, 0));
+        user.put("PrivacyPolicyBtnCount", spu.getInt(R.string.SP_OPEN_PRIV_POLICY_COUNT, 0));
 
-        user.put("[SHARE STATS 1] General", spu.getInt(R.string.SP_SHARE_GENERAL_ANALZ_COUNT, 0));
-        user.put("[SHARE STATS 2] Person", spu.getInt(R.string.SP_SHARE_PERSON_ANALZ_COUNT, 0));
-        user.put("[SHARE STATS 3] Word", spu.getInt(R.string.SP_SHARE_WORD_ANALZ_COUNT, 0));
+        user.put("ShareGeneralCount", spu.getInt(R.string.SP_SHARE_GENERAL_ANALZ_COUNT, 0));
+        user.put("SharePersonCount", spu.getInt(R.string.SP_SHARE_PERSON_ANALZ_COUNT, 0));
+        user.put("ShareWordCount", spu.getInt(R.string.SP_SHARE_WORD_ANALZ_COUNT, 0));
 
-        user.put("[SHARE STATS t1] Time 시간", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_1_COUNT, 0));
-        user.put("[SHARE STATS t2] Time 요일", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_2_COUNT, 0));
-        user.put("[SHARE STATS t3] Time 일", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_3_COUNT, 0));
-        user.put("[SHARE STATS t4] Time 월", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_4_COUNT, 0));
-        user.put("[SHARE STATS t5] Time 연", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_5_COUNT, 0));
+        user.put("ShareTimeTime", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_1_COUNT, 0));
+        user.put("ShareTimeDayOfWeek", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_2_COUNT, 0));
+        user.put("ShareTimeDay", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_3_COUNT, 0));
+        user.put("ShareTimeMonth", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_4_COUNT, 0));
+        user.put("ShareTimeYear", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_5_COUNT, 0));
 
         db.collection("users").document(firebaseToken)
                 .set(user)

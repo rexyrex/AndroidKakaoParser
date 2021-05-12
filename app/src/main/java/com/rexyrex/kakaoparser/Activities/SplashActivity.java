@@ -6,12 +6,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -71,6 +74,8 @@ public class SplashActivity extends AppCompatActivity {
 
         versionTV.setText("Ver " + BuildConfig.VERSION_NAME);
 
+        createNotificationChannel();
+
         //LogUtils("splashIV isnull? : " + (splashIV == null));
 
         //increment loginCount
@@ -78,7 +83,8 @@ public class SplashActivity extends AppCompatActivity {
 
         //요청할 권한들
         permissions = new String[] {
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
 
         //허용되지 않은 권한 받아오기
@@ -108,6 +114,22 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "KAKAO_PARSER_CHANNEL_ID";
+            String description = "blah";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("KAKAO_PARSER_CHANNEL_ID", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     //필수 업데이트 있음

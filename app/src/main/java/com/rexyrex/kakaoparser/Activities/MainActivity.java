@@ -1,16 +1,23 @@
 package com.rexyrex.kakaoparser.Activities;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -19,6 +26,7 @@ import android.widget.Toast;
 
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Services.DeleteService;
 import com.rexyrex.kakaoparser.Utils.DateUtils;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
@@ -28,6 +36,7 @@ import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
         instructionsBtn = findViewById(R.id.instructionsLayout);
 
         spu = new SharedPrefUtils(this);
+
+        registerReceiver(deleteReceiver, new IntentFilter("kakaoChatDelete"));
 
         kakaoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,6 +109,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadList();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(deleteReceiver);
     }
 
     public void loadList(){
@@ -149,15 +166,69 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent statsIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
-                    //statsIntent.putExtra("chat", reversedFilesArr[position]);
+                    if(FileParseUtils.parseFileForTitle(reversedFilesArr[position]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))){
+                        statsIntent.putExtra("analysed", true);
+                    } else {
+                        statsIntent.putExtra("analysed", false);
+                    }
+
                     cd.setChatFile(reversedFilesArr[position]);
                     MainActivity.this.startActivity(statsIntent);
                 }
             });
+
+            final View delView = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.popup_delete, null);
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(MainActivity.this, R.style.PopupStyle);
+            alertBuilder.setView(delView);
+            alertBuilder.setCancelable(true);
+            final AlertDialog dialog = alertBuilder.create();
+
+            final Button delBtn = delView.findViewById(R.id.delBtnTrue);
+            Button delCancel = delView.findViewById(R.id.delBtnFalse);
+            final TextView delPopTV = delView.findViewById(R.id.delPopMsg);
+
+
+
+            delCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.hide();
+                }
+            });
+
+            chatLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> adapterView, View longView, int i, long l) {
+
+                    final int z = i;
+                    final View tmpView = longView;
+
+                    delBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            cd.setChatFile(reversedFilesArr[z]);
+                            Intent serviceIntent = new Intent(MainActivity.this, DeleteService.class);
+                            MainActivity.this.startService(serviceIntent);
+
+                            TextView tv = tmpView.findViewById(R.id.elemTV3);
+                            tv.setText("삭제중... (알림창 확인)");
+
+//                            File delFile = reversedFilesArr[z];
+                            Toast.makeText(MainActivity.this, "삭제가 완료되면 대화목록이 새로고침 됩니다.", Toast.LENGTH_LONG).show();
+//                            deleteRecursive(delFile);
+//                            loadList();
+//                            Toast.makeText(MainActivity.this, "삭제 완료", Toast.LENGTH_SHORT).show();
+                            dialog.hide();
+                        }
+                    });
+                    delPopTV.setText("폴더 전체 크기 : " + FileParseUtils.humanReadableByteCountBin(FileParseUtils.getSizeRecursive(reversedFilesArr[z])) + "\n채팅 파일 크기 : " +FileParseUtils.humanReadableByteCountBin(FileParseUtils.getChatFileSize(reversedFilesArr[z])));
+                    dialog.show();
+
+                    return true;
+                }
+            });
         }
     }
-
-
 
     class CustomAdapter extends BaseAdapter {
 
@@ -182,6 +253,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public long getItemId(int position) {
             return 0;
+        }
+
+        public void updateTitle(int position){
+
         }
 
         @Override
@@ -228,4 +303,12 @@ public class MainActivity extends AppCompatActivity {
             finishAndRemoveTask();
         }
     }
+
+    BroadcastReceiver deleteReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            loadList();
+            Toast.makeText(MainActivity.this, "삭제 완료 - 대화 목록이 새로고침 됐습니다", Toast.LENGTH_LONG).show();
+        }
+    };
 }

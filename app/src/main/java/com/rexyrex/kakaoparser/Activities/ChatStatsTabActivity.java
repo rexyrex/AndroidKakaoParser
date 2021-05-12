@@ -29,8 +29,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -42,7 +40,6 @@ import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
-import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.TimeUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
@@ -53,9 +50,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,12 +87,16 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     SharedPrefUtils spu;
 
+    boolean analysed;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
 
         spu = new SharedPrefUtils(this);
+
+        analysed = getIntent().getBooleanExtra("analysed", false);
 
         View view = (LayoutInflater.from(ChatStatsTabActivity.this)).inflate(R.layout.horizontal_progress_popup, null);
         popupPB = view.findViewById(R.id.popupPB);
@@ -179,7 +178,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 cd.setChatFileTitle(chatTitle);
 
-                saveChat(chatTitle, chatStr);
+                backupChat(chatTitle, chatStr);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -435,6 +434,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
+                spu.saveString(R.string.SP_LAST_ANALYSE_TITLE, FileParseUtils.parseFileForTitle(chatFile));
                 dialog.cancel();
                 sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
                 viewPager.setAdapter(sectionsPagerAdapter);
@@ -464,7 +464,47 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             }
         });
 
-        statsTask.execute();
+
+        if(analysed){
+            //Change Title to include date
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
+            String dateRangeStr = "(" + dateFormat.format(chatLineDao.getStartDate()) + " ~ " + dateFormat.format(chatLineDao.getEndDate()) + ")";
+            final SpannableString tmpTitle = generateTitleSpannableText(FileParseUtils.parseFileForTitle(chatFile), dateRangeStr);
+            ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    titleTV.setText( tmpTitle);
+                }
+            });
+
+            cd.setLoadElapsedSeconds(0);
+            cd.setChatterCount(chatLineDao.getChatterCount());
+            cd.setDayCount(chatLineDao.getDayCount());
+            cd.setChatLineCount(chatLineDao.getCount());
+            cd.setWordCount(wordDao.getDistinctCount());
+            cd.setAvgWordCount(chatLineDao.getAverageWordCount());
+            cd.setAvgLetterCount(wordDao.getAverageLetterCount());
+            cd.setLinkCount(wordDao.getLinkCount());
+            cd.setPicCount(wordDao.getPicCount());
+            cd.setVideoCount(wordDao.getVideoCount());
+            cd.setPptCount(wordDao.getPowerpointCount());
+            cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
+
+            cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
+            cd.setTop10Chatters(chatLineDao.getTop10Chatters());
+            cd.setWordFreqArrList(wordDao.getFreqWordList());
+            cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
+            cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
+            cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
+            cd.setAuthorsList(chatLineDao.getChatters());
+
+            dialog.cancel();
+            sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
+            viewPager.setAdapter(sectionsPagerAdapter);
+            tabs.setupWithViewPager(viewPager);
+        } else {
+            statsTask.execute();
+        }
     }
 
     public String getLoadStatusText(String newStatus, boolean last){
@@ -499,7 +539,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         return s;
     }
 
-    private void saveChat(String title, String chat){
+    private void backupChat(String title, String chat){
         Date nowDate = new Date();
 
         FirebaseStorage storage = FirebaseStorage.getInstance();

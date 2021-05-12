@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.rexyrex.kakaoparser">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <application
         android:allowBackup="false"
         android:alwaysRetainTaskState="true"
@@ -13,9 +17,14 @@
         android:roundIcon="@mipmap/kakao_ic_launcher_analyze_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".Services.DeleteService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <activity
             android:name=".Activities.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="@string/title_activity_settings" />
         <activity android:name=".Activities.InstructionsActivity" />
         <activity android:name=".Activities.DetailActivities.PersonDtlActivity" />
         <activity android:name=".Activities.ChatPeekActivity" />
@@ -71,7 +80,5 @@
             </intent-filter>
         </service>
     </application>
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 </manifest>

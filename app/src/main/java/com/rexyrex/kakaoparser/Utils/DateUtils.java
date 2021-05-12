@@ -7,7 +7,7 @@ import java.util.Locale;
 public class DateUtils {
     public static String getCurrentTimeStr(){
         Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a hh:mm", Locale.KOREAN);
         return sdf.format(date);
     }
 }
