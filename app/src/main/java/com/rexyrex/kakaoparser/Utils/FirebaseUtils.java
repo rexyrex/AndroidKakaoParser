@@ -22,14 +22,19 @@ import java.util.Map;
 
 public class FirebaseUtils {
 
-//    public static void logFirebaseEvent(Context c){
-//        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(c);
-//
-//        Bundle bundle = new Bundle();
-//        bundle.putString(FirebaseAnalytics.Param.METHOD, "Open App");
-//        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
-//
-//    }
+    public static void logFirebaseEventOpenApp(Context c){
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(c);
+        Bundle bundle = new Bundle();
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundle);
+    }
+
+    public static void logFirebaseEventShare(Context c, String shareType){
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(c);
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "rex_share");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, shareType);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle);
+    }
 
     public static void updateUserInfo(Context c, SharedPrefUtils spu, String type){
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");

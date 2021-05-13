@@ -22,6 +22,7 @@ public class ShareUtils {
         String appPackageName = "com.rexyrex.kakaoparser";
         String promoString = "\n" + "카카오톡 분석을 직접 해보세요!" + "\n" + "https://play.google.com/store/apps/details?id=" + appPackageName;
         shareGeneral(activity, msg + promoString);
+        FirebaseUtils.logFirebaseEventShare(activity, "general");
     }
 
     public static void shareAnalysisInfoWithPromo(Activity activity, String chatFileTitle, String title, String content, int spKeyId){
@@ -35,6 +36,7 @@ public class ShareUtils {
 
         SharedPrefUtils spu = new SharedPrefUtils(activity);
         spu.saveInt(spKeyId, spu.getInt(spKeyId, 0) + 1);
+        FirebaseUtils.logFirebaseEventShare(activity, title);
 
         shareGeneralWithPromo(activity, shareString);
     }

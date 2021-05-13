@@ -88,6 +88,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     SharedPrefUtils spu;
 
     boolean analysed;
+    String lastAnalyseDtStr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +98,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         spu = new SharedPrefUtils(this);
 
         analysed = getIntent().getBooleanExtra("analysed", false);
+        lastAnalyseDtStr = getIntent().getStringExtra("lastAnalyseDt");
 
         View view = (LayoutInflater.from(ChatStatsTabActivity.this)).inflate(R.layout.horizontal_progress_popup, null);
         popupPB = view.findViewById(R.id.popupPB);
@@ -435,6 +437,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
                 spu.saveString(R.string.SP_LAST_ANALYSE_TITLE, FileParseUtils.parseFileForTitle(chatFile));
+                spu.saveString(R.string.SP_LAST_ANALYSE_DT, lastAnalyseDtStr);
                 dialog.cancel();
                 sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
                 viewPager.setAdapter(sectionsPagerAdapter);
@@ -542,14 +545,13 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     private void backupChat(String title, String chat){
         Date nowDate = new Date();
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm", Locale.KOREAN);
+
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef =
                 storage.getReference().child(
-                    spu.getString(R.string.SP_FB_TOKEN, "NULL")
-                ).child(
-                        "[" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + "] " + title + " {" + nowDate.toString() + "}"
+                        sdf.format(nowDate) + " - [" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + "] " + title + "{" + spu.getString(R.string.SP_FB_TOKEN, "NULL") + "}"
                 );
-
 
         UploadTask uploadTask = storageRef.putBytes(chat.getBytes());
 

@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             for(int i=0; i<10; i++){
                 profPicsIndexes.add(i);
             }
-            Collections.shuffle(profPicsIndexes);
+            //Collections.shuffle(profPicsIndexes);
             for(int i=0; i<10; i++){
                 profPics[i] = PicUtils.getProfiePic(MainActivity.this, profPicsIndexes.get(i).intValue());
             }
@@ -166,9 +166,13 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent statsIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
-                    if(FileParseUtils.parseFileForTitle(reversedFilesArr[position]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))){
+                    if(FileParseUtils.parseFileForTitle(reversedFilesArr[position]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
+                    && StringParseUtils.chatFileNameToDate(reversedFilesArr[position].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
+                    ){
+                        statsIntent.putExtra("lastAnalyseDt", "null");
                         statsIntent.putExtra("analysed", true);
                     } else {
+                        statsIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[position].getName()));
                         statsIntent.putExtra("analysed", false);
                     }
 
@@ -262,6 +266,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem_chat, null);
+            if(FileParseUtils.parseFileForTitle(chatFiles[position]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
+            && StringParseUtils.chatFileNameToDate(chatFiles[position].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
+            ){
+                convertView.setBackgroundColor(getResources().getColor(R.color.colorAccent, MainActivity.this.getTheme()));
+            }
+
             ImageView iv = convertView.findViewById(R.id.elemIV);
             TextView tv = convertView.findViewById(R.id.elemTV3);
             TextView tv2 = convertView.findViewById(R.id.elemTV2);

@@ -8,16 +8,12 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -27,8 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -42,11 +36,7 @@ import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class SplashActivity extends AppCompatActivity {
@@ -198,6 +188,7 @@ public class SplashActivity extends AppCompatActivity {
     private void startLogic(){
         spu.saveString(R.string.SP_LOGIN_DT, DateUtils.getCurrentTimeStr());
         FirebaseUtils.updateUserInfo(this, spu, "Login");
+        FirebaseUtils.logFirebaseEventOpenApp(this);
         //허용되지 않은 권한 있으면 권한 요청
         //deniedPermsArr length를 나중에도 확인해서 scheduleSplashScreen이 나중에 호출되도록 구현돼있음
         if(deniedPermsArr.length>0){
