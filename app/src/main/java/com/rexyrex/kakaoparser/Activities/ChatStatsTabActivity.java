@@ -32,14 +32,17 @@ import android.widget.Toast;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
+import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
+import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.TimeUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
@@ -73,6 +76,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     MainDatabase database;
     ChatLineDAO chatLineDao;
     WordDAO wordDao;
+    AnalysedChatDAO analysedChatDAO;
 
     AsyncTask<String, Void, String> statsTask;
     AlertDialog dialog;
@@ -117,6 +121,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         database = MainDatabase.getDatabase(this);
         chatLineDao = database.getChatLineDAO();
         wordDao = database.getWordDAO();
+        analysedChatDAO = database.getAnalysedChatDAO();
 
         numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
@@ -180,7 +185,16 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 cd.setChatFileTitle(chatTitle);
 
-                backupChat(chatTitle, chatStr);
+                //Check if already backed up
+                if(analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0){
+                    LogUtils.e("First time : backup");
+                    AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
+                    analysedChatDAO.insert(acm);
+                    backupChat(chatTitle, chatStr);
+                } else {
+                    LogUtils.e("Backup skip");
+                }
+
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override

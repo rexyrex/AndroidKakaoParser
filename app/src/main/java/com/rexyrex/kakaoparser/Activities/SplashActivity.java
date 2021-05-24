@@ -66,6 +66,13 @@ public class SplashActivity extends AppCompatActivity {
 
         createNotificationChannel();
 
+        //DB updated 처리
+        boolean dbUpdated = spu.getBool(R.string.SP_DB_UPDATED, false);
+        if(!dbUpdated){
+            spu.saveString(R.string.SP_LAST_ANALYSE_TITLE, "");
+            spu.saveBool(R.string.SP_DB_UPDATED, true);
+        }
+
         //LogUtils("splashIV isnull? : " + (splashIV == null));
 
         //increment loginCount

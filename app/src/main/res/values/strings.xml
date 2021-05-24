@@ -19,6 +19,8 @@
     <string name="SP_LAST_ANALYSE_TITLE">SP_LAST_ANALYSE_TITLE</string>
     <string name="SP_LAST_ANALYSE_DT">SP_LAST_ANALYSE_DT</string>
 
+    <string name="SP_DB_UPDATED">SP_DB_UPDATED</string>
+
     <string name="SP_FB_TOKEN">SP_FB_TOKEN</string>
     <string name="SP_ANALYSE_COUNT">SP_ANALYSE_COUNT</string>
     <string name="SP_LOGIN_COUNT">SP_LOGIN_COUNT</string>
