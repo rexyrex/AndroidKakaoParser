@@ -17,10 +17,12 @@
         android:roundIcon="@mipmap/kakao_ic_launcher_analyze_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".Activities.QuizActivity"></activity>
+
         <service
             android:name=".Services.DeleteService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".Activities.SettingsActivity"

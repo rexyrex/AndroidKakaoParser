@@ -11,6 +11,7 @@ import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Fragments.main.ChatAnalyseFragment;
 import com.rexyrex.kakaoparser.Fragments.main.PersonAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.main.GeneralStatsFrag;
+import com.rexyrex.kakaoparser.Fragments.main.QuizFrag;
 import com.rexyrex.kakaoparser.Fragments.main.TimeAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.main.WordAnalyseFrag;
 
@@ -20,7 +21,7 @@ import com.rexyrex.kakaoparser.Fragments.main.WordAnalyseFrag;
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    private static final String[] TAB_TITLES = new String[]{"개요", "사람", "대화", "단어", "시간"};
+    private static final String[] TAB_TITLES = new String[]{"개요", "사람", "대화", "단어", "시간", "퀴즈"};
     private final Context mContext;
     private final ChatData cd;
 
@@ -47,6 +48,8 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 WordAnalyseFrag waf = WordAnalyseFrag.newInstance(); return waf;
             case "시간" :
                 TimeAnalyseFrag taf = TimeAnalyseFrag.newInstance(); return taf;
+            case "퀴즈" :
+                QuizFrag qf = QuizFrag.newInstance(); return qf;
             default : return null;
         }
     }
