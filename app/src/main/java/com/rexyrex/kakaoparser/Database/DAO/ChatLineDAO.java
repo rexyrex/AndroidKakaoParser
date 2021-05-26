@@ -63,6 +63,9 @@ public interface ChatLineDAO {
     @Query("SELECT COUNT(content) FROM tb_chat_line WHERE author = :author")
     public int getChatterChatLineCount(String author);
 
+    @Query("SELECT * FROM tb_chat_line WHERE author = :author ORDER BY RANDOM() LIMIT 3")
+    public List<ChatLineModel> getChatterRandomChatlineSample(String author);
+
     @Query("SELECT MIN(date) FROM tb_chat_line")
     public Date getStartDate();
 
