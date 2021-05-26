@@ -465,6 +465,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Toast.makeText(ChatStatsTabActivity.this, "채팅 분석이 사용자에 의해 취소됐습니다.", Toast.LENGTH_LONG).show();
+                spu.saveString(R.string.SP_LAST_ANALYSE_TITLE, "");
+                spu.saveString(R.string.SP_LAST_ANALYSE_DT, "");
                 ChatStatsTabActivity.this.finish();
             }
         });

@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import com.rexyrex.kakaoparser.Database.Converters.DateConverter;
+import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
 import java.util.Date;
 
@@ -138,5 +139,9 @@ public class ChatLineModel {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getShortenedContent(int maxLength){
+        return StringParseUtils.shortenString(content, maxLength);
     }
 }

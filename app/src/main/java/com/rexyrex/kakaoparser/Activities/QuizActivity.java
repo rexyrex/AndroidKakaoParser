@@ -31,6 +31,7 @@ public class QuizActivity extends AppCompatActivity {
     ChatLineDAO chatLineDAO;
 
     TextView qTV;
+    TextView qMainTV;
     ListView answersLV;
 
     AnswersListAdapter ala;
@@ -44,10 +45,6 @@ public class QuizActivity extends AppCompatActivity {
      *
      * x <- 이사람이 가장 많이 쓴 문구는?
      *
-     * x <- 이 사람이 가장 자주 채팅하는 요일은?
-     *
-     * 무슨 요일 대화량이 제일 많/적을까요?
-     *
      */
 
     @Override
@@ -56,6 +53,7 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_quiz);
 
         answersLV = findViewById(R.id.quizAnswersList);
+        qMainTV = findViewById(R.id.quizQMainTV);
         qTV = findViewById(R.id.quizQTV);
         cd = ChatData.getInstance();
         database = MainDatabase.getDatabase(this);
@@ -81,6 +79,12 @@ public class QuizActivity extends AppCompatActivity {
         getNextQuestion();
     }
 
+    protected void resetForNextQuestion(){
+        qMainTV.setText("");
+        qTV.setText("");
+
+    }
+
     protected void getNextQuestion(){
         answersList.clear();
         int randChatIndex = ThreadLocalRandom.current().nextInt(0, cd.getChatLineCount()-4);
@@ -89,21 +93,29 @@ public class QuizActivity extends AppCompatActivity {
         ChatLineModel qCLM3 = chatLineDAO.getItemById((long) randChatIndex + 2);
         ChatLineModel aCLM = chatLineDAO.getItemById((long) (randChatIndex + 3));
 
-        qTV.setText(qCLM.getAuthor() + " : " + qCLM.getContent() + "\n" + qCLM2.getAuthor() + " : " + qCLM2.getContent() + "\n" + qCLM3.getAuthor() + " : " + qCLM3.getContent());
+        qMainTV.setText("아래 대화에 이어지는 답변을 고르시오");
+
+        final int MAX_CONTENT_LENGTH = 100;
+
+        qTV.setText(
+                "1. [" + qCLM.getAuthor() + "] " + qCLM.getShortenedContent(MAX_CONTENT_LENGTH) +
+                        "\n\n2. [" + qCLM2.getAuthor() + "] " + qCLM2.getShortenedContent(MAX_CONTENT_LENGTH) +
+                        "\n\n3. [" + qCLM3.getAuthor() + "] " + qCLM3.getShortenedContent(MAX_CONTENT_LENGTH)
+                );
 
         //add real answer
-        StringBoolPair sbp = new StringBoolPair(aCLM.getAuthor() + " : " + aCLM.getContent(), true);
+        StringBoolPair sbp = new StringBoolPair("[" + aCLM.getAuthor() + "] " + aCLM.getShortenedContent(MAX_CONTENT_LENGTH), true);
         answersList.add(sbp);
 
         //add fake answers
         for(int i=0; i<4; i++){
             int randIndex = ThreadLocalRandom.current().nextInt(0, cd.getChatLineCount()-4);
-            while(randIndex == randChatIndex || randIndex <= randChatIndex + 3){
+            while(randIndex >= randChatIndex && randIndex <= randChatIndex + 3){
                 randIndex = ThreadLocalRandom.current().nextInt(0, cd.getChatLineCount()-4);
             }
 
             ChatLineModel fakeCLM = chatLineDAO.getItemById((long) randIndex);
-            StringBoolPair sbpFake = new StringBoolPair(fakeCLM.getAuthor() + " : " + fakeCLM.getContent(), false);
+            StringBoolPair sbpFake = new StringBoolPair("[" + fakeCLM.getAuthor() + "] " + fakeCLM.getShortenedContent(MAX_CONTENT_LENGTH), false);
             answersList.add(sbpFake);
         }
 

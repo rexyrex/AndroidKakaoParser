@@ -16,4 +16,12 @@ public class StringParseUtils {
         }
         return formatted;
     }
+
+    public static String shortenString(String s, int maxLength){
+        if(s.length() <= maxLength){
+            return s;
+        } else {
+            return s.substring(0, maxLength) + "...";
+        }
+    }
 }
