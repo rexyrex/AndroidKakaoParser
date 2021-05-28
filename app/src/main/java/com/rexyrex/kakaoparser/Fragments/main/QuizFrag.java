@@ -1,36 +1,19 @@
 package com.rexyrex.kakaoparser.Fragments.main;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.rexyrex.kakaoparser.Activities.PersonListActivity;
 import com.rexyrex.kakaoparser.Activities.QuizActivity;
-import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
-import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
-import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
-import com.rexyrex.kakaoparser.Utils.KeyboardUtils;
-import com.rexyrex.kakaoparser.Utils.ShareUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class QuizFrag extends Fragment {
     ChatData cd;
