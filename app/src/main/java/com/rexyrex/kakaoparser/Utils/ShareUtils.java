@@ -20,7 +20,7 @@ public class ShareUtils {
 
     public static void shareGeneralWithPromo(Activity activity, String msg){
         String appPackageName = "com.rexyrex.kakaoparser";
-        String promoString = "\n" + "카카오톡 분석을 직접 해보세요!" + "\n" + "https://play.google.com/store/apps/details?id=" + appPackageName;
+        String promoString = "\n\n" + "카카오톡 분석을 직접 해보세요!" + "\n" + "https://play.google.com/store/apps/details?id=" + appPackageName;
         shareGeneral(activity, msg + promoString);
         FirebaseUtils.logFirebaseEventShare(activity, "general");
     }

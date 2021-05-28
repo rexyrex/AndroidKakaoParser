@@ -46,4 +46,16 @@
         <item name="android:fontFamily">@font/nanum_square_round_b</item>
     </style>
 
+    <style name="FadeInAndFadeOut">
+        <item name="android:windowEnterAnimation">@anim/fade_in_fast</item>
+<!--        <item name="android:windowExitAnimation">@anim/fade_out_fast</item>-->
+    </style>
+
+    <style name="QuizResPopup" parent="@android:style/Theme.Dialog">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:windowAnimationStyle">@style/FadeInAndFadeOut</item>
+    </style>
+
+
+
 </resources>

@@ -1,16 +1,23 @@
 package com.rexyrex.kakaoparser.Activities;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,9 +27,13 @@ import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.Entities.ChatSnippetData;
+import com.rexyrex.kakaoparser.Entities.QuizChoiceData;
 import com.rexyrex.kakaoparser.Entities.StringBoolPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
+import com.rexyrex.kakaoparser.Fragments.main.ChatAnalyseFragment;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.ShareUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +42,18 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class QuizActivity extends AppCompatActivity {
+
+    public enum QuestionType {
+        NEXT_CHAT, PERSON_FROM_CHAT, CHAT_FROM_PERSON, WORD_FROM_PERSON, PERSON_FROM_WORD, DEFAULT
+    }
+
+    //Scoring : 100 * questionTypeScoreMultiplier * chatAndChattersMultiplier
+    final double[] questionTypeScoreMultiplier = {1, 0.7, 0.8, 1.1, 0.9};
+    double chatAndChattersMultiplier;
+
+    QuestionType lastQuestionType;
+
+    final String[] letters = {"A","B","C","D","E"};
 
     ChatData cd;
     private MainDatabase database;
@@ -44,19 +67,27 @@ public class QuizActivity extends AppCompatActivity {
 
     AnswersListAdapter ala;
 
-    ArrayList<StringBoolPair> answersList;
+    ArrayList<QuizChoiceData> answersList;
 
     CountDownTimer cTimer = null;
 
     boolean isQuestionTime = false;
     boolean isCorrect = false;
     String choiceStr = "";
-    ArrayList<String> answerStrList;
 
-    Button shareBtn, showAnsBtn, nextQuestionBtn;
+    Button shareBtn, nextQuestionBtn;
+
+    Dialog resDialog;
+    ImageView resDialogIV;
+    TextView resDialogTV;
 
     int triesLeft = 2;
     int score = 0;
+    int scoreAddition = 0;
+
+    ChatLineModel aCLM;
+
+    String questionStr, questionExtraStr;
 
     /**
      * "xx"문구를 제일 많이 사용한 사람? -> 단어 보여주고 사람 고르기
@@ -75,31 +106,61 @@ public class QuizActivity extends AppCompatActivity {
 
         nextQuestionBtn = findViewById(R.id.quizNextQuestionBtn);
         shareBtn = findViewById(R.id.quizShareBtn);
-        showAnsBtn = findViewById(R.id.quizShowAnsBtn);
+
+        lastQuestionType = QuestionType.DEFAULT;
+
+        aCLM = null;
 
         cd = ChatData.getInstance();
         database = MainDatabase.getDatabase(this);
         chatLineDAO = database.getChatLineDAO();
         wordDAO = database.getWordDAO();
 
-        answerStrList = new ArrayList<>();
-
         answersList = new ArrayList<>();
+
         ala = new AnswersListAdapter(answersList);
         answersLV.setAdapter(ala);
+
+        chatAndChattersMultiplier = Math.log10(cd.getChatLineCount());
+
+        shareBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shareQuestion();
+            }
+        });
+
+        //View resPopupView = (LayoutInflater.from(QuizActivity.this)).inflate(R.layout.quiz_res_popup, null);
+        AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(QuizActivity.this, R.style.QuizResPopup);
+        //rexAlertBuilder.setView(resPopupView);
+        rexAlertBuilder.setCancelable(false);
+        //resDialog = rexAlertBuilder.create();
+        resDialog = new Dialog(this);
+        resDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        resDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        resDialog.setContentView(R.layout.quiz_res_popup);
+        resDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
+        resDialog.setCancelable(false);
+
+        resDialogIV = resDialog.findViewById(R.id.quizPopupResImg);
+        resDialogTV = resDialog.findViewById(R.id.quizPopupResTV);
 
         answersLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if(!isQuestionTime){
+                    return;
+                }
                 choiceStr = answersList.get(i).getStr();
-                isCorrect = answersList.get(i).isBool();
-                if(answersList.get(i).isBool()){
-                    score++;
-                    Toast.makeText(QuizActivity.this, "정답! ㅎㅎ", Toast.LENGTH_SHORT).show();
+                isCorrect = answersList.get(i).isCorrect();
+                if(answersList.get(i).isCorrect()){
+                    scoreAddition = (int) (100 * chatAndChattersMultiplier * questionTypeScoreMultiplier[lastQuestionType.ordinal()]);
+                    score+= scoreAddition;
+                    showResDialog(true);
                     showAnswerAndMoveOnToNextQuestion();
                 } else {
                     triesLeft--;
-                    Toast.makeText(QuizActivity.this, "틀렸어요! ㅠㅠ", Toast.LENGTH_SHORT).show();
+                    showResDialog(false);
                     if(triesLeft < 0){
                         resetForNextQuestion();
                         qTimerTV.setText("최종 점수 : " + score);
@@ -107,7 +168,7 @@ public class QuizActivity extends AppCompatActivity {
                         showAnswerAndMoveOnToNextQuestion();
                     }
                 }
-                nextQuestionBtn.setEnabled(true);
+                toggleButton(nextQuestionBtn,true);
             }
         });
 
@@ -120,6 +181,24 @@ public class QuizActivity extends AppCompatActivity {
 
         //startTimer();
         moveToNextQuestion();
+    }
+
+    protected void showResDialog(boolean success){
+        if(success){
+            resDialogIV.setImageDrawable(getDrawable(R.drawable.correct));
+            resDialogTV.setText("정답! (+" + scoreAddition + "점)");
+        } else {
+            resDialogIV.setImageDrawable(getDrawable(R.drawable.incorrect));
+            resDialogTV.setText("오답 (남은 기회 : "+triesLeft + ")");
+        }
+        resDialog.show();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resDialog.dismiss();
+            }
+        }, 1200);
     }
 
 //    //start timer function
@@ -147,40 +226,64 @@ public class QuizActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    protected void toggleButton(Button btn, boolean toggle){
+        btn.setClickable(toggle);
+        btn.setEnabled(toggle);
+    }
+
     protected void showAnswerAndMoveOnToNextQuestion(){
+        qTimerTV.setText("점수 : " + score + ", 남은 회수 : " + triesLeft);
         isQuestionTime = false;
         ala.notifyDataSetChanged();
-        nextQuestionBtn.setEnabled(true);
+    }
+
+    protected void shareQuestion(){
+        String shareStr = "";
+        shareStr += "문제:\n";
+        shareStr += questionStr + "\n";
+        shareStr += "---------\n";
+        shareStr += questionExtraStr + "\n";
+        shareStr += "---------\n\n";
+        shareStr += "보기:\n";
+        shareStr += "---------\n";
+
+        for(int i=0; i<answersList.size(); i++){
+            shareStr += letters[i] + ". " + answersList.get(i).getStr() + "\n\n";
+        }
+        shareStr += "---------\n";
+        ShareUtils.shareGeneralWithPromo(this, shareStr);
     }
 
     protected void moveToNextQuestion(){
-        qTimerTV.setText("점수 : " + score + ", 남은 회수 : " + triesLeft);
+        toggleButton(nextQuestionBtn, false);
+
 
         int questionType = ThreadLocalRandom.current().nextInt(0, 5);
         isQuestionTime = true;
         resetForNextQuestion();
 //        getNextQuestion5();
-                switch(questionType){
-                    case 0: getNextQuestion(); break;
-                    case 1: getNextQuestion2(); break;
-                    case 2: getNextQuestion3(); break;
-                    case 3: getNextQuestion4(); break;
-                    case 4: getNextQuestion5(); break;
-                    default : getNextQuestion(); break;
-                }
+        switch(questionType){
+            case 0: getNextQuestion(); lastQuestionType = QuestionType.NEXT_CHAT; break;
+            case 1: getNextQuestion2(); lastQuestionType = QuestionType.PERSON_FROM_CHAT; break;
+            case 2: getNextQuestion3(); lastQuestionType = QuestionType.CHAT_FROM_PERSON; break;
+            case 3: getNextQuestion4(); lastQuestionType = QuestionType.WORD_FROM_PERSON; break;
+            case 4: getNextQuestion5(); lastQuestionType = QuestionType.PERSON_FROM_WORD; break;
+            default : getNextQuestion(); lastQuestionType = QuestionType.NEXT_CHAT; break;
+        }
         long seed = System.nanoTime();
-        Collections.shuffle(answersList, new Random(seed));
+        Random r = new Random(seed);
+        Collections.shuffle(answersList, r);
         ala.notifyDataSetChanged();
     }
 
     protected void resetForNextQuestion(){
         qMainTV.setText("");
         qTV.setText("");
-        answerStrList.clear();
         answersList.clear();
         ala.notifyDataSetChanged();
     }
 
+    //Person from Word
     protected void getNextQuestion5(){
         //SELECT word from top 100 most used
         List<StringIntPair> wordFreqList = wordDAO.getFreqWordListForQuiz();
@@ -188,8 +291,10 @@ public class QuizActivity extends AppCompatActivity {
 
         String word = wordFreqList.get(randWordIndex).getword();
 
-        qMainTV.setText("아래 단어를 가장 많이 사용한 사람은?");
-        qTV.setText(word);
+        questionStr = "아래 단어를 가장 많이 사용한 사람은?";
+        questionExtraStr = word;
+        qMainTV.setText(questionStr);
+        qTV.setText(questionExtraStr);
 
         //SELECT TOP people who used this word
         List<StringIntPair> authorList = wordDAO.getFreqWordListSearchByAuthor(word);
@@ -198,10 +303,11 @@ public class QuizActivity extends AppCompatActivity {
         int maxUsed = authorList.get(0).getFrequency();
 
         for(int i=0; i< (authorList.size() > 5 ? 5 : authorList.size()); i++){
-            StringBoolPair sbp = new StringBoolPair(authorList.get(i).getword(), authorList.get(i).getFrequency() == maxUsed);
-            if(authorList.get(i).getFrequency() == maxUsed){
-                answerStrList.add(authorList.get(i).getword());
-            }
+            QuizChoiceData sbp = new QuizChoiceData(
+                    authorList.get(i).getFrequency() == maxUsed,
+                    authorList.get(i).getword(),
+                    "[" + authorList.get(i).getFrequency() + "회] " + authorList.get(i).getword()
+                    );
             answersList.add(sbp);
         }
     }
@@ -216,8 +322,10 @@ public class QuizActivity extends AppCompatActivity {
         int randAuthorIndex = ThreadLocalRandom.current().nextInt(0, authorList.size());
         String author = authorList.get(randAuthorIndex);
 
-        qMainTV.setText("아래 사람이 단어 목록 중 가장 많이 사용한 단어는?");
-        qTV.setText(author);
+        questionStr = "아래 사람이 단어 목록 중 가장 많이 사용한 단어는?";
+        questionExtraStr = author;
+        qMainTV.setText(questionStr);
+        qTV.setText(questionExtraStr);
 
         //Get 5 words used by author
         List<StringIntPair> wordFreqList = wordDAO.getFreqWordListRandomSamplesByAuthor(author);
@@ -229,11 +337,8 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         for(StringIntPair sip: wordFreqList){
-            StringBoolPair sbp = new StringBoolPair(sip.getword(), sip.getFrequency() == maxFreq);
+            QuizChoiceData sbp = new QuizChoiceData(sip.getFrequency() == maxFreq, sip.getword(), "[" + sip.getFrequency() + "회] " + sip.getword());
             answersList.add(sbp);
-            if(sip.getFrequency() == maxFreq){
-                answerStrList.add(sip.getword());
-            }
         }
     }
 
@@ -248,21 +353,25 @@ public class QuizActivity extends AppCompatActivity {
         String author = authorList.get(randAuthorIndex);
         authorList.remove(randAuthorIndex);
 
-        qMainTV.setText("아래 표시된 사람의 대화를 고르시오");
-        qTV.setText(author);
-
+        questionStr = "아래 표시된 사람의 대화를 고르시오";
+        questionExtraStr = author;
+        qMainTV.setText(questionStr);
+        qTV.setText(questionExtraStr);
 
         //Get Correct Answer
         ChatLineModel sampleSent = chatLineDAO.getChatterRandomChatlineSample(author);
 
-        StringBoolPair sbp = new StringBoolPair(sampleSent.getContent(), true);
-        answerStrList.add(sbp.getStr());
+        QuizChoiceData sbp = new QuizChoiceData(
+                true,
+                sampleSent.getContent(),
+                "[" + sampleSent.getAuthor() + "] " + sampleSent.getContent()
+        );
         answersList.add(sbp);
 
         //Get Wrong Answers
         List<ChatLineModel> wrongSentList = chatLineDAO.getOtherRandomChatlineSamples(author, sampleSent.getContent());
         for(ChatLineModel wrongSent : wrongSentList){
-            StringBoolPair sbp2 = new StringBoolPair(wrongSent.getContent(), false);
+            QuizChoiceData sbp2 = new QuizChoiceData(false, wrongSent.getContent(), "[" + wrongSent.getAuthor() + "] " + wrongSent.getContent());
             answersList.add(sbp2);
         }
     }
@@ -287,11 +396,9 @@ public class QuizActivity extends AppCompatActivity {
         //get 3 chatLines of that person
         List<ChatLineModel> sampleSentsList = chatLineDAO.getChatterRandomChatlineSamples(author);
 
-        StringBoolPair sbp = new StringBoolPair(author, true);
-        answerStrList.add(sbp.getStr());
+        QuizChoiceData sbp = new QuizChoiceData(true, author, author);
         answersList.add(sbp);
 
-        qMainTV.setText("아래 대화를 한 사람을 고르시오");
         String sampleText = "";
         for(int i=0; i<sampleSentsList.size(); i++){
             sampleText += (i+1) + ". " + sampleSentsList.get(i).getShortenedContent(MAX_CONTENT_LENGTH);
@@ -299,7 +406,11 @@ public class QuizActivity extends AppCompatActivity {
                 sampleText+= "\n\n";
             }
         }
-        qTV.setText(sampleText);
+
+        questionStr = "아래 대화를 한 사람을 고르시오";
+        questionExtraStr = sampleText;
+        qMainTV.setText(questionStr);
+        qTV.setText(questionExtraStr);
 
         long seed = System.nanoTime();
         Collections.shuffle(authorList, new Random(seed));
@@ -307,7 +418,7 @@ public class QuizActivity extends AppCompatActivity {
         int authorLimitCount = 0;
         //get list of other people as wrong answer
         for(String wrongAuthor : authorList){
-            StringBoolPair sbp2 = new StringBoolPair(wrongAuthor, false);
+            QuizChoiceData sbp2 = new QuizChoiceData(false, wrongAuthor, wrongAuthor);
             answersList.add(sbp2);
             authorLimitCount++;
             if(authorLimitCount >= 4){
@@ -325,20 +436,23 @@ public class QuizActivity extends AppCompatActivity {
         ChatLineModel qCLM4 = chatLineDAO.getItemById((long) randChatIndex + 3);
         ChatLineModel qCLM5 = chatLineDAO.getItemById((long) randChatIndex + 4);
 
-        ChatLineModel aCLM = chatLineDAO.getItemById((long) (randChatIndex + 5));
+        aCLM = chatLineDAO.getItemById((long) (randChatIndex + 5));
 
-        qMainTV.setText("아래 대화에 이어지는 답변을 고르시오");
-        qTV.setText(
-                "1. [" + qCLM.getAuthor() + "] " + qCLM.getShortenedContent(MAX_CONTENT_LENGTH) +
-                        "\n\n2. [" + qCLM2.getAuthor() + "] " + qCLM2.getShortenedContent(MAX_CONTENT_LENGTH) +
-                        "\n\n3. [" + qCLM3.getAuthor() + "] " + qCLM3.getShortenedContent(MAX_CONTENT_LENGTH) +
-                        "\n\n4. [" + qCLM4.getAuthor() + "] " + qCLM4.getShortenedContent(MAX_CONTENT_LENGTH) +
-                        "\n\n5. [" + qCLM5.getAuthor() + "] " + qCLM5.getShortenedContent(MAX_CONTENT_LENGTH)
-                );
+        questionStr = "아래 대화에 이어지는 답변을 고르시오";
+        questionExtraStr = "1. [" + qCLM.getAuthor() + "] " + qCLM.getShortenedContent(MAX_CONTENT_LENGTH) +
+                "\n\n2. [" + qCLM2.getAuthor() + "] " + qCLM2.getShortenedContent(MAX_CONTENT_LENGTH) +
+                "\n\n3. [" + qCLM3.getAuthor() + "] " + qCLM3.getShortenedContent(MAX_CONTENT_LENGTH) +
+                "\n\n4. [" + qCLM4.getAuthor() + "] " + qCLM4.getShortenedContent(MAX_CONTENT_LENGTH) +
+                "\n\n5. [" + qCLM5.getAuthor() + "] " + qCLM5.getShortenedContent(MAX_CONTENT_LENGTH);
+        qMainTV.setText(questionStr);
+        qTV.setText(questionExtraStr);
 
         //add real answer
-        StringBoolPair sbp = new StringBoolPair("[" + aCLM.getAuthor() + "] " + aCLM.getShortenedContent(MAX_CONTENT_LENGTH), true);
-        answerStrList.add(sbp.getStr());
+        QuizChoiceData sbp = new QuizChoiceData(
+                true,
+                "[" + aCLM.getAuthor() + "] " + aCLM.getShortenedContent(MAX_CONTENT_LENGTH),
+                "[" + aCLM.getAuthor() + "] " + aCLM.getShortenedContent(MAX_CONTENT_LENGTH));
+
         answersList.add(sbp);
 
         //add fake answers
@@ -349,16 +463,26 @@ public class QuizActivity extends AppCompatActivity {
             }
 
             ChatLineModel fakeCLM = chatLineDAO.getItemById((long) randIndex);
-            StringBoolPair sbpFake = new StringBoolPair("[" + fakeCLM.getAuthor() + "] " + fakeCLM.getShortenedContent(MAX_CONTENT_LENGTH), false);
+            QuizChoiceData sbpFake = new QuizChoiceData(
+                    false,
+                    "[" + fakeCLM.getAuthor() + "] " + fakeCLM.getShortenedContent(MAX_CONTENT_LENGTH),
+                    "[" + fakeCLM.getAuthor() + "] " + fakeCLM.getShortenedContent(MAX_CONTENT_LENGTH)
+                    );
             answersList.add(sbpFake);
         }
     }
 
-    class AnswersListAdapter extends BaseAdapter {
-        ArrayList<StringBoolPair> ansList;
-        String[] letters = {"A","B","C","D","E"};
+    protected void makeShallowCopy(ArrayList<StringBoolPair> a, ArrayList<StringBoolPair> b){
+        for(int i=0; i<a.size(); i++){
+            b.add(a.get(i));
+        }
+    }
 
-        AnswersListAdapter(ArrayList<StringBoolPair> ansList){
+    class AnswersListAdapter extends BaseAdapter {
+        ArrayList<QuizChoiceData> ansList;
+
+
+        AnswersListAdapter(ArrayList<QuizChoiceData> ansList){
             this.ansList = ansList;
         }
 
@@ -383,22 +507,16 @@ public class QuizActivity extends AppCompatActivity {
             TextView answerTitleTV = convertView.findViewById(R.id.quizAnswerTitle);
             TextView answerContentTV = convertView.findViewById(R.id.quizAnswerContent);
 
-            for(String ans : answerStrList){
-                if(!isQuestionTime && ansList.get(position).getStr().equals(ans)){
-                    convertView.setBackgroundColor(getResources().getColor(R.color.lightGreen, QuizActivity.this.getTheme()));
-                }
+            if(!isQuestionTime && ansList.get(position).isCorrect()){
+                convertView.setBackground(getResources().getDrawable(R.drawable.quiz_choice_correct, QuizActivity.this.getTheme()));
             }
-
-
 
             if(!isCorrect && !isQuestionTime && ansList.get(position).getStr().equals(choiceStr)){
-                convertView.setBackgroundColor(getResources().getColor(R.color.design_default_color_error, QuizActivity.this.getTheme()));
+                convertView.setBackground(getResources().getDrawable(R.drawable.quiz_choice_incorrect, QuizActivity.this.getTheme()));
             }
 
-            StringBoolPair wordData = ansList.get(position);
-
             answerTitleTV.setText(letters[position]);
-            answerContentTV.setText(wordData.getStr());
+            answerContentTV.setText(isQuestionTime ? ansList.get(position).getStr() : ansList.get(position).getAnswerStr());
             return convertView;
         }
     }

@@ -16,6 +16,9 @@ public class AnalysedChatModel {
     private String title;
     private String dt;
 
+    @ColumnInfo(defaultValue = "0")
+    private int highscore;
+
     @Ignore
     public AnalysedChatModel(){
 
@@ -50,4 +53,11 @@ public class AnalysedChatModel {
         this.dt = dt;
     }
 
+    public int getHighscore() {
+        return highscore;
+    }
+
+    public void setHighscore(int highscore) {
+        this.highscore = highscore;
+    }
 }

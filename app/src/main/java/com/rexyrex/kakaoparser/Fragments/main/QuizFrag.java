@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -62,8 +63,13 @@ public class QuizFrag extends Fragment {
         quizStartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent moreIntent = new Intent(QuizFrag.this.getActivity(), QuizActivity.class);
-                QuizFrag.this.getActivity().startActivity(moreIntent);
+                if(cd.getChatLineCount() < 1000){
+                    Toast.makeText(QuizFrag.this.getActivity(), "대화 내용이 너무 짧습니다. 대화를 더 하고 재분석 후 진행해주세요!", Toast.LENGTH_LONG).show();
+                } else {
+                    Intent moreIntent = new Intent(QuizFrag.this.getActivity(), QuizActivity.class);
+                    QuizFrag.this.getActivity().startActivity(moreIntent);
+                }
+
             }
         });
 

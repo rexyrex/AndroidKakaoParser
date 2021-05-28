@@ -63,21 +63,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/custom_border3"
-                android:text="공유" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"></Space>
-
-            <Button
-                android:id="@+id/quizShowAnsBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/custom_border3"
-                android:text="해설" />
+                android:background="@drawable/quiz_btns"
+                android:text="문제 공유" />
 
             <Space
                 android:layout_width="0dp"
@@ -89,7 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/custom_border3"
+                android:background="@drawable/quiz_btns"
                 android:text="다음 문제" />
 
         </LinearLayout>
