@@ -166,13 +166,13 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent statsIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
+                    statsIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[position].getName()));
                     if(FileParseUtils.parseFileForTitle(reversedFilesArr[position]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
                     && StringParseUtils.chatFileNameToDate(reversedFilesArr[position].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
                     ){
-                        statsIntent.putExtra("lastAnalyseDt", "null");
+                        Toast.makeText(MainActivity.this, "이미 분석된 내용을 불러오는 중입니다.", Toast.LENGTH_LONG).show();
                         statsIntent.putExtra("analysed", true);
                     } else {
-                        statsIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[position].getName()));
                         statsIntent.putExtra("analysed", false);
                     }
 

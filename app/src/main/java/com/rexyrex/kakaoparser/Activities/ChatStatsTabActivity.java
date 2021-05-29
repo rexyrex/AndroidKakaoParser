@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
@@ -194,6 +196,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 } else {
                     LogUtils.e("Backup skip");
                 }
+
+                cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(chatTitle, lastAnalyseDtStr));
 
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
@@ -485,16 +489,21 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
 
         if(analysed){
+            String tmpTitleStr = FileParseUtils.parseFileForTitle(chatFile);
             //Change Title to include date
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
             String dateRangeStr = "(" + dateFormat.format(chatLineDao.getStartDate()) + " ~ " + dateFormat.format(chatLineDao.getEndDate()) + ")";
-            final SpannableString tmpTitle = generateTitleSpannableText(FileParseUtils.parseFileForTitle(chatFile), dateRangeStr);
+            final SpannableString tmpTitle = generateTitleSpannableText(tmpTitleStr, dateRangeStr);
             ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     titleTV.setText( tmpTitle);
                 }
             });
+
+            cd.setChatFileTitle(tmpTitleStr);
+
+            cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(FileParseUtils.parseFileForTitle(chatFile), lastAnalyseDtStr));
 
             cd.setLoadElapsedSeconds(0);
             cd.setChatterCount(chatLineDao.getChatterCount());
@@ -588,4 +597,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }

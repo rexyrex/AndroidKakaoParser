@@ -8,11 +8,53 @@
 
     <Button
         android:id="@+id/quizStartBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/custom_show_more_btn"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="퀴즈 시작"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quizFragScoreTV" />
+
+    <Button
+        android:id="@+id/quizInstructionsBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/custom_show_more_btn"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="퀴즈가 뭐에요?"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quizStartBtn" />
+
+    <Button
+        android:id="@+id/quizRankingBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/custom_show_more_btn"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="전체 순위 보기"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quizInstructionsBtn" />
+
+    <TextView
+        android:id="@+id/quizFragScoreTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/custom_show_more_btn"
-        android:text="Test"
+        android:layout_marginTop="32dp"
+        android:background="@color/colorAccent"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="최고 기록 (개인) : 999,999점"
+        android:textSize="28sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Entities;
 
+import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 
 import java.io.File;
@@ -22,6 +23,8 @@ public class ChatData {
     int videoCount;
     int pptCount;
     int deletedMsgCount;
+
+    AnalysedChatModel chatAnalyseDbModel;
 
     List<StringIntPair> chatterFreqArrList;
     List<StringIntPair> top10Chatters;
@@ -46,6 +49,13 @@ public class ChatData {
         return the_instance;
     }
 
+    public AnalysedChatModel getChatAnalyseDbModel() {
+        return chatAnalyseDbModel;
+    }
+
+    public void setChatAnalyseDbModel(AnalysedChatModel chatAnalyseDbModel) {
+        this.chatAnalyseDbModel = chatAnalyseDbModel;
+    }
 
     public String getChatFileTitle() {
         return chatFileTitle;

@@ -1,15 +1,11 @@
 package com.rexyrex.kakaoparser.Activities;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -20,26 +16,24 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
-import com.rexyrex.kakaoparser.Entities.ChatSnippetData;
 import com.rexyrex.kakaoparser.Entities.QuizChoiceData;
 import com.rexyrex.kakaoparser.Entities.StringBoolPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
-import com.rexyrex.kakaoparser.Fragments.main.ChatAnalyseFragment;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.RandomUtils;
 import com.rexyrex.kakaoparser.Utils.ShareUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -59,6 +53,7 @@ public class QuizActivity extends AppCompatActivity {
     private MainDatabase database;
     ChatLineDAO chatLineDAO;
     WordDAO wordDAO;
+    AnalysedChatDAO analysedChatDAO;
 
     final int MAX_CONTENT_LENGTH = 72;
 
@@ -77,11 +72,13 @@ public class QuizActivity extends AppCompatActivity {
 
     Button shareBtn, nextQuestionBtn;
 
-    Dialog resDialog;
+    Dialog resDialog, finalDialog;
     ImageView resDialogIV;
     TextView resDialogTV;
+    TextView finalDialogTitle1TV, finalDialogTitle2TV, finalDialogScore1TV, finalDialogScore2TV;
+    Button finalDialogCloseBtn;
 
-    int triesLeft = 2;
+    int triesLeft = 3;
     int score = 0;
     int scoreAddition = 0;
 
@@ -115,6 +112,7 @@ public class QuizActivity extends AppCompatActivity {
         database = MainDatabase.getDatabase(this);
         chatLineDAO = database.getChatLineDAO();
         wordDAO = database.getWordDAO();
+        analysedChatDAO = database.getAnalysedChatDAO();
 
         answersList = new ArrayList<>();
 
@@ -130,11 +128,6 @@ public class QuizActivity extends AppCompatActivity {
             }
         });
 
-        //View resPopupView = (LayoutInflater.from(QuizActivity.this)).inflate(R.layout.quiz_res_popup, null);
-        AlertDialog.Builder rexAlertBuilder = new AlertDialog.Builder(QuizActivity.this, R.style.QuizResPopup);
-        //rexAlertBuilder.setView(resPopupView);
-        rexAlertBuilder.setCancelable(false);
-        //resDialog = rexAlertBuilder.create();
         resDialog = new Dialog(this);
         resDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         resDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -142,8 +135,29 @@ public class QuizActivity extends AppCompatActivity {
         resDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
         resDialog.setCancelable(false);
 
+        finalDialog = new Dialog(this);
+        finalDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        finalDialog.setContentView(R.layout.quiz_complete_popup);
+        finalDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
+        finalDialog.setCancelable(false);
+
+        finalDialogScore1TV = finalDialog.findViewById(R.id.quizCompleteScoreTV);
+        finalDialogScore2TV = finalDialog.findViewById(R.id.quizCompleteScore2TV);
+        finalDialogTitle1TV = finalDialog.findViewById(R.id.quizCompleteTitleTV);
+        finalDialogTitle2TV = finalDialog.findViewById(R.id.quizCompleteTitleTV2);
+        finalDialogCloseBtn = finalDialog.findViewById(R.id.quizCompleteCloseBtn);
+
+        finalDialogCloseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                QuizActivity.this.finish();
+            }
+        });
+
         resDialogIV = resDialog.findViewById(R.id.quizPopupResImg);
         resDialogTV = resDialog.findViewById(R.id.quizPopupResTV);
+
+        qTimerTV.setText("점수 : " + score + ", 남은 기회 : " + triesLeft);
 
         answersLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -157,16 +171,11 @@ public class QuizActivity extends AppCompatActivity {
                     scoreAddition = (int) (100 * chatAndChattersMultiplier * questionTypeScoreMultiplier[lastQuestionType.ordinal()]);
                     score+= scoreAddition;
                     showResDialog(true);
-                    showAnswerAndMoveOnToNextQuestion();
+                    showAnswer();
                 } else {
                     triesLeft--;
                     showResDialog(false);
-                    if(triesLeft < 0){
-                        resetForNextQuestion();
-                        qTimerTV.setText("최종 점수 : " + score);
-                    } else {
-                        showAnswerAndMoveOnToNextQuestion();
-                    }
+                    showAnswer();
                 }
                 toggleButton(nextQuestionBtn,true);
             }
@@ -231,8 +240,13 @@ public class QuizActivity extends AppCompatActivity {
         btn.setEnabled(toggle);
     }
 
-    protected void showAnswerAndMoveOnToNextQuestion(){
-        qTimerTV.setText("점수 : " + score + ", 남은 회수 : " + triesLeft);
+    protected void showAnswer(){
+        if(triesLeft < 1) {
+            qTimerTV.setText("최종 점수 : " + score);
+            nextQuestionBtn.setText("결과 보기");
+        } else {
+            qTimerTV.setText("점수 : " + score + ", 남은 기회 : " + triesLeft);
+        }
         isQuestionTime = false;
         ala.notifyDataSetChanged();
     }
@@ -255,15 +269,32 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     protected void moveToNextQuestion(){
+        int prevHighScore = cd.getChatAnalyseDbModel().getHighscore();
+
+        if(triesLeft < 1){
+            finalDialogTitle1TV.setText("[" + cd.getChatFileTitle() + "] 퀴즈");
+            finalDialogScore1TV.setText("최고 기록 : " + prevHighScore + "점");
+            finalDialogScore2TV.setText("이번 기록 : " + score + "점");
+            finalDialog.show();
+
+            if(prevHighScore < score){
+                cd.getChatAnalyseDbModel().setHighscore(score);
+                analysedChatDAO.update(cd.getChatAnalyseDbModel());
+                finalDialogTitle2TV.setText("점수 갱신 성공!");
+            } else {
+                finalDialogTitle2TV.setText("점수 갱신 실패!");
+            }
+            return;
+        }
+
         toggleButton(nextQuestionBtn, false);
 
 
-        int questionType = ThreadLocalRandom.current().nextInt(0, 5);
+        int questionType = RandomUtils.getRandomInt(0, 5);
         isQuestionTime = true;
         resetForNextQuestion();
 //        getNextQuestion5();
         switch(questionType){
-            case 0: getNextQuestion(); lastQuestionType = QuestionType.NEXT_CHAT; break;
             case 1: getNextQuestion2(); lastQuestionType = QuestionType.PERSON_FROM_CHAT; break;
             case 2: getNextQuestion3(); lastQuestionType = QuestionType.CHAT_FROM_PERSON; break;
             case 3: getNextQuestion4(); lastQuestionType = QuestionType.WORD_FROM_PERSON; break;
@@ -287,7 +318,7 @@ public class QuizActivity extends AppCompatActivity {
     protected void getNextQuestion5(){
         //SELECT word from top 100 most used
         List<StringIntPair> wordFreqList = wordDAO.getFreqWordListForQuiz();
-        int randWordIndex = ThreadLocalRandom.current().nextInt(0, wordFreqList.size());
+        int randWordIndex = RandomUtils.getRandomInt(0, wordFreqList.size());
 
         String word = wordFreqList.get(randWordIndex).getword();
 
@@ -319,7 +350,7 @@ public class QuizActivity extends AppCompatActivity {
         for(String s : cd.getAuthorsList()){
             authorList.add(s);
         }
-        int randAuthorIndex = ThreadLocalRandom.current().nextInt(0, authorList.size());
+        int randAuthorIndex = RandomUtils.getRandomInt(0, authorList.size());
         String author = authorList.get(randAuthorIndex);
 
         questionStr = "아래 사람이 단어 목록 중 가장 많이 사용한 단어는?";
@@ -349,7 +380,7 @@ public class QuizActivity extends AppCompatActivity {
         for(String s : cd.getAuthorsList()){
             authorList.add(s);
         }
-        int randAuthorIndex = ThreadLocalRandom.current().nextInt(0, authorList.size());
+        int randAuthorIndex = RandomUtils.getRandomInt(0, authorList.size());
         String author = authorList.get(randAuthorIndex);
         authorList.remove(randAuthorIndex);
 
@@ -383,12 +414,12 @@ public class QuizActivity extends AppCompatActivity {
         for(String s : cd.getAuthorsList()){
             authorList.add(s);
         }
-        int randAuthorIndex = ThreadLocalRandom.current().nextInt(0, authorList.size());
+        int randAuthorIndex = RandomUtils.getRandomInt(0, authorList.size());
         String author = authorList.get(randAuthorIndex);
 
         //if author does not have at least 5 chats, reselect author
         while(chatLineDAO.getChatterChatLineCount(author) < 5){
-            randAuthorIndex = ThreadLocalRandom.current().nextInt(0, authorList.size());
+            randAuthorIndex = RandomUtils.getRandomInt(0, authorList.size());
             author = authorList.get(randAuthorIndex);
         }
         authorList.remove(randAuthorIndex);
@@ -429,7 +460,7 @@ public class QuizActivity extends AppCompatActivity {
 
     //Show 3 consecutive chats -> pick next chat
     protected void getNextQuestion(){
-        int randChatIndex = ThreadLocalRandom.current().nextInt(0, cd.getChatLineCount()-6);
+        int randChatIndex = RandomUtils.getRandomInt(0, cd.getChatLineCount()-6);
         ChatLineModel qCLM = chatLineDAO.getItemById((long) randChatIndex);
         ChatLineModel qCLM2 = chatLineDAO.getItemById((long) randChatIndex + 1);
         ChatLineModel qCLM3 = chatLineDAO.getItemById((long) randChatIndex + 2);
@@ -457,9 +488,9 @@ public class QuizActivity extends AppCompatActivity {
 
         //add fake answers
         for(int i=0; i<4; i++){
-            int randIndex = ThreadLocalRandom.current().nextInt(0, cd.getChatLineCount()-4);
+            int randIndex = RandomUtils.getRandomInt(0, cd.getChatLineCount()-4);
             while(randIndex >= randChatIndex && randIndex <= randChatIndex + 5){
-                randIndex = ThreadLocalRandom.current().nextInt(0, cd.getChatLineCount()-4);
+                randIndex = RandomUtils.getRandomInt(0, cd.getChatLineCount()-4);
             }
 
             ChatLineModel fakeCLM = chatLineDAO.getItemById((long) randIndex);

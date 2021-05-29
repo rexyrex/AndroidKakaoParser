@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="99:99"
+        android:fontFamily="@font/nanum_square_round_r"
         android:textColor="@android:color/holo_red_dark"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -64,6 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/quiz_btns"
+                android:fontFamily="@font/nanum_square_round_r"
                 android:text="문제 공유" />
 
             <Space
@@ -77,6 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/quiz_btns"
+                android:fontFamily="@font/nanum_square_round_r"
                 android:text="다음 문제" />
 
         </LinearLayout>

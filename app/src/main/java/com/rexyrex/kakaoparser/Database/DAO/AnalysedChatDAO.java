@@ -10,6 +10,7 @@ import androidx.room.Update;
 import com.rexyrex.kakaoparser.Database.Converters.DateConverter;
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.DateIntPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 
@@ -29,8 +30,17 @@ public interface AnalysedChatDAO {
     @Delete
     public void delete(AnalysedChatModel chat);
 
+    @Query("SELECT * FROM tb_analysed_chat WHERE id = :id")
+    public AnalysedChatModel getItemById(int id);
+
+    @Query("SELECT * FROM tb_analysed_chat WHERE title = :title AND dt = :dt")
+    public AnalysedChatModel getItemByTitleDt(String title, String dt);
+
     @Query("SELECT * FROM tb_analysed_chat")
     public List<AnalysedChatModel> getItems();
+
+    @Query("SELECT id FROM tb_analysed_chat WHERE title = :title AND dt = :dt")
+    public int getId(String title, String dt);
 
     @Query("SELECT COUNT(*) FROM tb_analysed_chat WHERE title = :title AND dt = :dt")
     public int countChats(String title, String dt);
