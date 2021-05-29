@@ -26,9 +26,12 @@ import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.QuizChoiceData;
 import com.rexyrex.kakaoparser.Entities.StringBoolPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
+import com.rexyrex.kakaoparser.Fragments.main.QuizFrag;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
 import com.rexyrex.kakaoparser.Utils.RandomUtils;
 import com.rexyrex.kakaoparser.Utils.ShareUtils;
+import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +54,7 @@ public class QuizActivity extends AppCompatActivity {
 
     ChatData cd;
     private MainDatabase database;
+    SharedPrefUtils spu;
     ChatLineDAO chatLineDAO;
     WordDAO wordDAO;
     AnalysedChatDAO analysedChatDAO;
@@ -86,6 +90,7 @@ public class QuizActivity extends AppCompatActivity {
 
     String questionStr, questionExtraStr;
 
+
     /**
      * "xx"문구를 제일 많이 사용한 사람? -> 단어 보여주고 사람 고르기
      *
@@ -110,6 +115,7 @@ public class QuizActivity extends AppCompatActivity {
 
         cd = ChatData.getInstance();
         database = MainDatabase.getDatabase(this);
+        spu = new SharedPrefUtils(this);
         chatLineDAO = database.getChatLineDAO();
         wordDAO = database.getWordDAO();
         analysedChatDAO = database.getAnalysedChatDAO();
@@ -150,6 +156,8 @@ public class QuizActivity extends AppCompatActivity {
         finalDialogCloseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                finalDialog.dismiss();
+                resDialog.dismiss();
                 QuizActivity.this.finish();
             }
         });
@@ -277,10 +285,19 @@ public class QuizActivity extends AppCompatActivity {
             finalDialogScore2TV.setText("이번 기록 : " + score + "점");
             finalDialog.show();
 
+            //Local highscore
             if(prevHighScore < score){
                 cd.getChatAnalyseDbModel().setHighscore(score);
                 analysedChatDAO.update(cd.getChatAnalyseDbModel());
                 finalDialogTitle2TV.setText("점수 갱신 성공!");
+
+                //Check if global highscore
+                if(spu.getInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, 0) < score){
+                    //save locally
+                    spu.saveInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, score);
+                    //save to firebase
+                    FirebaseUtils.saveHighscore(score, spu);
+                }
             } else {
                 finalDialogTitle2TV.setText("점수 갱신 실패!");
             }

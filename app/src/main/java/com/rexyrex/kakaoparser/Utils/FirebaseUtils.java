@@ -7,20 +7,31 @@ import android.telephony.TelephonyManager;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.rexyrex.kakaoparser.BuildConfig;
+import com.rexyrex.kakaoparser.Entities.HighscoreData;
 import com.rexyrex.kakaoparser.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public class FirebaseUtils {
+    public static NicknameCallback nicknameCallback;
+    public static HighscoreCallback highscoreCallback;
 
     public static void logFirebaseEventOpenApp(Context c){
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(c);
@@ -98,6 +109,128 @@ public class FirebaseUtils {
                         e.printStackTrace();
                     }
                 });
+    }
+
+    public static void setNicknameCallback(NicknameCallback nc){
+        nicknameCallback = nc;
+    }
+
+    public static void setHighscoreCallback(HighscoreCallback nc){
+        highscoreCallback = nc;
+    }
+
+    public static void saveNickname(String nickname, SharedPrefUtils spu){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+
+        Map<String, Object> quizEntry = new HashMap<>();
+        quizEntry.put("nickname", nickname);
+        quizEntry.put("firebaseToken", firebaseToken);
+        quizEntry.put("highscore", 0);
+
+        db.collection("quiz").document(firebaseToken)
+                .set(quizEntry)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //LogUtils.e("Error adding document" + e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    public static void nicknameExists(String nickname){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference citiesRef = db.collection("quiz");
+        Query query = citiesRef.whereEqualTo("nickname", nickname);
+        query.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if(task.getResult().isEmpty()){
+                                nicknameCallback.getNickname("-1");
+                            }
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                LogUtils.e(document.getId() + " => " + document.getData());
+                                nicknameCallback.getNickname((String) document.getData().get("nickname"));
+                            }
+                        } else {
+                            nicknameCallback.getNickname("-1");
+                            LogUtils.e("Error getting documents: " + task.getException().toString());
+                        }
+                    }
+                });
+    }
+
+    public interface NicknameCallback{
+        void getNickname(String nickname);
+    }
+
+    public interface HighscoreCallback{
+        void getHighscores(List<HighscoreData> highscores);
+    }
+
+    public static void saveHighscore(int score, SharedPrefUtils spu){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+
+        Map<String, Object> quizEntry = new HashMap<>();
+        quizEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
+        quizEntry.put("firebaseToken", firebaseToken);
+        quizEntry.put("highscore", score);
+
+        db.collection("quiz").document(firebaseToken)
+                .set(quizEntry)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //LogUtils.e("Error adding document" + e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    public static void getHighscores(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference citiesRef = db.collection("quiz");
+
+
+        Query query = citiesRef.orderBy("highscore", Query.Direction.DESCENDING).limit(50);
+        query.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if(task.getResult().isEmpty()){
+                                highscoreCallback.getHighscores(null);
+                            }
+                            List<HighscoreData> highscoreDataList = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                LogUtils.e(document.getId() + " => " + document.getData());
+                                if(document.getData().containsKey("nickname") && document.getData().containsKey("highscore"))
+                                highscoreDataList.add(new HighscoreData((int) ((long) document.getData().get("highscore")), (String) document.getData().get("nickname")));
+                            }
+                            highscoreCallback.getHighscores(highscoreDataList);
+                        } else {
+                            highscoreCallback.getHighscores(null);
+                            LogUtils.e("Error getting documents: " + task.getException().toString());
+                        }
+                    }
+                });
+
     }
 
 }

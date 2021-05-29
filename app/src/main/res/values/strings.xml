@@ -19,6 +19,9 @@
     <string name="SP_LAST_ANALYSE_TITLE">SP_LAST_ANALYSE_TITLE</string>
     <string name="SP_LAST_ANALYSE_DT">SP_LAST_ANALYSE_DT</string>
 
+    <string name="SP_QUIZ_NICKNAME">SP_QUIZ_NICKNAME</string>
+    <string name="SP_QUIZ_ALL_TIME_HIGH_SCORE">SP_QUIZ_ALL_TIME_HIGH_SCORE</string>\
+
     <string name="SP_DB_UPDATED">SP_DB_UPDATED</string>
 
     <string name="SP_FB_TOKEN">SP_FB_TOKEN</string>
