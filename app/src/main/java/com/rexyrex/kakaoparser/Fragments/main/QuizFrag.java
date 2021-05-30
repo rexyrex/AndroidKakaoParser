@@ -244,7 +244,7 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             TextView nickTV = convertView.findViewById(R.id.quizHighscoreLVElemNicknameTV);
             TextView scoreTV = convertView.findViewById(R.id.quizHighscoreLVElemScoreTV);
 
-            nickTV.setText(highscores.get(position).getNickname());
+            nickTV.setText("" + (position+1) + ". " + highscores.get(position).getNickname());
             scoreTV.setText("" + highscores.get(position).getHighscore());
 
             return convertView;
