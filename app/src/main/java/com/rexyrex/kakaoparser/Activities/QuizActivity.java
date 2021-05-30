@@ -46,7 +46,10 @@ public class QuizActivity extends AppCompatActivity {
 
     //Scoring : 100 * questionTypeScoreMultiplier * chatAndChattersMultiplier
     final double[] questionTypeScoreMultiplier = {1, 0.7, 0.8, 1.1, 0.9};
-    double chatAndChattersMultiplier;
+    double defaultChatLengthBonus = 10;
+    double defaultChatterCountBonus = 10;
+    double chatLengthmultiplier;
+    double chatterCountMultiplier;
 
     QuestionType lastQuestionType;
 
@@ -125,7 +128,8 @@ public class QuizActivity extends AppCompatActivity {
         ala = new AnswersListAdapter(answersList);
         answersLV.setAdapter(ala);
 
-        chatAndChattersMultiplier = Math.log10(cd.getChatLineCount());
+        chatLengthmultiplier =Math.log10(Math.max(Math.min(cd.getChatLineCount()/2000, 10), 1));
+        chatterCountMultiplier = Math.log10(cd.getChatterCount());
 
         shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,7 +180,7 @@ public class QuizActivity extends AppCompatActivity {
                 choiceStr = answersList.get(i).getStr();
                 isCorrect = answersList.get(i).isCorrect();
                 if(answersList.get(i).isCorrect()){
-                    scoreAddition = (int) (100 * chatAndChattersMultiplier * questionTypeScoreMultiplier[lastQuestionType.ordinal()]);
+                    scoreAddition = (int) ((100 + (chatLengthmultiplier * defaultChatLengthBonus) + (chatterCountMultiplier * defaultChatterCountBonus)) * questionTypeScoreMultiplier[lastQuestionType.ordinal()]);
                     score+= scoreAddition;
                     showResDialog(true);
                     showAnswer();

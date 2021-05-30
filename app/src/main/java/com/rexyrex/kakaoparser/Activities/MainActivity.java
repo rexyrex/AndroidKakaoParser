@@ -170,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
                     if(FileParseUtils.parseFileForTitle(reversedFilesArr[position]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
                     && StringParseUtils.chatFileNameToDate(reversedFilesArr[position].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
                     ){
-                        Toast.makeText(MainActivity.this, "이미 분석된 내용을 불러오는 중입니다.", Toast.LENGTH_LONG).show();
                         statsIntent.putExtra("analysed", true);
                     } else {
                         statsIntent.putExtra("analysed", false);

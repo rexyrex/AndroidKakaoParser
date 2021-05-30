@@ -81,6 +81,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     AnalysedChatDAO analysedChatDAO;
 
     AsyncTask<String, Void, String> statsTask;
+    AsyncTask<String, Void, String> loadTask;
     AlertDialog dialog;
 
     String[] chatLines;
@@ -463,7 +464,65 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             }
         };
 
+        loadTask = new AsyncTask<String, Void, String>() {
+            @Override
+            protected String doInBackground(String... strings) {
+                String tmpTitleStr = FileParseUtils.parseFileForTitle(chatFile);
+                //Change Title to include date
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
+                String dateRangeStr = "(" + dateFormat.format(chatLineDao.getStartDate()) + " ~ " + dateFormat.format(chatLineDao.getEndDate()) + ")";
+                final SpannableString tmpTitle = generateTitleSpannableText(tmpTitleStr, dateRangeStr);
+                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        titleTV.setText( tmpTitle);
+                        loadingTextTV.setText("이미 분석된 대화를 불러오는 중...");
+                        popupPB.setVisibility(View.GONE);
+                        popupPBCancelBtn.setVisibility(View.GONE);
+                        popupPBProgressDtlTV.setVisibility(View.GONE);
+                        popupPBProgressTV.setVisibility(View.GONE);
+                        loadingGifIV.setVisibility(View.VISIBLE);
+                    }
+                });
 
+                cd.setChatFileTitle(tmpTitleStr);
+
+                cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(FileParseUtils.parseFileForTitle(chatFile), lastAnalyseDtStr));
+
+                cd.setLoadElapsedSeconds(0);
+                cd.setChatterCount(chatLineDao.getChatterCount());
+                cd.setDayCount(chatLineDao.getDayCount());
+                cd.setChatLineCount(chatLineDao.getCount());
+                cd.setWordCount(wordDao.getDistinctCount());
+                cd.setAvgWordCount(chatLineDao.getAverageWordCount());
+                cd.setAvgLetterCount(wordDao.getAverageLetterCount());
+                cd.setLinkCount(wordDao.getLinkCount());
+                cd.setPicCount(wordDao.getPicCount());
+                cd.setVideoCount(wordDao.getVideoCount());
+                cd.setPptCount(wordDao.getPowerpointCount());
+                cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
+
+                cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
+                cd.setTop10Chatters(chatLineDao.getTop10Chatters());
+                cd.setWordFreqArrList(wordDao.getFreqWordList());
+                cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
+                cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
+                cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
+                cd.setAuthorsList(chatLineDao.getChatters());
+
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                dialog.cancel();
+                sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
+                viewPager.setAdapter(sectionsPagerAdapter);
+                tabs.setupWithViewPager(viewPager);
+            }
+        };
 
         popupPBCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -489,47 +548,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
 
         if(analysed){
-            String tmpTitleStr = FileParseUtils.parseFileForTitle(chatFile);
-            //Change Title to include date
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
-            String dateRangeStr = "(" + dateFormat.format(chatLineDao.getStartDate()) + " ~ " + dateFormat.format(chatLineDao.getEndDate()) + ")";
-            final SpannableString tmpTitle = generateTitleSpannableText(tmpTitleStr, dateRangeStr);
-            ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    titleTV.setText( tmpTitle);
-                }
-            });
-
-            cd.setChatFileTitle(tmpTitleStr);
-
-            cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(FileParseUtils.parseFileForTitle(chatFile), lastAnalyseDtStr));
-
-            cd.setLoadElapsedSeconds(0);
-            cd.setChatterCount(chatLineDao.getChatterCount());
-            cd.setDayCount(chatLineDao.getDayCount());
-            cd.setChatLineCount(chatLineDao.getCount());
-            cd.setWordCount(wordDao.getDistinctCount());
-            cd.setAvgWordCount(chatLineDao.getAverageWordCount());
-            cd.setAvgLetterCount(wordDao.getAverageLetterCount());
-            cd.setLinkCount(wordDao.getLinkCount());
-            cd.setPicCount(wordDao.getPicCount());
-            cd.setVideoCount(wordDao.getVideoCount());
-            cd.setPptCount(wordDao.getPowerpointCount());
-            cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
-
-            cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
-            cd.setTop10Chatters(chatLineDao.getTop10Chatters());
-            cd.setWordFreqArrList(wordDao.getFreqWordList());
-            cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
-            cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
-            cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
-            cd.setAuthorsList(chatLineDao.getChatters());
-
-            dialog.cancel();
-            sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
-            viewPager.setAdapter(sectionsPagerAdapter);
-            tabs.setupWithViewPager(viewPager);
+            loadTask.execute();
         } else {
             statsTask.execute();
         }
