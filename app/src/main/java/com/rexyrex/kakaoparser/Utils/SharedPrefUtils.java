@@ -27,6 +27,11 @@ public class SharedPrefUtils {
         sharedEditor.apply();
     }
 
+    public void incInt(int keyID){
+        sharedEditor.putInt(c.getResources().getString(keyID), getInt(keyID, 0) + 1);
+        sharedEditor.apply();
+    }
+
     public void saveInt(int keyID, int value){
         sharedEditor.putInt(c.getResources().getString(keyID), value);
         sharedEditor.apply();

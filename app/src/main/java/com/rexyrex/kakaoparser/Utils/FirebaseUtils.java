@@ -18,6 +18,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.rexyrex.kakaoparser.BuildConfig;
+import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.HighscoreData;
 import com.rexyrex.kakaoparser.R;
 
@@ -94,6 +95,26 @@ public class FirebaseUtils {
         user.put("ShareTimeMonth", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_4_COUNT, 0));
         user.put("ShareTimeYear", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_5_COUNT, 0));
 
+        user.put("quizStartCount", spu.getInt(R.string.SP_QUIZ_START_COUNT, 0));
+        user.put("quizLoadQuestionCount", spu.getInt(R.string.SP_QUIZ_LOAD_QUESTION_COUNT, 0));
+        user.put("quizCorrectCount", spu.getInt(R.string.SP_QUIZ_CORRECT_COUNT, 0));
+        user.put("quizWrongCount", spu.getInt(R.string.SP_QUIZ_WRONG_COUNT, 0));
+        user.put("quizFinishCount", spu.getInt(R.string.SP_QUIZ_FINISH_COUNT, 0));
+        user.put("quizShareQuestionCount", spu.getInt(R.string.SP_QUIZ_SHARE_QUESTION_COUNT, 0));
+        user.put("quizInstructionsCount", spu.getInt(R.string.SP_QUIZ_INSTRUCTIONS_COUNT, 0));
+        user.put("quizSeeRankingCount", spu.getInt(R.string.SP_QUIZ_SEE_RANKING_COUNT, 0));
+
+        user.put("quizQ1CorrectCount", spu.getInt(R.string.SP_QUIZ_Q1_CORRECT_COUNT, 0));
+        user.put("quizQ1TotalCount", spu.getInt(R.string.SP_QUIZ_Q1_TOTAL_COUNT, 0));
+        user.put("quizQ2CorrectCount", spu.getInt(R.string.SP_QUIZ_Q2_CORRECT_COUNT, 0));
+        user.put("quizQ2TotalCount", spu.getInt(R.string.SP_QUIZ_Q2_TOTAL_COUNT, 0));
+        user.put("quizQ3CorrectCount", spu.getInt(R.string.SP_QUIZ_Q3_CORRECT_COUNT, 0));
+        user.put("quizQ3TotalCount", spu.getInt(R.string.SP_QUIZ_Q3_TOTAL_COUNT, 0));
+        user.put("quizQ4CorrectCount", spu.getInt(R.string.SP_QUIZ_Q4_CORRECT_COUNT, 0));
+        user.put("quizQ4TotalCount", spu.getInt(R.string.SP_QUIZ_Q4_TOTAL_COUNT, 0));
+        user.put("quizQ5CorrectCount", spu.getInt(R.string.SP_QUIZ_Q5_CORRECT_COUNT, 0));
+        user.put("quizQ5TotalCount", spu.getInt(R.string.SP_QUIZ_Q5_TOTAL_COUNT, 0));
+
         db.collection("users").document(firebaseToken)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -127,6 +148,9 @@ public class FirebaseUtils {
         quizEntry.put("nickname", nickname);
         quizEntry.put("firebaseToken", firebaseToken);
         quizEntry.put("highscore", 0);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
+        quizEntry.put("nicknameUpdateDt", sdf.format(new Date()));
 
         db.collection("quiz").document(firebaseToken)
                 .set(quizEntry)
@@ -177,7 +201,7 @@ public class FirebaseUtils {
         void getHighscores(List<HighscoreData> highscores);
     }
 
-    public static void saveHighscore(int score, SharedPrefUtils spu){
+    public static void saveHighscore(int score, SharedPrefUtils spu, ChatData cd){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
 
@@ -185,6 +209,33 @@ public class FirebaseUtils {
         quizEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
         quizEntry.put("firebaseToken", firebaseToken);
         quizEntry.put("highscore", score);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
+        quizEntry.put("highscoreUpdateDt", sdf.format(new Date()));
+
+        quizEntry.put("quizStartCount", spu.getInt(R.string.SP_QUIZ_START_COUNT, 0));
+        quizEntry.put("quizLoadQuestionCount", spu.getInt(R.string.SP_QUIZ_LOAD_QUESTION_COUNT, 0));
+        quizEntry.put("quizCorrectCount", spu.getInt(R.string.SP_QUIZ_CORRECT_COUNT, 0));
+        quizEntry.put("quizWrongCount", spu.getInt(R.string.SP_QUIZ_WRONG_COUNT, 0));
+        quizEntry.put("quizFinishCount", spu.getInt(R.string.SP_QUIZ_FINISH_COUNT, 0));
+        quizEntry.put("quizShareQuestionCount", spu.getInt(R.string.SP_QUIZ_SHARE_QUESTION_COUNT, 0));
+        quizEntry.put("quizInstructionsCount", spu.getInt(R.string.SP_QUIZ_INSTRUCTIONS_COUNT, 0));
+        quizEntry.put("quizSeeRankingCount", spu.getInt(R.string.SP_QUIZ_SEE_RANKING_COUNT, 0));
+
+        quizEntry.put("quizQ1CorrectCount", spu.getInt(R.string.SP_QUIZ_Q1_CORRECT_COUNT, 0));
+        quizEntry.put("quizQ1TotalCount", spu.getInt(R.string.SP_QUIZ_Q1_TOTAL_COUNT, 0));
+        quizEntry.put("quizQ2CorrectCount", spu.getInt(R.string.SP_QUIZ_Q2_CORRECT_COUNT, 0));
+        quizEntry.put("quizQ2TotalCount", spu.getInt(R.string.SP_QUIZ_Q2_TOTAL_COUNT, 0));
+        quizEntry.put("quizQ3CorrectCount", spu.getInt(R.string.SP_QUIZ_Q3_CORRECT_COUNT, 0));
+        quizEntry.put("quizQ3TotalCount", spu.getInt(R.string.SP_QUIZ_Q3_TOTAL_COUNT, 0));
+        quizEntry.put("quizQ4CorrectCount", spu.getInt(R.string.SP_QUIZ_Q4_CORRECT_COUNT, 0));
+        quizEntry.put("quizQ4TotalCount", spu.getInt(R.string.SP_QUIZ_Q4_TOTAL_COUNT, 0));
+        quizEntry.put("quizQ5CorrectCount", spu.getInt(R.string.SP_QUIZ_Q5_CORRECT_COUNT, 0));
+        quizEntry.put("quizQ5TotalCount", spu.getInt(R.string.SP_QUIZ_Q5_TOTAL_COUNT, 0));
+
+        quizEntry.put("ChatterCount", cd.getChatterCount());
+        quizEntry.put("ChatLineCount", cd.getChatLineCount());
+        quizEntry.put("ChatTitle", cd.getChatFileTitle());
 
         db.collection("quiz").document(firebaseToken)
                 .set(quizEntry)
@@ -207,8 +258,7 @@ public class FirebaseUtils {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference citiesRef = db.collection("quiz");
 
-
-        Query query = citiesRef.orderBy("highscore", Query.Direction.DESCENDING).limit(50);
+        Query query = citiesRef.whereGreaterThan("highscore", 0).orderBy("highscore", Query.Direction.DESCENDING).limit(50);
         query.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -230,7 +280,42 @@ public class FirebaseUtils {
                         }
                     }
                 });
+    }
 
+    public static void saveShareQuizQuestion(String title, String subTitle, List<String> options, SharedPrefUtils spu, ChatData cd){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+
+        Map<String, Object> quizEntry = new HashMap<>();
+        quizEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
+        quizEntry.put("firebaseToken", firebaseToken);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
+        quizEntry.put("dt", sdf.format(new Date()));
+
+        quizEntry.put("ChatterCount", cd.getChatterCount());
+        quizEntry.put("ChatLineCount", cd.getChatLineCount());
+        quizEntry.put("ChatTitle", cd.getChatFileTitle());
+
+        quizEntry.put("title", title);
+        quizEntry.put("subTitle", subTitle);
+        quizEntry.put("options", options);
+
+        db.collection("quizShare").document(firebaseToken)
+                .set(quizEntry)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //LogUtils.e("Error adding document" + e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
     }
 
 }

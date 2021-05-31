@@ -33,6 +33,27 @@
     <string name="SP_REGIST_DT">SP_REGIST_DT</string>
     <string name="SP_LOGOUT_DT">SP_LOGOUT_DT</string>
 
+    <string name="SP_QUIZ_START_COUNT">SP_QUIZ_START_COUNT</string>
+    <string name="SP_QUIZ_LOAD_QUESTION_COUNT">SP_QUIZ_LOAD_QUESTION_COUNT</string>
+    <string name="SP_QUIZ_CORRECT_COUNT">SP_QUIZ_CORRECT_COUNT</string>
+    <string name="SP_QUIZ_WRONG_COUNT">SP_QUIZ_WRONG_COUNT</string>
+    <string name="SP_QUIZ_FINISH_COUNT">SP_QUIZ_FINISH_COUNT</string>
+    <string name="SP_QUIZ_SHARE_QUESTION_COUNT">SP_QUIZ_SHARE_QUESTION_COUNT</string>
+    <string name="SP_QUIZ_INSTRUCTIONS_COUNT">SP_QUIZ_INSTRUCTIONS_COUNT</string>
+    <string name="SP_QUIZ_SEE_RANKING_COUNT">SP_QUIZ_SEE_RANKING_COUNT</string>
+
+    <string name="SP_QUIZ_Q1_CORRECT_COUNT">SP_QUIZ_Q1_CORRECT_COUNT</string>
+    <string name="SP_QUIZ_Q1_TOTAL_COUNT">SP_QUIZ_Q1_TOTAL_COUNT</string>
+    <string name="SP_QUIZ_Q2_CORRECT_COUNT">SP_QUIZ_Q2_CORRECT_COUNT</string>
+    <string name="SP_QUIZ_Q2_TOTAL_COUNT">SP_QUIZ_Q2_TOTAL_COUNT</string>
+    <string name="SP_QUIZ_Q3_CORRECT_COUNT">SP_QUIZ_Q3_CORRECT_COUNT</string>
+    <string name="SP_QUIZ_Q3_TOTAL_COUNT">SP_QUIZ_Q3_TOTAL_COUNT</string>
+    <string name="SP_QUIZ_Q4_CORRECT_COUNT">SP_QUIZ_Q4_CORRECT_COUNT</string>
+    <string name="SP_QUIZ_Q4_TOTAL_COUNT">SP_QUIZ_Q4_TOTAL_COUNT</string>
+    <string name="SP_QUIZ_Q5_CORRECT_COUNT">SP_QUIZ_Q5_CORRECT_COUNT</string>
+    <string name="SP_QUIZ_Q5_TOTAL_COUNT">SP_QUIZ_Q5_TOTAL_COUNT</string>
+
+
     <string name="SP_EXPORTED_CHAT_COUNT">SP_EXPORTED_CHAT_COUNT</string>
 
     <string name="SP_OPEN_SETTINGS_COUNT">SP_SETTINGS_OPEN_COUNT</string>

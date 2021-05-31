@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="350dp"
     android:layout_height="600dp"
     android:background="@color/colorPrimary">
 
     <ListView
-        android:id="@+id/quizHighscoreLV"
+        android:id="@+id/quizInstructionsLV"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -16,15 +15,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView13" />
+        app:layout_constraintTop_toBottomOf="@+id/quizInstructionsPopupTitleTV" />
 
     <TextView
-        android:id="@+id/textView13"
+        android:id="@+id/quizInstructionsPopupTitleTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:fontFamily="@font/nanum_square_round_r"
-        android:text="퀴즈 순위"
+        android:text="FAQ"
         android:textColor="@color/colorAccent"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -33,7 +32,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/quizHighscoreCancelBtn"
+        android:id="@+id/quizInstructionsCancelBtn"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:background="@android:drawable/ic_delete"
@@ -41,4 +40,5 @@
         android:textColor="@color/design_default_color_error"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -64,7 +65,7 @@ public class QuizActivity extends AppCompatActivity {
 
     final int MAX_CONTENT_LENGTH = 72;
 
-    TextView qTV, qMainTV, qTimerTV;
+    TextView qTV, qMainTV, qTimerTV, qTVLengthWarningTV;
     ListView answersLV;
 
     AnswersListAdapter ala;
@@ -107,6 +108,8 @@ public class QuizActivity extends AppCompatActivity {
         answersLV = findViewById(R.id.quizAnswersList);
         qMainTV = findViewById(R.id.quizQMainTV);
         qTV = findViewById(R.id.quizQTV);
+        qTVLengthWarningTV = findViewById(R.id.quizLongQTVNoticeTV);
+        qTVLengthWarningTV.setVisibility(View.GONE);
         qTimerTV = findViewById(R.id.quizTimerTV);
 
         nextQuestionBtn = findViewById(R.id.quizNextQuestionBtn);
@@ -130,6 +133,8 @@ public class QuizActivity extends AppCompatActivity {
 
         chatLengthmultiplier =Math.log10(Math.max(Math.min(cd.getChatLineCount()/2000, 10), 1));
         chatterCountMultiplier = Math.log10(cd.getChatterCount());
+
+        qTV.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,12 +188,20 @@ public class QuizActivity extends AppCompatActivity {
                     scoreAddition = (int) ((100 + (chatLengthmultiplier * defaultChatLengthBonus) + (chatterCountMultiplier * defaultChatterCountBonus)) * questionTypeScoreMultiplier[lastQuestionType.ordinal()]);
                     score+= scoreAddition;
                     showResDialog(true);
-                    showAnswer();
+                    spu.incInt(R.string.SP_QUIZ_CORRECT_COUNT);
+                    switch(lastQuestionType){
+                        case PERSON_FROM_CHAT: spu.incInt(R.string.SP_QUIZ_Q2_CORRECT_COUNT); break;
+                        case CHAT_FROM_PERSON: spu.incInt(R.string.SP_QUIZ_Q3_CORRECT_COUNT); break;
+                        case WORD_FROM_PERSON: spu.incInt(R.string.SP_QUIZ_Q4_CORRECT_COUNT); break;
+                        case PERSON_FROM_WORD: spu.incInt(R.string.SP_QUIZ_Q5_CORRECT_COUNT); break;
+                        default : spu.incInt(R.string.SP_QUIZ_Q1_CORRECT_COUNT); break;
+                    }
                 } else {
                     triesLeft--;
                     showResDialog(false);
-                    showAnswer();
+                    spu.incInt(R.string.SP_QUIZ_WRONG_COUNT);
                 }
+                showAnswer();
                 toggleButton(nextQuestionBtn,true);
             }
         });
@@ -201,6 +214,7 @@ public class QuizActivity extends AppCompatActivity {
         });
 
         //startTimer();
+        spu.incInt(R.string.SP_QUIZ_START_COUNT);
         moveToNextQuestion();
     }
 
@@ -256,6 +270,7 @@ public class QuizActivity extends AppCompatActivity {
         if(triesLeft < 1) {
             qTimerTV.setText("최종 점수 : " + score);
             nextQuestionBtn.setText("결과 보기");
+            spu.incInt(R.string.SP_QUIZ_FINISH_COUNT);
         } else {
             qTimerTV.setText("점수 : " + score + ", 남은 기회 : " + triesLeft);
         }
@@ -273,14 +288,22 @@ public class QuizActivity extends AppCompatActivity {
         shareStr += "보기:\n";
         shareStr += "---------\n";
 
+        //List<String> tmpAnswerStrArr
+
         for(int i=0; i<answersList.size(); i++){
             shareStr += letters[i] + ". " + answersList.get(i).getStr() + "\n\n";
         }
         shareStr += "---------\n";
+        spu.incInt(R.string.SP_QUIZ_SHARE_QUESTION_COUNT);
         ShareUtils.shareGeneralWithPromo(this, shareStr);
+
+
+
+        //FirebaseUtils.saveShareQuizQuestion(questionStr, questionExtraStr, spu, cd);
     }
 
     protected void moveToNextQuestion(){
+        spu.incInt(R.string.SP_QUIZ_LOAD_QUESTION_COUNT);
         int prevHighScore = cd.getChatAnalyseDbModel().getHighscore();
 
         if(triesLeft < 1){
@@ -300,7 +323,7 @@ public class QuizActivity extends AppCompatActivity {
                     //save locally
                     spu.saveInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, score);
                     //save to firebase
-                    FirebaseUtils.saveHighscore(score, spu);
+                    FirebaseUtils.saveHighscore(score, spu, cd);
                 }
             } else {
                 finalDialogTitle2TV.setText("점수 갱신 실패!");
@@ -314,13 +337,17 @@ public class QuizActivity extends AppCompatActivity {
         int questionType = RandomUtils.getRandomInt(0, 5);
         isQuestionTime = true;
         resetForNextQuestion();
+//        lastQuestionType = QuestionType.PERSON_FROM_WORD;
 //        getNextQuestion5();
         switch(questionType){
-            case 1: getNextQuestion2(); lastQuestionType = QuestionType.PERSON_FROM_CHAT; break;
-            case 2: getNextQuestion3(); lastQuestionType = QuestionType.CHAT_FROM_PERSON; break;
-            case 3: getNextQuestion4(); lastQuestionType = QuestionType.WORD_FROM_PERSON; break;
-            case 4: getNextQuestion5(); lastQuestionType = QuestionType.PERSON_FROM_WORD; break;
-            default : getNextQuestion(); lastQuestionType = QuestionType.NEXT_CHAT; break;
+            case 1: getNextQuestion2(); lastQuestionType = QuestionType.PERSON_FROM_CHAT; spu.incInt(R.string.SP_QUIZ_Q2_TOTAL_COUNT); break;
+            case 2: getNextQuestion3(); lastQuestionType = QuestionType.CHAT_FROM_PERSON; spu.incInt(R.string.SP_QUIZ_Q3_TOTAL_COUNT); break;
+            case 3: getNextQuestion4(); lastQuestionType = QuestionType.WORD_FROM_PERSON; spu.incInt(R.string.SP_QUIZ_Q4_TOTAL_COUNT); break;
+            case 4: getNextQuestion5(); lastQuestionType = QuestionType.PERSON_FROM_WORD; spu.incInt(R.string.SP_QUIZ_Q5_TOTAL_COUNT); break;
+            default : getNextQuestion(); lastQuestionType = QuestionType.NEXT_CHAT; spu.incInt(R.string.SP_QUIZ_Q1_TOTAL_COUNT); break;
+        }
+        if(qTV.getLineCount() > qTV.getMaxLines()){
+            qTVLengthWarningTV.setVisibility(View.VISIBLE);
         }
         long seed = System.nanoTime();
         Random r = new Random(seed);
@@ -338,6 +365,7 @@ public class QuizActivity extends AppCompatActivity {
     //Person from Word
     protected void getNextQuestion5(){
         //SELECT word from top 100 most used
+        //word must be used by at least 2 people
         List<StringIntPair> wordFreqList = wordDAO.getFreqWordListForQuiz();
         int randWordIndex = RandomUtils.getRandomInt(0, wordFreqList.size());
 
@@ -403,6 +431,7 @@ public class QuizActivity extends AppCompatActivity {
         }
         int randAuthorIndex = RandomUtils.getRandomInt(0, authorList.size());
         String author = authorList.get(randAuthorIndex);
+
         authorList.remove(randAuthorIndex);
 
         questionStr = "아래 표시된 사람의 대화를 고르시오";
@@ -428,7 +457,7 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
-    //Show 3 chats -> Pick Person
+    //Show 5 chats -> Pick Person
     protected void getNextQuestion2(){
         //select a person
         List<String> authorList = new ArrayList<>();

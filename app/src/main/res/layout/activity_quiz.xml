@@ -12,9 +12,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="99:99"
         android:fontFamily="@font/nanum_square_round_r"
-        android:textColor="@android:color/holo_red_dark"
+        android:text="99:99"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,6 +42,9 @@
             android:text="Question"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:singleLine="false"
+            android:maxLines="15"
+            android:scrollbars="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/quizQMainTV" />
@@ -57,7 +60,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/quizQTV">
+            app:layout_constraintTop_toBottomOf="@+id/quizLongQTVNoticeTV">
 
             <Button
                 android:id="@+id/quizShareBtn"
@@ -114,6 +117,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/quizLongQTVNoticeTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="위 보기가 길어서 스크롤 하셔야 다 보실 수 있습니다"
+            android:textColor="@color/design_default_color_error"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/quizQTV" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.Toolbar

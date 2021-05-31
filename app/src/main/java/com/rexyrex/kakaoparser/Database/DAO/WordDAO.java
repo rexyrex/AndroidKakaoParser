@@ -45,8 +45,15 @@ public interface WordDAO {
     @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word GROUP BY word ORDER BY frequency desc LIMIT 10000")
     public List<StringIntPair> getFreqWordList();
 
-    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word WHERE LENGTH(word) > 2 GROUP BY word ORDER BY frequency desc LIMIT 100")
+    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency, COUNT(DISTINCT(author)) AS authcount FROM tb_word tw WHERE LENGTH(word) > 0 " +
+            "GROUP BY word " +
+            "HAVING authcount > 1 " +
+            "ORDER BY frequency desc LIMIT 100")
     public List<StringIntPair> getFreqWordListForQuiz();
+
+    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word tw WHERE LENGTH(word) > 2 " +
+            "GROUP BY word ORDER BY frequency desc LIMIT 100")
+    public List<StringIntPair> getFreqWordListForQuiz2();
 
     @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word WHERE instr(word, :word) GROUP BY word ORDER BY frequency desc LIMIT 10000")
     public List<StringIntPair> searchFreqWordList(String word);
