@@ -301,7 +301,7 @@ public class FirebaseUtils {
         quizEntry.put("subTitle", subTitle);
         quizEntry.put("options", options);
 
-        db.collection("quizShare").document(firebaseToken)
+        db.collection("quizShare").document()
                 .set(quizEntry)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

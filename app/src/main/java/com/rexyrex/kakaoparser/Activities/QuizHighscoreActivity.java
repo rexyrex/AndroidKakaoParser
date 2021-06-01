@@ -67,6 +67,12 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
         line2 = findViewById(R.id.quizSecondLine);
         cl = findViewById(R.id.highlightedQuizHighscoreLayout);
 
+        if(!isMy){
+            titleTV.setText("온라인 랭킹");
+        } else {
+            titleTV.setText("나의 점수");
+        }
+
         hideShowSomeUi(false);
 
         highscoreLV = findViewById(R.id.quizHighscoreLV);
@@ -107,7 +113,6 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
             }
             hideShowSomeUi(true);
 
-            titleTV.setText("온라인 랭킹");
             myDescTV.setText("나의 랭킹");
             myTitleTV.setText("" + (myRank == 0 ? "?" : (""+myRank)) + ". " + spu.getString(R.string.SP_QUIZ_NICKNAME, "<등록안됨>"));
             myScoreTV.setText(""+ spu.getInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, 0));
@@ -129,7 +134,6 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
             }
             hideShowSomeUi(true);
 
-            titleTV.setText("나의 점수");
             myDescTV.setText("선택 채팅");
             myTitleTV.setText("" + (myRank == 0 ? "?" : (""+myRank)) + ". " + cd.getChatAnalyseDbModel().getTitle() + " [" + cd.getChatAnalyseDbModel().getDt() + "]");
             myScoreTV.setText(""+ cd.getChatAnalyseDbModel().getHighscore());

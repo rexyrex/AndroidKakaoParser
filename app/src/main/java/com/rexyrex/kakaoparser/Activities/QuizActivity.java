@@ -288,18 +288,17 @@ public class QuizActivity extends AppCompatActivity {
         shareStr += "보기:\n";
         shareStr += "---------\n";
 
-        //List<String> tmpAnswerStrArr
+        List<String> tmpAnswerStrArr = new ArrayList<>();
 
         for(int i=0; i<answersList.size(); i++){
             shareStr += letters[i] + ". " + answersList.get(i).getStr() + "\n\n";
+            tmpAnswerStrArr.add(letters[i] + ". " + answersList.get(i).getStr());
         }
         shareStr += "---------\n";
         spu.incInt(R.string.SP_QUIZ_SHARE_QUESTION_COUNT);
         ShareUtils.shareGeneralWithPromo(this, shareStr);
 
-
-
-        //FirebaseUtils.saveShareQuizQuestion(questionStr, questionExtraStr, spu, cd);
+        FirebaseUtils.saveShareQuizQuestion(questionStr, questionExtraStr, tmpAnswerStrArr, spu, cd);
     }
 
     protected void moveToNextQuestion(){

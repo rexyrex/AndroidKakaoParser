@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 
 import com.rexyrex.kakaoparser.Activities.QuizActivity;
 import com.rexyrex.kakaoparser.Activities.QuizHighscoreActivity;
+import com.rexyrex.kakaoparser.Activities.QuizInstructionsActivity;
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
@@ -39,14 +40,10 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
 
     SharedPrefUtils spu;
 
-    Dialog nicknameDialog, instructionsDialog;
-    Button ndCancelBtn, ndEnterBtn, instructionsCloseBtn;
+    Dialog nicknameDialog;
+    Button ndCancelBtn, ndEnterBtn;
     TextView ndErrorMsgTv;
     EditText ndNickET;
-
-    ListView instructionsLV;
-    List<StringStringPair> instructionsDataList;
-    InstructionsAdapter ia;
 
     public QuizFrag() {
         // Required empty public constructor
@@ -65,46 +62,6 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             cd = ChatData.getInstance();
             acm = cd.getChatAnalyseDbModel();
             spu = new SharedPrefUtils(getContext());
-
-            instructionsDialog = new Dialog(getContext());
-            instructionsDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            instructionsDialog.setContentView(R.layout.quiz_instructions_popup);
-            instructionsDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
-
-            instructionsLV = instructionsDialog.findViewById(R.id.quizInstructionsLV);
-            instructionsDataList = new ArrayList<>();
-            instructionsDataList.add(new StringStringPair(
-                    "퀴즈가 뭐에요?",
-                    "분석한 채팅 기준으로 무작위로 객관식 질문을 생성 후 사용자가 문제를 푸는 모드 입니다."
-            ));
-            instructionsDataList.add(new StringStringPair(
-                    "총 몇 문제가 나오나요?",
-                    "문제는 무작위로 생성되므로 무제한적입니다. 사용자는 기회가 3회 주어지며 3문제를 틀릴 시 퀴즈는 종료됩니다."
-            ));
-            instructionsDataList.add(new StringStringPair(
-                    "퀴즈 시작이 안됩니다",
-                    "퀴즈 시작 조건 미달 (채팅 최소 대화 횟수 1000, 최소 참여 인원 2 입니다)"
-            ));
-            instructionsDataList.add(new StringStringPair(
-                    "점수 계산은 어떻게 되나요?",
-                    "문제를 맞출때마다 점수가 오르는 양은 분석된 채팅의 길이, 참여 인원, 문제 유형을 고려하여 책정됩니다. \n" +
-                            "(대화 길이가 길고, 참여인원이 많고, 문제 유형이 어려울수록 점수는 높아집니다)"
-            ));
-            instructionsDataList.add(new StringStringPair(
-                    "화면에 보이는 최고점수랑 \"전체 랭킹\"에 보이는 최고 점수가 달라요",
-                    "화면에 보이는 최고점수는 현재 분석된 채팅의 최고 점수이며 \"전체 랭킹\"에 보이는 점수는 모든 채팅 퀴즈 결과를 통합하여 가장 높은 점수가 기록됩니다."
-            ));
-
-            ia = new InstructionsAdapter(instructionsDataList);
-            instructionsLV.setAdapter(ia);
-
-            instructionsCloseBtn = instructionsDialog.findViewById(R.id.quizInstructionsCancelBtn);
-            instructionsCloseBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    instructionsDialog.cancel();
-                }
-            });
 
             nicknameDialog = new Dialog(getContext());
             nicknameDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -207,7 +164,8 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             @Override
             public void onClick(View view) {
                 spu.incInt(R.string.SP_QUIZ_INSTRUCTIONS_COUNT);
-                instructionsDialog.show();
+                Intent intent = new Intent(QuizFrag.this.getContext(), QuizInstructionsActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -277,38 +235,5 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
         }
     }
 
-    class InstructionsAdapter extends BaseAdapter {
-        List<StringStringPair> instructions;
 
-        InstructionsAdapter(List<StringStringPair> instructions){
-            this.instructions = instructions;
-        }
-
-        @Override
-        public int getCount() {
-            return instructions.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            convertView = getLayoutInflater().inflate(R.layout.list_view_elem_quiz_instructions, null);
-            TextView qTV = convertView.findViewById(R.id.lveQTV);
-            TextView aTV = convertView.findViewById(R.id.lveATV);
-
-            qTV.setText("Q - " + instructions.get(position).getTitle());
-            aTV.setText("A - " + instructions.get(position).getValue());
-
-            return convertView;
-        }
-    }
 }
