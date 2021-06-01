@@ -348,6 +348,8 @@ public class QuizActivity extends AppCompatActivity {
         }
         if(qTV.getLineCount() > qTV.getMaxLines()){
             qTVLengthWarningTV.setVisibility(View.VISIBLE);
+        } else {
+            qTVLengthWarningTV.setVisibility(View.GONE);
         }
         long seed = System.nanoTime();
         Random r = new Random(seed);

@@ -4,8 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/custom_show_more_btn_released">
+    android:layout_height="40dp"
+    android:background="@drawable/custom_show_more_btn_released"
+
+    >
 
     <TextView
         android:id="@+id/quizHighscoreLVElemNicknameTV"

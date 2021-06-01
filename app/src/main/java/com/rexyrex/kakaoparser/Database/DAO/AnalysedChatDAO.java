@@ -39,6 +39,9 @@ public interface AnalysedChatDAO {
     @Query("SELECT * FROM tb_analysed_chat")
     public List<AnalysedChatModel> getItems();
 
+    @Query("SELECT * FROM tb_analysed_chat ORDER BY highscore DESC, dt DESC")
+    public List<AnalysedChatModel> getItemsByScore();
+
     @Query("SELECT id FROM tb_analysed_chat WHERE title = :title AND dt = :dt")
     public int getId(String title, String dt);
 

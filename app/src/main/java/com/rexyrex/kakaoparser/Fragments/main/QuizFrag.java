@@ -2,7 +2,6 @@ package com.rexyrex.kakaoparser.Fragments.main;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -13,38 +12,27 @@ import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.common.util.SharedPreferencesUtils;
-import com.rexyrex.kakaoparser.Activities.MainActivity;
 import com.rexyrex.kakaoparser.Activities.QuizActivity;
 import com.rexyrex.kakaoparser.Activities.QuizHighscoreActivity;
-import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
-import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
-import com.rexyrex.kakaoparser.Entities.HighscoreData;
+import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.Entities.StringStringPair;
 import com.rexyrex.kakaoparser.R;
-import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
-import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
-import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback, FirebaseUtils.HighscoreCallback {
+public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback{
     ChatData cd;
     AnalysedChatModel acm;
     TextView quizScoreTV;
@@ -52,12 +40,11 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
     SharedPrefUtils spu;
 
     Dialog nicknameDialog, instructionsDialog;
-    Button ndCancelBtn, ndEnterBtn, highscoreCloseBtn, instructionsCloseBtn;
+    Button ndCancelBtn, ndEnterBtn, instructionsCloseBtn;
     TextView ndErrorMsgTv;
     EditText ndNickET;
 
     ListView instructionsLV;
-    ArrayList<HighscoreData> highscoreDataList;
     List<StringStringPair> instructionsDataList;
     InstructionsAdapter ia;
 
@@ -78,8 +65,6 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             cd = ChatData.getInstance();
             acm = cd.getChatAnalyseDbModel();
             spu = new SharedPrefUtils(getContext());
-
-            highscoreDataList = new ArrayList<>();
 
             instructionsDialog = new Dialog(getContext());
             instructionsDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -162,8 +147,8 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
                 @Override
                 public void onClick(View view) {
                     String attemptedNickname = ndNickET.getText().toString();
-                    if(attemptedNickname.length() > 30 || attemptedNickname.length() < 2){
-                        ndErrorMsgTv.setText("길이가 2글자 이상 30글자 이하여야 합니다.");
+                    if(attemptedNickname.length() > 15 || attemptedNickname.length() < 2){
+                        ndErrorMsgTv.setText("길이가 2글자 이상 15글자 이하여야 합니다.");
                     } else if(containsBadWords(attemptedNickname)){
                         ndErrorMsgTv.setText("바른 우리말을 사용해주세요");
                     } else {
@@ -184,8 +169,22 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
         quizStartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //get percentage of most chatter 점유율
+                //(we dont want a chat where one person does most of the speaking)
+                List<StringIntPair> tmpChatFreqList = cd.getChatterFreqArrList();
+                int maxFreq = 0;
+                for(StringIntPair sip : tmpChatFreqList){
+                    if(sip.getFrequency() > maxFreq){
+                        maxFreq = sip.getFrequency();
+                    }
+                }
+
                 if(cd.getChatLineCount() < 1000){
                     Toast.makeText(QuizFrag.this.getActivity(), "대화 내용이 너무 짧아요", Toast.LENGTH_LONG).show();
+                } else if(cd.getChatterCount() < 2){
+                    Toast.makeText(QuizFrag.this.getActivity(), "최소 대화인원이 2명이여야 해요", Toast.LENGTH_LONG).show();
+                } else if((double) maxFreq / cd.getChatLineCount() > 0.8) {
+                    Toast.makeText(QuizFrag.this.getActivity(), "모든 사람이 골고루 대화한 채팅으로만 가능합니다", Toast.LENGTH_LONG).show();
                 } else {
                     //Check if nickname exists on device
                     if(spu.getString(R.string.SP_QUIZ_NICKNAME, "-1").equals("-1")){
@@ -202,6 +201,7 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
 
         Button quizInstructionsBtn = view.findViewById(R.id.quizInstructionsBtn);
         Button quizRankingBtn = view.findViewById(R.id.quizRankingBtn);
+        Button quizMyRankingBtn = view.findViewById(R.id.quizMyRankingBtn);
 
         quizInstructionsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -211,13 +211,25 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             }
         });
 
+        quizMyRankingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //get all analysis table rows sorted by score
+
+                Intent intent = new Intent(QuizFrag.this.getContext(), QuizHighscoreActivity.class);
+                intent.putExtra("my", true);
+                startActivity(intent);
+            }
+        });
+
         quizRankingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 spu.incInt(R.string.SP_QUIZ_SEE_RANKING_COUNT);
-                //highscoreDialog.show();
-                FirebaseUtils.setHighscoreCallback(QuizFrag.this);
-                FirebaseUtils.getHighscores();
+                Intent intent = new Intent(QuizFrag.this.getContext(), QuizHighscoreActivity.class);
+                intent.putExtra("my", false);
+                startActivity(intent);
             }
         });
 
@@ -263,17 +275,6 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
         } else {
             ndErrorMsgTv.setText("이미 등록되어있는 닉네임 입니다.");
         }
-    }
-
-    @Override
-    public void getHighscores(List<HighscoreData> highscores) {
-        highscoreDataList.clear();
-        for(int i=0; i<highscores.size(); i++){
-            highscoreDataList.add(highscores.get(i));
-        }
-        Intent intent = new Intent(this.getContext(), QuizHighscoreActivity.class);
-        intent.putExtra("highscoreDataList", highscoreDataList);
-        startActivity(intent);
     }
 
     class InstructionsAdapter extends BaseAdapter {
