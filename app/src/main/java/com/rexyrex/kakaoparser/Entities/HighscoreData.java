@@ -1,6 +1,11 @@
 package com.rexyrex.kakaoparser.Entities;
 
-public class HighscoreData {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
+public class HighscoreData implements Serializable {
     int highscore;
     String nickname;
 
@@ -24,4 +29,5 @@ public class HighscoreData {
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
+
 }

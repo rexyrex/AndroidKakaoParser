@@ -26,11 +26,24 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/custom_show_more_btn"
         android:fontFamily="@font/nanum_square_round_r"
-        android:text="퀴즈가 뭐에요?"
+        android:text="자주 묻는 질문"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/quizStartBtn" />
+
+    <Button
+        android:id="@+id/quizMyRankingBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/custom_show_more_btn"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="나의 랭킹"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quizInstructionsBtn" />
 
     <Button
         android:id="@+id/quizRankingBtn"
@@ -39,23 +52,36 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/custom_show_more_btn"
         android:fontFamily="@font/nanum_square_round_r"
-        android:text="전체 순위 보기"
+        android:text="온라인 랭킹"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quizInstructionsBtn" />
+        app:layout_constraintTop_toBottomOf="@+id/quizMyRankingBtn" />
+
+    <TextView
+        android:id="@+id/quizFragTitleTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="퀴즈 (Beta)"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/quizFragScoreTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:background="@color/colorAccent"
         android:fontFamily="@font/nanum_square_round_r"
-        android:text="최고 기록 (개인) : 999,999점"
-        android:textSize="28sp"
+        android:text="퀴즈 기록 : 0점"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/quizFragTitleTV" />
 </androidx.constraintlayout.widget.ConstraintLayout>

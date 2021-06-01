@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gms.common.util.SharedPreferencesUtils;
 import com.rexyrex.kakaoparser.Activities.MainActivity;
 import com.rexyrex.kakaoparser.Activities.QuizActivity;
+import com.rexyrex.kakaoparser.Activities.QuizHighscoreActivity;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
@@ -50,14 +51,13 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
 
     SharedPrefUtils spu;
 
-    Dialog nicknameDialog, highscoreDialog, instructionsDialog;
+    Dialog nicknameDialog, instructionsDialog;
     Button ndCancelBtn, ndEnterBtn, highscoreCloseBtn, instructionsCloseBtn;
     TextView ndErrorMsgTv;
     EditText ndNickET;
 
-    ListView highscoreLV, instructionsLV;
-    List<HighscoreData> highscoreDataList;
-    CustomAdapter ca;
+    ListView instructionsLV;
+    ArrayList<HighscoreData> highscoreDataList;
     List<StringStringPair> instructionsDataList;
     InstructionsAdapter ia;
 
@@ -79,23 +79,7 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             acm = cd.getChatAnalyseDbModel();
             spu = new SharedPrefUtils(getContext());
 
-            highscoreDialog = new Dialog(getContext());
-            highscoreDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            highscoreDialog.setContentView(R.layout.quiz_highscore_popup);
-            highscoreDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
-
-            highscoreLV = highscoreDialog.findViewById(R.id.quizHighscoreLV);
             highscoreDataList = new ArrayList<>();
-            ca = new CustomAdapter(highscoreDataList);
-            highscoreLV.setAdapter(ca);
-
-            highscoreCloseBtn = highscoreDialog.findViewById(R.id.quizHighscoreCancelBtn);
-            highscoreCloseBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    highscoreDialog.cancel();
-                }
-            });
 
             instructionsDialog = new Dialog(getContext());
             instructionsDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -231,14 +215,14 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             @Override
             public void onClick(View view) {
                 spu.incInt(R.string.SP_QUIZ_SEE_RANKING_COUNT);
-                highscoreDialog.show();
+                //highscoreDialog.show();
                 FirebaseUtils.setHighscoreCallback(QuizFrag.this);
                 FirebaseUtils.getHighscores();
             }
         });
 
         quizScoreTV = view.findViewById(R.id.quizFragScoreTV);
-        quizScoreTV.setText("최고 기록 (개인) : " + acm.getHighscore() + "점");
+        quizScoreTV.setText(cd.getChatFileTitle() + "\n" + "퀴즈 기록 : " + acm.getHighscore() + "점");
         return view;
     }
 
@@ -246,7 +230,7 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 77){
-            quizScoreTV.setText("최고 기록 (개인) : " + acm.getHighscore() + "점");
+            quizScoreTV.setText(cd.getChatFileTitle() + "\n" + "퀴즈 기록 : " + acm.getHighscore() + "점");
         }
     }
 
@@ -287,48 +271,9 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
         for(int i=0; i<highscores.size(); i++){
             highscoreDataList.add(highscores.get(i));
         }
-        ca.notifyDataSetChanged();
-    }
-
-    class CustomAdapter extends BaseAdapter {
-        List<HighscoreData> highscores;
-
-        CustomAdapter(List<HighscoreData> highscores){
-            this.highscores = highscores;
-        }
-
-        @Override
-        public int getCount() {
-            return highscores.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            convertView = getLayoutInflater().inflate(R.layout.list_view_elem_quiz_highscore, null);
-            ConstraintLayout cl = convertView.findViewById(R.id.quizHighscoreCV);
-
-            TextView nickTV = convertView.findViewById(R.id.quizHighscoreLVElemNicknameTV);
-            TextView scoreTV = convertView.findViewById(R.id.quizHighscoreLVElemScoreTV);
-
-            if( highscores.get(position).getNickname().equals(spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"))){
-                cl.setBackground(QuizFrag.this.getActivity().getDrawable(R.drawable.custom_show_more_btn_highlighted));
-            }
-
-            nickTV.setText("" + (position+1) + ". " + highscores.get(position).getNickname());
-            scoreTV.setText("" + highscores.get(position).getHighscore());
-
-            return convertView;
-        }
+        Intent intent = new Intent(this.getContext(), QuizHighscoreActivity.class);
+        intent.putExtra("highscoreDataList", highscoreDataList);
+        startActivity(intent);
     }
 
     class InstructionsAdapter extends BaseAdapter {

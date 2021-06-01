@@ -17,9 +17,10 @@
         android:roundIcon="@mipmap/kakao_ic_launcher_analyze_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.QuizActivity"
-            android:screenOrientation="portrait"
-            ></activity>
+        <activity android:name=".Activities.QuizHighscoreActivity"></activity>
+        <activity
+            android:name=".Activities.QuizActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".Services.DeleteService"
