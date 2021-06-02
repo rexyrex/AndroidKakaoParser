@@ -3,6 +3,7 @@ package com.rexyrex.kakaoparser.Activities;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,9 +16,12 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -63,6 +67,11 @@ public class MainActivity extends AppCompatActivity {
     MainDatabase db;
     AnalysedChatDAO acd;
 
+    Dialog updateDialog;
+    TextView updateTitleTV, updateContentsTV;
+    CheckBox updateShowCheckBox;
+    Button updatePopupCloseBtn;
+
     private static long lastBackAttemptTime;
 
     @Override
@@ -81,6 +90,54 @@ public class MainActivity extends AppCompatActivity {
         spu = new SharedPrefUtils(this);
 
         registerReceiver(deleteReceiver, new IntentFilter("kakaoChatDelete"));
+
+        updateDialog = new Dialog(this);
+        updateDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        updateDialog.setContentView(R.layout.update_contents_popup);
+        updateDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
+        updateDialog.setCancelable(false);
+
+        updateTitleTV = updateDialog.findViewById(R.id.updatePopupTitleTV);
+        updateContentsTV = updateDialog.findViewById(R.id.updatePopupContentsTV);
+        updateShowCheckBox = updateDialog.findViewById(R.id.updatePopupSeeAgainCheckBox);
+        updatePopupCloseBtn = updateDialog.findViewById(R.id.updatePopupCloseBtn);
+
+        updateShowCheckBox.setText("다시 보지 않기");
+
+        updateShowCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                spu.saveBool(R.string.SP_UPDATE_POPUP_SHOW, !b);
+            }
+        });
+        
+        updateTitleTV.setText("1.2.0 업데이트 내용");
+        
+        updateContentsTV.setText("1. 기능 추가 : 퀴즈\n" +
+                "- 분석한 채팅을 기반으로 다양한 문제를 동적으로 생성한 뒤 도전 할 수 있는 기능\n" +
+                "- 문제들이 랜덤으로 생성되기 때문에 퀴즈를 풀때마다 새롭습니다.\n" +
+                "- 대화를 얼마나 잘 파악하고 있는지 자신을 시험해보세요.\n" +
+                "- 문제 공유 기능 - 재미있는 문제를 찾으셨나요? 공유버튼을 눌러 지인 한테 공유 해보세요!\n" +
+                "- 온라인 점수 기록 : 누가 가장 높은 점수를 달성 할 수 있을까요?\n" +
+                "- 점수 계산 수식은 대화 길이, 참여 인원, 문제 유형을 참고합니다.\n" +
+                "- 퀴즈 실행 방법 : 대화를 분석한 뒤 상단 우측 \"퀴즈\" 탭 선택\n" +
+                "\n" +
+                "2. 버그 수정 및 기능 개선\n" +
+                "- 이미 분서된 대화를 누를 시 앱이 잠시 응답 없음 상태가 되는 상황 방지\n" +
+                "- 채팅 분석 알고리즘 개선\n" +
+                "- UI 개선\n" +
+                "- 예상치 못한 앱 닫힘 현상 개선");
+
+        updatePopupCloseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateDialog.cancel();
+            }
+        });
+
+        if(spu.getBool(R.string.SP_UPDATE_POPUP_SHOW, true)){
+            updateDialog.show();
+        }
 
         kakaoBtn.setOnClickListener(new View.OnClickListener() {
             @Override

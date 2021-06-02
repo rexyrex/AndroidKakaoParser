@@ -75,6 +75,8 @@
 
     <string name="SP_REGISTERED">SP_REGISTERED</string>
 
+    <string name="SP_UPDATE_POPUP_SHOW">SP_UPDATE_POPUP_SHOW</string>
+
     <string name="FirebaseTopicName">KakaoParserFBTopic</string>
 
     <string name="title_activity_settings">SettingsActivity</string>
