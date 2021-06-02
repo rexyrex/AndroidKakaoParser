@@ -56,6 +56,8 @@
 
     <string name="SP_EXPORTED_CHAT_COUNT">SP_EXPORTED_CHAT_COUNT</string>
 
+    <string name="SP_DELETE_CHAT_COUNT">SP_DELETE_CHAT_COUNT</string>
+
     <string name="SP_OPEN_SETTINGS_COUNT">SP_SETTINGS_OPEN_COUNT</string>
     <string name="SP_OPEN_KAKAO_COUNT">SP_OPEN_KAKAO_COUNT</string>
     <string name="SP_OPEN_HOW_TO_COUNT">SP_OPEN_HOW_TO_COUNT</string>

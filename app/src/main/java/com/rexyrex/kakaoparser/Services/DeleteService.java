@@ -47,7 +47,6 @@ public class DeleteService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        LogUtils.e("REX SERVICE onStartCommand....");
         getSizeRecursive(cd.getChatFile());
         Notification notification = getNotification("Rex Service", "Running");
 

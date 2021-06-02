@@ -24,6 +24,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Services.DeleteService;
@@ -41,6 +43,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     ListView chatLV;
@@ -57,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPrefUtils spu;
 
+    MainDatabase db;
+    AnalysedChatDAO acd;
+
     private static long lastBackAttemptTime;
 
     @Override
@@ -70,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         kakaoBtn = findViewById(R.id.openKakaoLayout);
         instructionsBtn = findViewById(R.id.instructionsLayout);
 
+        db = MainDatabase.getDatabase(this);
+        acd = db.getAnalysedChatDAO();
         spu = new SharedPrefUtils(this);
 
         registerReceiver(deleteReceiver, new IntentFilter("kakaoChatDelete"));
@@ -213,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
                             Intent serviceIntent = new Intent(MainActivity.this, DeleteService.class);
                             MainActivity.this.startService(serviceIntent);
 
+                            spu.incInt(R.string.SP_DELETE_CHAT_COUNT);
+
                             TextView tv = tmpView.findViewById(R.id.elemTV3);
                             tv.setText("삭제중... (알림창 확인)");
 
@@ -308,7 +318,8 @@ public class MainActivity extends AppCompatActivity {
             //increment logoutCount
             spu.saveInt(R.string.SP_LOGOUT_COUNT, spu.getInt(R.string.SP_LOGOUT_COUNT, 0) + 1);
             spu.saveString(R.string.SP_LOGOUT_DT, DateUtils.getCurrentTimeStr());
-            FirebaseUtils.updateUserInfo(this, spu, "Logout");
+            List<String> chatTitleList = acd.getAllChatTitles();
+            FirebaseUtils.updateUserInfo(this, spu, "Logout", chatTitleList);
             finishAndRemoveTask();
         }
     }

@@ -190,12 +190,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 //Check if already backed up
                 if(analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0){
-                    LogUtils.e("First time : backup");
                     AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
                     analysedChatDAO.insert(acm);
                     backupChat(chatTitle, chatStr);
-                } else {
-                    LogUtils.e("Backup skip");
                 }
 
                 cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(chatTitle, lastAnalyseDtStr));

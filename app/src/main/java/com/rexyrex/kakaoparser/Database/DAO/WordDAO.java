@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.RoomWarnings;
 import androidx.room.Update;
 
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
@@ -45,7 +46,8 @@ public interface WordDAO {
     @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word GROUP BY word ORDER BY frequency desc LIMIT 10000")
     public List<StringIntPair> getFreqWordList();
 
-    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency, COUNT(DISTINCT(author)) AS authcount FROM tb_word tw WHERE LENGTH(word) > 0 " +
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency, COUNT(DISTINCT(author)) AS authcount FROM tb_word tw WHERE LENGTH(word) > 1 " +
             "GROUP BY word " +
             "HAVING authcount > 1 " +
             "ORDER BY frequency desc LIMIT 100")

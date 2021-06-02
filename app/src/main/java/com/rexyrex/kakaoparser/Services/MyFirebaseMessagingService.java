@@ -73,11 +73,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        LogUtils.e("From: " + remoteMessage.getFrom());
+        //LogUtils.e("From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            LogUtils.e( "Message data payload: " + remoteMessage.getData());
+            //LogUtils.e( "Message data payload: " + remoteMessage.getData());
             String msg = remoteMessage.getData().get("body");
             String msgTitle = remoteMessage.getData().get("title");
 
@@ -90,7 +90,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
-            LogUtils.e( "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            //LogUtils.e( "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
@@ -135,7 +135,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param messageBody FCM message body received.
      */
     private void sendNotification(String title, String messageBody, String path) {
-        LogUtils.e("notification entered");
         Intent intent = new Intent(this, SplashActivity.class);
         intent.putExtra("title", title);
         intent.putExtra("body", messageBody);

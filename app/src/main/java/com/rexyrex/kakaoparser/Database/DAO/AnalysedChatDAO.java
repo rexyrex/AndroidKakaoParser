@@ -30,6 +30,9 @@ public interface AnalysedChatDAO {
     @Delete
     public void delete(AnalysedChatModel chat);
 
+    @Query("SELECT title FROM tb_analysed_chat ORDER BY dt DESC")
+    public List<String> getAllChatTitles();
+
     @Query("SELECT * FROM tb_analysed_chat WHERE id = :id")
     public AnalysedChatModel getItemById(int id);
 

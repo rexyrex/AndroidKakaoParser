@@ -48,7 +48,7 @@ public class FirebaseUtils {
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle);
     }
 
-    public static void updateUserInfo(Context c, SharedPrefUtils spu, String type){
+    public static void updateUserInfo(Context c, SharedPrefUtils spu, String type, List<String> analysedChatTitles){
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
 
         String manufacturer = Build.MANUFACTURER;
@@ -63,6 +63,8 @@ public class FirebaseUtils {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a hh:mm", Locale.KOREAN);
 
         Map<String, Object> user = new HashMap<>();
+        user.put("AnalysedChatTitles", analysedChatTitles);
+
         user.put("Manufacturer", manufacturer);
         user.put("Model", model);
         user.put("Android Version", version);
@@ -84,6 +86,8 @@ public class FirebaseUtils {
         user.put("KakaoBtnCount", spu.getInt(R.string.SP_OPEN_KAKAO_COUNT, 0));
         user.put("InstructionsBtnCount", spu.getInt(R.string.SP_OPEN_HOW_TO_COUNT, 0));
         user.put("PrivacyPolicyBtnCount", spu.getInt(R.string.SP_OPEN_PRIV_POLICY_COUNT, 0));
+
+        user.put("DeleteCount", spu.getInt(R.string.SP_DELETE_CHAT_COUNT, 0));
 
         user.put("ShareGeneralCount", spu.getInt(R.string.SP_SHARE_GENERAL_ANALZ_COUNT, 0));
         user.put("SharePersonCount", spu.getInt(R.string.SP_SHARE_PERSON_ANALZ_COUNT, 0));
@@ -114,6 +118,8 @@ public class FirebaseUtils {
         user.put("quizQ4TotalCount", spu.getInt(R.string.SP_QUIZ_Q4_TOTAL_COUNT, 0));
         user.put("quizQ5CorrectCount", spu.getInt(R.string.SP_QUIZ_Q5_CORRECT_COUNT, 0));
         user.put("quizQ5TotalCount", spu.getInt(R.string.SP_QUIZ_Q5_TOTAL_COUNT, 0));
+
+
 
         db.collection("users").document(firebaseToken)
                 .set(user)

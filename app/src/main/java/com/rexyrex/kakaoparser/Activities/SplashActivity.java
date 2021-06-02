@@ -29,6 +29,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.rexyrex.kakaoparser.BuildConfig;
+import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.DateUtils;
 import com.rexyrex.kakaoparser.Utils.DeviceInfoUtils;
@@ -50,6 +52,9 @@ public class SplashActivity extends AppCompatActivity {
     String[] deniedPermsArr;
 
     SharedPrefUtils spu;
+    MainDatabase db;
+    AnalysedChatDAO acd;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +62,8 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
         backBtnPressed = false;
         spu = new SharedPrefUtils(this);
+        db = MainDatabase.getDatabase(this);
+        acd = db.getAnalysedChatDAO();
 
         appTitleTV = findViewById(R.id.appTitleTV);
         splashIV = findViewById(R.id.splashIV);
@@ -194,7 +201,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void startLogic(){
         spu.saveString(R.string.SP_LOGIN_DT, DateUtils.getCurrentTimeStr());
-        FirebaseUtils.updateUserInfo(this, spu, "Login");
+        FirebaseUtils.updateUserInfo(this, spu, "Login", acd.getAllChatTitles());
         FirebaseUtils.logFirebaseEventOpenApp(this);
         //허용되지 않은 권한 있으면 권한 요청
         //deniedPermsArr length를 나중에도 확인해서 scheduleSplashScreen이 나중에 호출되도록 구현돼있음
