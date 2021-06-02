@@ -369,12 +369,14 @@ public class QuizActivity extends AppCompatActivity {
                 finalDialogLocalScoreDescTV.setText("기록 갱신!");
                 finalDialogLocalHighScoreValueTV.setText("" + prevHighScore + "->" + score);
             } else {
-                finalDialogLocalHighScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_incorrect));
-                finalDialogLocalScoreDescTV.setTextColor(getColor(R.color.design_default_color_error));
-                finalDialogLocalScoreDescTV.setText("갱신 실패");
+                finalDialogLocalHighScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_white));
+//                finalDialogLocalScoreDescTV.setTextColor(getColor(R.color.design_default_color_error));
+//                finalDialogLocalScoreDescTV.setText("갱신 실패");
+                finalDialogLocalScoreDescTV.setVisibility(View.GONE);
+
                 finalDialogLocalHighScoreValueTV.setText("" + prevHighScore);
-                finalDialogLocalHighScoreTitleTV.setTextColor(getColor(R.color.white));
-                finalDialogLocalHighScoreValueTV.setTextColor(getColor(R.color.white));
+//                finalDialogLocalHighScoreTitleTV.setTextColor(getColor(R.color.white));
+//                finalDialogLocalHighScoreValueTV.setTextColor(getColor(R.color.white));
             }
 
             int onlineHighScore = spu.getInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, 0);
@@ -385,14 +387,16 @@ public class QuizActivity extends AppCompatActivity {
                 finalDialogOnlineScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_correct));
                 finalDialogOnlineScoreDescTV.setTextColor(getColor(R.color.lightGreen));
                 finalDialogOnlineScoreDescTV.setText("기록 갱신!");
-                finalDialogOnlineScoreValueTV.setText("" + prevHighScore + "->" + score);
+                finalDialogOnlineScoreValueTV.setText("" + onlineHighScore + "->" + score);
             } else {
-                finalDialogOnlineScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_incorrect));
-                finalDialogOnlineScoreDescTV.setTextColor(getColor(R.color.design_default_color_error));
-                finalDialogOnlineScoreDescTV.setText("갱신 실패");
-                finalDialogOnlineScoreValueTV.setText("" + prevHighScore);
-                finalDialogOnlineScoreTitleTV.setTextColor(getColor(R.color.white));
-                finalDialogOnlineScoreValueTV.setTextColor(getColor(R.color.white));
+                finalDialogOnlineScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_white));
+//                finalDialogOnlineScoreDescTV.setTextColor(getColor(R.color.design_default_color_error));
+//                finalDialogOnlineScoreDescTV.setText("갱신 실패");
+                finalDialogOnlineScoreDescTV.setVisibility(View.GONE);
+
+                finalDialogOnlineScoreValueTV.setText("" + onlineHighScore);
+//                finalDialogOnlineScoreTitleTV.setTextColor(getColor(R.color.white));
+//                finalDialogOnlineScoreValueTV.setTextColor(getColor(R.color.white));
             }
             finalDialog.show();
             return;
