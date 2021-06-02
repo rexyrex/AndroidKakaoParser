@@ -99,28 +99,6 @@ public class FirebaseUtils {
         user.put("ShareTimeMonth", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_4_COUNT, 0));
         user.put("ShareTimeYear", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_5_COUNT, 0));
 
-        user.put("quizStartCount", spu.getInt(R.string.SP_QUIZ_START_COUNT, 0));
-        user.put("quizLoadQuestionCount", spu.getInt(R.string.SP_QUIZ_LOAD_QUESTION_COUNT, 0));
-        user.put("quizCorrectCount", spu.getInt(R.string.SP_QUIZ_CORRECT_COUNT, 0));
-        user.put("quizWrongCount", spu.getInt(R.string.SP_QUIZ_WRONG_COUNT, 0));
-        user.put("quizFinishCount", spu.getInt(R.string.SP_QUIZ_FINISH_COUNT, 0));
-        user.put("quizShareQuestionCount", spu.getInt(R.string.SP_QUIZ_SHARE_QUESTION_COUNT, 0));
-        user.put("quizInstructionsCount", spu.getInt(R.string.SP_QUIZ_INSTRUCTIONS_COUNT, 0));
-        user.put("quizSeeRankingCount", spu.getInt(R.string.SP_QUIZ_SEE_RANKING_COUNT, 0));
-
-        user.put("quizQ1CorrectCount", spu.getInt(R.string.SP_QUIZ_Q1_CORRECT_COUNT, 0));
-        user.put("quizQ1TotalCount", spu.getInt(R.string.SP_QUIZ_Q1_TOTAL_COUNT, 0));
-        user.put("quizQ2CorrectCount", spu.getInt(R.string.SP_QUIZ_Q2_CORRECT_COUNT, 0));
-        user.put("quizQ2TotalCount", spu.getInt(R.string.SP_QUIZ_Q2_TOTAL_COUNT, 0));
-        user.put("quizQ3CorrectCount", spu.getInt(R.string.SP_QUIZ_Q3_CORRECT_COUNT, 0));
-        user.put("quizQ3TotalCount", spu.getInt(R.string.SP_QUIZ_Q3_TOTAL_COUNT, 0));
-        user.put("quizQ4CorrectCount", spu.getInt(R.string.SP_QUIZ_Q4_CORRECT_COUNT, 0));
-        user.put("quizQ4TotalCount", spu.getInt(R.string.SP_QUIZ_Q4_TOTAL_COUNT, 0));
-        user.put("quizQ5CorrectCount", spu.getInt(R.string.SP_QUIZ_Q5_CORRECT_COUNT, 0));
-        user.put("quizQ5TotalCount", spu.getInt(R.string.SP_QUIZ_Q5_TOTAL_COUNT, 0));
-
-
-
         db.collection("users").document(firebaseToken)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -226,7 +204,8 @@ public class FirebaseUtils {
         quizEntry.put("quizFinishCount", spu.getInt(R.string.SP_QUIZ_FINISH_COUNT, 0));
         quizEntry.put("quizShareQuestionCount", spu.getInt(R.string.SP_QUIZ_SHARE_QUESTION_COUNT, 0));
         quizEntry.put("quizInstructionsCount", spu.getInt(R.string.SP_QUIZ_INSTRUCTIONS_COUNT, 0));
-        quizEntry.put("quizSeeRankingCount", spu.getInt(R.string.SP_QUIZ_SEE_RANKING_COUNT, 0));
+        quizEntry.put("quizSeeOnlineRankingCount", spu.getInt(R.string.SP_QUIZ_SEE_ONLINE_RANKING_COUNT, 0));
+        quizEntry.put("quizSeeMyRankingCount", spu.getInt(R.string.SP_QUIZ_SEE_MY_RANKING_COUNT, 0));
 
         quizEntry.put("quizQ1CorrectCount", spu.getInt(R.string.SP_QUIZ_Q1_CORRECT_COUNT, 0));
         quizEntry.put("quizQ1TotalCount", spu.getInt(R.string.SP_QUIZ_Q1_TOTAL_COUNT, 0));

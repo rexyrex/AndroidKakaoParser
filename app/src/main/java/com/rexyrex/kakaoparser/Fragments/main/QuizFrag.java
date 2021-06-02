@@ -172,9 +172,6 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
         quizMyRankingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                //get all analysis table rows sorted by score
-
                 Intent intent = new Intent(QuizFrag.this.getContext(), QuizHighscoreActivity.class);
                 intent.putExtra("my", true);
                 startActivity(intent);
@@ -184,7 +181,6 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
         quizRankingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                spu.incInt(R.string.SP_QUIZ_SEE_RANKING_COUNT);
                 Intent intent = new Intent(QuizFrag.this.getContext(), QuizHighscoreActivity.class);
                 intent.putExtra("my", false);
                 startActivity(intent);

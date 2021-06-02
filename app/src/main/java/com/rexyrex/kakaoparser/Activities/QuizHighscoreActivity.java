@@ -48,12 +48,19 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
         setContentView(R.layout.activity_quiz_highscore);
 
         isMy = getIntent().getBooleanExtra("my", false);
+        spu = new SharedPrefUtils(this);
+
+        if(isMy){
+            spu.incInt(R.string.SP_QUIZ_SEE_MY_RANKING_COUNT);
+        } else {
+            spu.incInt(R.string.SP_QUIZ_SEE_ONLINE_RANKING_COUNT);
+        }
 
         database = MainDatabase.getDatabase(this);
         cd = ChatData.getInstance();
         analysedChatDAO = database.getAnalysedChatDAO();
 
-        spu = new SharedPrefUtils(this);
+
         highscoreDataList = new ArrayList<>();
 
         highscoreDataList.add(new HighscoreData(0, "로딩중..."));
