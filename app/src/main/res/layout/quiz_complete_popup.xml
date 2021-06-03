@@ -25,15 +25,16 @@
 
     <TextView
         android:id="@+id/quizCompleteCurrentScoreTV"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:fontFamily="@font/nanum_square_round_r"
         android:text="최종 점수 : 99999"
+        android:background="@color/colorAccent"
         android:textAlignment="center"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"

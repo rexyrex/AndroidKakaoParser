@@ -2,6 +2,7 @@ package com.rexyrex.kakaoparser.Fragments.main;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -22,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.rexyrex.kakaoparser.Activities.QuizActivity;
 import com.rexyrex.kakaoparser.Activities.QuizHighscoreActivity;
 import com.rexyrex.kakaoparser.Activities.QuizInstructionsActivity;
+import com.rexyrex.kakaoparser.Activities.SendOpinionActivity;
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
@@ -37,10 +39,11 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
     ChatData cd;
     AnalysedChatModel acm;
     TextView quizScoreTV;
+    TextView opinionTV;
 
     SharedPrefUtils spu;
 
-    Dialog nicknameDialog;
+    Dialog nicknameDialog, reviewSuggestDialog;
     Button ndCancelBtn, ndEnterBtn;
     TextView ndErrorMsgTv;
     EditText ndNickET;
@@ -62,6 +65,38 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             cd = ChatData.getInstance();
             acm = cd.getChatAnalyseDbModel();
             spu = new SharedPrefUtils(getContext());
+
+            reviewSuggestDialog = new Dialog(getContext());
+            reviewSuggestDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            reviewSuggestDialog.setContentView(R.layout.basic_popup);
+            reviewSuggestDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
+            reviewSuggestDialog.setCancelable(false);
+
+            Button reviewPopupCancelBtn = reviewSuggestDialog.findViewById(R.id.basicPopupCancelBtn);
+            TextView reviewPopupTitleTV = reviewSuggestDialog.findViewById(R.id.basicPopupTitle);
+            TextView reviewPopupContentsTV = reviewSuggestDialog.findViewById(R.id.basicPopupContents);
+            Button reviewPopupGoReviewBtn = reviewSuggestDialog.findViewById(R.id.basicPopupBtn);
+
+            reviewPopupTitleTV.setText("카톡 정밀 분석기를 잘 이용하고 계신가요?");
+            reviewPopupContentsTV.setText("앱 리뷰를 해주세요~ \n리뷰 하나 하나가 큰 도움이 됩니다!");
+            reviewPopupGoReviewBtn.setText("리뷰 하기");
+            reviewPopupGoReviewBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String appPackageName = "com.rexyrex.kakaoparser";
+                    try {
+                        getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                    } catch (android.content.ActivityNotFoundException anfe) {
+                        getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                    }
+                }
+            });
+            reviewPopupCancelBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    reviewSuggestDialog.cancel();
+                }
+            });
 
             nicknameDialog = new Dialog(getContext());
             nicknameDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -189,6 +224,15 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
 
         quizScoreTV = view.findViewById(R.id.quizFragScoreTV);
         quizScoreTV.setText(cd.getChatFileTitle() + "\n" + "퀴즈 기록 : " + acm.getHighscore() + "점");
+
+        opinionTV = view.findViewById(R.id.quizFragOpinionTV);
+        opinionTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(QuizFrag.this.getContext(), SendOpinionActivity.class);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 
@@ -197,6 +241,13 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 77){
             quizScoreTV.setText(cd.getChatFileTitle() + "\n" + "퀴즈 기록 : " + acm.getHighscore() + "점");
+
+            //Show review popup if conditions are met
+            if(spu.getBool(R.string.SP_REVIEW_POPUP_SHOW, true) && spu.getInt(R.string.SP_QUIZ_FINISH_COUNT, 0) >= 5){
+                reviewSuggestDialog.show();
+                //If review popup was showed at least once, do not show
+                spu.saveBool(R.string.SP_REVIEW_POPUP_SHOW, false);
+            }
         }
     }
 

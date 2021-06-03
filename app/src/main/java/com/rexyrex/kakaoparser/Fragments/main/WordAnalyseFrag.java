@@ -23,6 +23,7 @@ import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.KeyboardUtils;
+import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.ShareUtils;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class WordAnalyseFrag extends Fragment {
     WordListAdapter ca;
     TextView wordCountTV;
 
-    private FloatingActionButton fab;
+    private FloatingActionButton fab, upBtn;
 
     ChatData cd;
 
@@ -80,6 +81,7 @@ public class WordAnalyseFrag extends Fragment {
         wordCountTV = view.findViewById(R.id.wordSearchResTV);
 
         fab = view.findViewById(R.id.fabWord);
+        upBtn = view.findViewById(R.id.wordFragGoToTopFloatingBtn);
 
         freqList = new ArrayList<>();
 
@@ -91,6 +93,16 @@ public class WordAnalyseFrag extends Fragment {
         wordLV.setAdapter(ca);
         wordCountTV.setText("검색 결과 " + freqList.size() + "건 (최대 10,000건)");
 
+        wordLV.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+                if(wordLV.getChildAt(0).getTop() != 0 && upBtn.getVisibility() != View.VISIBLE){
+                    upBtn.setVisibility(View.VISIBLE);
+                } else if(wordLV.getChildAt(0).getTop() == 0 && upBtn.getVisibility() == View.VISIBLE){
+                    upBtn.setVisibility(View.GONE);
+                }
+            }
+        });
 
         wordLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -98,7 +110,6 @@ public class WordAnalyseFrag extends Fragment {
                 Intent wordDtlIntent = new Intent(WordAnalyseFrag.this.getActivity(), WordDetailAnalyseActivity.class);
                 wordDtlIntent.putExtra("word", freqList.get(position).getword());
                 WordAnalyseFrag.this.getActivity().startActivity(wordDtlIntent);
-
             }
         });
 
@@ -127,6 +138,14 @@ public class WordAnalyseFrag extends Fragment {
                     shareString += (i+1) + ". "+ freqList.get(i).getword() + " : " + freqList.get(i).getFrequency() + "회" + "\n";
                 }
                 ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "단어 사용량 순위 (Top20)", shareString, R.string.SP_SHARE_WORD_ANALZ_COUNT);
+            }
+        });
+
+        upBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                wordLV.setSelection(0);
+                wordLV.smoothScrollBy(0,0);
             }
         });
 

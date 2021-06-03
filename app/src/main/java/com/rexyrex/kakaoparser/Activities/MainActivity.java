@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -123,10 +124,13 @@ public class MainActivity extends AppCompatActivity {
                 "- 퀴즈 실행 방법 : 대화를 분석한 뒤 상단 우측 \"퀴즈\" 탭 선택\n" +
                 "\n" +
                 "2. 버그 수정 및 기능 개선\n" +
-                "- 이미 분서된 대화를 누를 시 앱이 잠시 응답 없음 상태가 되는 상황 방지\n" +
+                "- 대화량 탭 : 이름이 길 경우 짤리는 현상 개선\n" +
+                "- 대화 탭 : 채팅 버블 짤리는 현상 개선\n" +
+                "- 단어,대화 탭 : 위로 가기 버튼 추가\n" +
+                "- 메인 화면 : 정렬이 잘 안되는 현상 개선\n" +
                 "- 채팅 분석 알고리즘 개선\n" +
-                "- UI 개선\n" +
-                "- 예상치 못한 앱 닫힘 현상 개선");
+                "- 앱 응답 없음 현상 개선\n" +
+                "- 예상치 못한 앱 닫힘 현상 개선\n");
 
         updatePopupCloseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
         File dir = new File(folderPath);
         if (dir.isDirectory()) {
             files = dir.listFiles();
+            Arrays.sort(files);
             reversedFilesArr = new File[files.length];
 
             //update file count

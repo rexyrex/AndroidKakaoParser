@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rexyrex.kakaoparser.Activities.ChatPeekActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -25,6 +26,7 @@ import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.ChatSnippetData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.KeyboardUtils;
+import com.rexyrex.kakaoparser.Utils.LogUtils;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -55,6 +57,8 @@ public class ChatAnalyseFragment extends Fragment {
     Spinner authorSpinner;
     Spinner orderSpinner;
     EditText searchET;
+
+    private FloatingActionButton upBtn;
 
     public ChatAnalyseFragment() {
         // Required empty public constructor
@@ -88,6 +92,8 @@ public class ChatAnalyseFragment extends Fragment {
         searchET = view.findViewById(R.id.chatSearchET);
         authorSpinner = view.findViewById(R.id.chatAnalyseAuthorSpinner);
         countTV = view.findViewById(R.id.chatSearchResTV);
+
+        upBtn = view.findViewById(R.id.chatFragGoToTopFloatingBtn);
 
         ListView chatLV = view.findViewById(R.id.chatAnalyseChatLV);
         TextView searchResTV = view.findViewById(R.id.chatSearchResTV);
@@ -168,6 +174,25 @@ public class ChatAnalyseFragment extends Fragment {
                 csd.setHighlightChatLine(chatList.get(position));
                 Intent statsIntent = new Intent(ChatAnalyseFragment.this.getActivity(), ChatPeekActivity.class);
                 ChatAnalyseFragment.this.getActivity().startActivity(statsIntent);
+            }
+        });
+
+        chatLV.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+                if(chatLV.getChildAt(0).getTop() != 0 && upBtn.getVisibility() != View.VISIBLE){
+                    upBtn.setVisibility(View.VISIBLE);
+                } else if(chatLV.getChildAt(0).getTop() == 0 && upBtn.getVisibility() == View.VISIBLE){
+                    upBtn.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        upBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chatLV.setSelection(0);
+                chatLV.smoothScrollBy(0,0);
             }
         });
 

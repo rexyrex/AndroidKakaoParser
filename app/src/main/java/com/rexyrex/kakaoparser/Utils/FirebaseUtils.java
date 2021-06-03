@@ -303,4 +303,33 @@ public class FirebaseUtils {
                 });
     }
 
+    public static void sendOpinion(String opinion, SharedPrefUtils spu){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
+
+
+        Map<String, Object> opinionEntry = new HashMap<>();
+        opinionEntry.put("opinion", opinion);
+        opinionEntry.put("firebaseToken", firebaseToken);
+        opinionEntry.put("dt", sdf.format(new Date()));
+
+        db.collection("opinions").document()
+                .set(opinionEntry)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //LogUtils.e("Error adding document" + e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
+    }
+
 }

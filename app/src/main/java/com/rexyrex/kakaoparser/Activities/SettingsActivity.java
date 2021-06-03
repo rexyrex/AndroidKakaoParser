@@ -124,6 +124,12 @@ public class SettingsActivity extends AppCompatActivity {
                 return true;
             }
 
+            if(key.equals("appOpinion")){
+                Intent intent = new Intent(getContext(), SendOpinionActivity.class);
+                startActivity(intent);
+                return true;
+            }
+
             return false;
         }
     }

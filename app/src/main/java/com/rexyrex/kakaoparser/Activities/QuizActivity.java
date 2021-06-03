@@ -65,7 +65,7 @@ public class QuizActivity extends AppCompatActivity {
     WordDAO wordDAO;
     AnalysedChatDAO analysedChatDAO;
 
-    final int MAX_CONTENT_LENGTH = 72;
+    final int MAX_CONTENT_LENGTH = 500;
 
     TextView qTV, qMainTV, qTimerTV, qTVLengthWarningTV;
     ListView answersLV;
@@ -407,15 +407,15 @@ public class QuizActivity extends AppCompatActivity {
         int questionType = RandomUtils.getRandomInt(0, 5);
         isQuestionTime = true;
         resetForNextQuestion();
-        lastQuestionType = QuestionType.NEXT_CHAT;
-        getNextQuestion();
-//        switch(questionType){
-//            case 1: getNextQuestion2(); lastQuestionType = QuestionType.PERSON_FROM_CHAT; spu.incInt(R.string.SP_QUIZ_Q2_TOTAL_COUNT); break;
-//            case 2: getNextQuestion3(); lastQuestionType = QuestionType.CHAT_FROM_PERSON; spu.incInt(R.string.SP_QUIZ_Q3_TOTAL_COUNT); break;
-//            case 3: getNextQuestion4(); lastQuestionType = QuestionType.WORD_FROM_PERSON; spu.incInt(R.string.SP_QUIZ_Q4_TOTAL_COUNT); break;
-//            case 4: getNextQuestion5(); lastQuestionType = QuestionType.PERSON_FROM_WORD; spu.incInt(R.string.SP_QUIZ_Q5_TOTAL_COUNT); break;
-//            default : getNextQuestion(); lastQuestionType = QuestionType.NEXT_CHAT; spu.incInt(R.string.SP_QUIZ_Q1_TOTAL_COUNT); break;
-//        }
+//        lastQuestionType = QuestionType.NEXT_CHAT;
+//        getNextQuestion();
+        switch(questionType){
+            case 1: getNextQuestion2(); lastQuestionType = QuestionType.PERSON_FROM_CHAT; spu.incInt(R.string.SP_QUIZ_Q2_TOTAL_COUNT); break;
+            case 2: getNextQuestion3(); lastQuestionType = QuestionType.CHAT_FROM_PERSON; spu.incInt(R.string.SP_QUIZ_Q3_TOTAL_COUNT); break;
+            case 3: getNextQuestion4(); lastQuestionType = QuestionType.WORD_FROM_PERSON; spu.incInt(R.string.SP_QUIZ_Q4_TOTAL_COUNT); break;
+            case 4: getNextQuestion5(); lastQuestionType = QuestionType.PERSON_FROM_WORD; spu.incInt(R.string.SP_QUIZ_Q5_TOTAL_COUNT); break;
+            default : getNextQuestion(); lastQuestionType = QuestionType.NEXT_CHAT; spu.incInt(R.string.SP_QUIZ_Q1_TOTAL_COUNT); break;
+        }
         if(qTV.getLineCount() > qTV.getMaxLines()){
             qTVLengthWarningTV.setVisibility(View.VISIBLE);
         } else {

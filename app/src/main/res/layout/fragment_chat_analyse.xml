@@ -7,6 +7,19 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.main.ChatAnalyseFragment" >
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/chatFragGoToTopFloatingBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="50dp"
+        android:alpha="0.5"
+        android:clickable="true"
+        android:src="@android:drawable/arrow_up_float"
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <EditText
         android:id="@+id/chatSearchET"
         android:layout_width="0dp"
