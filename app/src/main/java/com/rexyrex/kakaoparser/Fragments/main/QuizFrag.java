@@ -78,7 +78,7 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             Button reviewPopupGoReviewBtn = reviewSuggestDialog.findViewById(R.id.basicPopupBtn);
 
             reviewPopupTitleTV.setText("카톡 정밀 분석기를 잘 이용하고 계신가요?");
-            reviewPopupContentsTV.setText("앱 리뷰를 해주세요~ \n리뷰 하나 하나가 큰 도움이 됩니다!");
+            reviewPopupContentsTV.setText("소중한 리뷰를 남겨주세요\n리뷰 하나 하나가 큰 도움이 됩니다 ^^");
             reviewPopupGoReviewBtn.setText("리뷰 하기");
             reviewPopupGoReviewBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -243,7 +243,7 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             quizScoreTV.setText(cd.getChatFileTitle() + "\n" + "퀴즈 기록 : " + acm.getHighscore() + "점");
 
             //Show review popup if conditions are met
-            if(spu.getBool(R.string.SP_REVIEW_POPUP_SHOW, true) && spu.getInt(R.string.SP_QUIZ_FINISH_COUNT, 0) >= 5){
+            if(spu.getBool(R.string.SP_REVIEW_POPUP_SHOW, true) && spu.getInt(R.string.SP_QUIZ_FINISH_COUNT, 0) >= 3){
                 reviewSuggestDialog.show();
                 //If review popup was showed at least once, do not show
                 spu.saveBool(R.string.SP_REVIEW_POPUP_SHOW, false);
@@ -281,6 +281,4 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             ndErrorMsgTv.setText("이미 등록되어있는 닉네임 입니다.");
         }
     }
-
-
 }

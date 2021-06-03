@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="300dp"
-    android:layout_height="300dp"
+    android:layout_height="250dp"
     android:background="@color/colorPrimaryDark"
     >
 
@@ -50,9 +50,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Button"
-        android:fontFamily="@font/nanum_square_round_r"
         android:background="@drawable/custom_show_more_btn"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="Button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/basicPopupContents" />
