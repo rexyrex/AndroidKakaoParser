@@ -29,9 +29,14 @@ public class SendOpinionActivity extends AppCompatActivity {
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseUtils.sendOpinion(opinionET.getText().toString(), spu);
-                Toast.makeText(SendOpinionActivity.this, "접수 완료", Toast.LENGTH_SHORT).show();
-                SendOpinionActivity.this.finish();
+                if(opinionET.getText().length() < 2){
+                    Toast.makeText(SendOpinionActivity.this, "내용이 너무 짧습니다", Toast.LENGTH_SHORT).show();
+                } else {
+                    FirebaseUtils.sendOpinion(opinionET.getText().toString(), spu);
+                    Toast.makeText(SendOpinionActivity.this, "접수 완료", Toast.LENGTH_SHORT).show();
+                    SendOpinionActivity.this.finish();
+                }
+
             }
         });
     }
