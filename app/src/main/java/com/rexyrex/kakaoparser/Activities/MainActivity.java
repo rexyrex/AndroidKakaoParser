@@ -1,10 +1,7 @@
 package com.rexyrex.kakaoparser.Activities;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,11 +19,15 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -42,18 +43,21 @@ import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     ListView chatLV;
     File[] files;
     File[] reversedFilesArr;
+    int fileIndex = 0;
+
     ChatData cd;
 
     LinearLayout kakaoBtn;
@@ -68,10 +72,17 @@ public class MainActivity extends AppCompatActivity {
     MainDatabase db;
     AnalysedChatDAO acd;
 
-    Dialog updateDialog;
+    Dialog updateDialog, dateRangeDialog;
     TextView updateTitleTV, updateContentsTV;
     CheckBox updateShowCheckBox;
     Button updatePopupCloseBtn;
+
+    TextView dateRangeStartDtTV, dateRangeEndDtTV;
+
+    Calendar startCalendar,endCalendar,minCalendar, maxCalendar;
+    String calendarType;
+
+    Button startAnalysisBtn, loadAnalysisBtn, dateRangeBackBtn;
 
     private static long lastBackAttemptTime;
 
@@ -90,7 +101,104 @@ public class MainActivity extends AppCompatActivity {
         acd = db.getAnalysedChatDAO();
         spu = new SharedPrefUtils(this);
 
+        startCalendar = Calendar.getInstance();
+        endCalendar = Calendar.getInstance();
+        minCalendar = Calendar.getInstance();
+        maxCalendar = Calendar.getInstance();
+        calendarType = "";
+
         registerReceiver(deleteReceiver, new IntentFilter("kakaoChatDelete"));
+
+        dateRangeDialog = new Dialog(this);
+        dateRangeDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dateRangeDialog.setContentView(R.layout.date_range_picker_popup);
+        dateRangeDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
+        dateRangeDialog.setCancelable(false);
+
+        dateRangeStartDtTV = dateRangeDialog.findViewById(R.id.datePickPopStartDateTV);
+        dateRangeEndDtTV = dateRangeDialog.findViewById(R.id.datePickPopEndDateTV);
+        dateRangeBackBtn = dateRangeDialog.findViewById(R.id.datePickBackBtn);
+        startAnalysisBtn = dateRangeDialog.findViewById(R.id.datePickStartAnalyseBtn);
+        loadAnalysisBtn = dateRangeDialog.findViewById(R.id.datePickLoadAnalyseBtn);
+
+        startAnalysisBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent statsIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
+                statsIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()));
+                if(FileParseUtils.parseFileForTitle(reversedFilesArr[fileIndex]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
+                && StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
+                ){
+                    statsIntent.putExtra("analysed", true);
+                } else {
+                    statsIntent.putExtra("analysed", false);
+                }
+
+                cd.setChatFile(reversedFilesArr[fileIndex]);
+                MainActivity.this.startActivity(statsIntent);
+            }
+        });
+
+        dateRangeBackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dateRangeDialog.cancel();
+            }
+        });
+
+        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                String myFormat = "yyyy-MM-dd"; //In which you need put here
+                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+
+                if(calendarType.equals("start")){
+                    startCalendar.set(Calendar.YEAR, year);
+                    startCalendar.set(Calendar.MONTH, monthOfYear);
+                    startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                    if(startCalendar.before(minCalendar)){
+                        Toast.makeText(MainActivity.this, "대화 시작점으로 설정", Toast.LENGTH_SHORT).show();
+                        startCalendar = (Calendar) minCalendar.clone();
+                    }
+
+                    dateRangeStartDtTV.setText(sdf.format(startCalendar.getTime()));
+                } else if(calendarType.equals("end")){
+                    endCalendar.set(Calendar.YEAR, year);
+                    endCalendar.set(Calendar.MONTH, monthOfYear);
+                    endCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                    if(endCalendar.after(maxCalendar)){
+                        Toast.makeText(MainActivity.this, "대화 마지막 시점으로 설정", Toast.LENGTH_SHORT).show();
+                        endCalendar = (Calendar) maxCalendar.clone();
+                    }
+
+                    dateRangeEndDtTV.setText(sdf.format(endCalendar.getTime()));
+                }
+            }
+        };
+
+        dateRangeStartDtTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                calendarType = "start";
+                String dtStr = dateRangeStartDtTV.getText().toString();
+                new DatePickerDialog(MainActivity.this, dateSetListener, Integer.parseInt(dtStr.split("-")[0]), Integer.parseInt(dtStr.split("-")[1])-1,
+                        Integer.parseInt(dtStr.split("-")[2])).show();
+            }
+        });
+
+        dateRangeEndDtTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                calendarType = "end";
+                String dtStr = dateRangeEndDtTV.getText().toString();
+                new DatePickerDialog(MainActivity.this, dateSetListener, Integer.parseInt(dtStr.split("-")[0]), Integer.parseInt(dtStr.split("-")[1])-1,
+                        Integer.parseInt(dtStr.split("-")[2])).show();
+            }
+        });
 
         updateDialog = new Dialog(this);
         updateDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -233,18 +341,31 @@ public class MainActivity extends AppCompatActivity {
             chatLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent statsIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
-                    statsIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[position].getName()));
-                    if(FileParseUtils.parseFileForTitle(reversedFilesArr[position]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
-                    && StringParseUtils.chatFileNameToDate(reversedFilesArr[position].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
-                    ){
-                        statsIntent.putExtra("analysed", true);
-                    } else {
-                        statsIntent.putExtra("analysed", false);
+
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
+                    if(FileParseUtils.parseFileForTitle(reversedFilesArr[position]).contains("KakaoTalk Chats with ")){
+                        format = new SimpleDateFormat("MMMM d, yyyy, h:m a", Locale.ENGLISH);
                     }
 
-                    cd.setChatFile(reversedFilesArr[position]);
-                    MainActivity.this.startActivity(statsIntent);
+                    String res = FileParseUtils.parseFileForDateRange(reversedFilesArr[position], format);
+                    LogUtils.e(res);
+
+                    dateRangeStartDtTV.setText(res.split("~")[0]);
+                    dateRangeEndDtTV.setText(res.split("~")[1]);
+
+                    String tmpStartDtStr = dateRangeStartDtTV.getText().toString();
+                    minCalendar.set(Calendar.YEAR, Integer.parseInt(tmpStartDtStr.split("-")[0]));
+                    minCalendar.set(Calendar.MONTH, Integer.parseInt(tmpStartDtStr.split("-")[1])-1);
+                    minCalendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(tmpStartDtStr.split("-")[2]));
+
+                    String tmpEndDtStr = dateRangeEndDtTV.getText().toString();
+                    maxCalendar.set(Calendar.YEAR, Integer.parseInt(tmpEndDtStr.split("-")[0]));
+                    maxCalendar.set(Calendar.MONTH, Integer.parseInt(tmpEndDtStr.split("-")[1])-1);
+                    maxCalendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(tmpEndDtStr.split("-")[2]));
+
+                    fileIndex = position;
+
+                    dateRangeDialog.show();
                 }
             });
 

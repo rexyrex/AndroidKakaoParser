@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.text.CharacterIterator;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
+import java.util.Date;
 
 public class FileParseUtils {
     public static String parseFile(File file) {
@@ -34,6 +37,8 @@ public class FileParseUtils {
 
         return chat;
     }
+
+
 
     //get chat file size given chat directory
     public static long getChatFileSize(File file){
@@ -89,7 +94,54 @@ public class FileParseUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return chat;
+    }
+
+    public static String parseFileForDateRange(File file, SimpleDateFormat dateFormat){
+        String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
+        String chat = "";
+        String firstLine = "";
+        String lastLine ="";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+            firstLine = line;
+            lastLine = line;
+
+            int index = 0;
+            while (line != null) {
+                if(index == 4){
+                    firstLine = line;
+                }
+                if(line.contains(",") && line.contains(":"))
+                lastLine = line;
+                index++;
+                line = br.readLine();
+            }
+            chat = sb.toString();
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        LogUtils.e("FirstLine : " + firstLine);
+        LogUtils.e("LastLine : " + lastLine);
+
+        Date startDt = null;
+        Date endDt = null;
+
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        try {
+            startDt = dateFormat.parse(firstLine);
+            endDt = dateFormat.parse(lastLine.split(",")[0]);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        String res = outputFormat.format(startDt) + "~" + outputFormat.format(endDt);
+
+        return res;
     }
 }
