@@ -24,6 +24,8 @@
 
     <string name="SP_DB_UPDATED">SP_DB_UPDATED2</string>
 
+    <string name="SP_UUID">SP_UUID</string>
+
     <string name="SP_FB_TOKEN">SP_FB_TOKEN</string>
     <string name="SP_ANALYSE_COUNT">SP_ANALYSE_COUNT</string>
     <string name="SP_LOGIN_COUNT">SP_LOGIN_COUNT</string>

@@ -50,6 +50,7 @@ public class FirebaseUtils {
 
     public static void updateUserInfo(Context c, SharedPrefUtils spu, String type, List<String> analysedChatTitles){
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+        String uuid = spu.getString(R.string.SP_UUID, "none");
 
         String manufacturer = Build.MANUFACTURER;
         String model = Build.MODEL;
@@ -75,6 +76,7 @@ public class FirebaseUtils {
         user.put("Analyze Count", spu.getInt(R.string.SP_ANALYSE_COUNT, 0));
         user.put("LastChangeDt", sdf.format(date));
         user.put("FirebaseToken", firebaseToken);
+        user.put("uuid", uuid);
         user.put("Save Action", type);
         user.put("Exported Chat Count", spu.getInt(R.string.SP_EXPORTED_CHAT_COUNT, -1));
 
@@ -99,7 +101,7 @@ public class FirebaseUtils {
         user.put("ShareTimeMonth", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_4_COUNT, 0));
         user.put("ShareTimeYear", spu.getInt(R.string.SP_SHARE_TIME_ANALZ_5_COUNT, 0));
 
-        db.collection("users").document(firebaseToken)
+        db.collection("users2").document(uuid)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -127,6 +129,7 @@ public class FirebaseUtils {
     public static void saveNickname(String nickname, SharedPrefUtils spu){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+        String uuid = spu.getString(R.string.SP_UUID, "none");
 
         Map<String, Object> quizEntry = new HashMap<>();
         quizEntry.put("nickname", nickname);
@@ -188,10 +191,12 @@ public class FirebaseUtils {
     public static void saveHighscore(int score, SharedPrefUtils spu, ChatData cd){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+        String uuid = spu.getString(R.string.SP_UUID, "none");
 
         Map<String, Object> quizEntry = new HashMap<>();
         quizEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
         quizEntry.put("firebaseToken", firebaseToken);
+        quizEntry.put("uuid", uuid);
         quizEntry.put("highscore", score);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
@@ -270,10 +275,12 @@ public class FirebaseUtils {
     public static void saveShareQuizQuestion(String title, String subTitle, List<String> options, SharedPrefUtils spu, ChatData cd){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+        String uuid = spu.getString(R.string.SP_UUID, "none");
 
         Map<String, Object> quizEntry = new HashMap<>();
         quizEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
         quizEntry.put("firebaseToken", firebaseToken);
+        quizEntry.put("uuid", uuid);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
         quizEntry.put("dt", sdf.format(new Date()));
@@ -306,6 +313,7 @@ public class FirebaseUtils {
     public static void sendOpinion(String opinion, SharedPrefUtils spu){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+        String uuid = spu.getString(R.string.SP_UUID, "none");
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
 
@@ -313,6 +321,7 @@ public class FirebaseUtils {
         Map<String, Object> opinionEntry = new HashMap<>();
         opinionEntry.put("opinion", opinion);
         opinionEntry.put("firebaseToken", firebaseToken);
+        opinionEntry.put("uuid", uuid);
         opinionEntry.put("dt", sdf.format(new Date()));
 
         db.collection("opinions").document()

@@ -40,6 +40,7 @@ import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -78,6 +79,11 @@ public class SplashActivity extends AppCompatActivity {
         if(!dbUpdated){
             spu.saveString(R.string.SP_LAST_ANALYSE_TITLE, "");
             spu.saveBool(R.string.SP_DB_UPDATED, true);
+            spu.saveBool(R.string.SP_UPDATE_POPUP_SHOW, true);
+        }
+
+        if(spu.getString(R.string.SP_UUID, "none").equals("none")){
+            spu.saveString(R.string.SP_UUID, UUID.randomUUID().toString());
         }
 
         //LogUtils("splashIV isnull? : " + (splashIV == null));

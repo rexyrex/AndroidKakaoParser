@@ -1,5 +1,8 @@
 package com.rexyrex.kakaoparser.Utils;
 
+import com.rexyrex.kakaoparser.Constants.DateFormats;
+import com.rexyrex.kakaoparser.Constants.TextPatterns;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -8,11 +11,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FileParseUtils {
     public static String parseFile(File file) {
         String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
         String chat = "";
+
+        boolean isKorean = !parseFileForTitle(file).contains("KakaoTalk Chats with ");
+        Pattern tPattern = isKorean ? TextPatterns.korean : TextPatterns.english;
+        SimpleDateFormat dateFormat = isKorean ? DateFormats.koreanDate : DateFormats.englishDate;
+
         try {
             BufferedReader br = new BufferedReader(new FileReader(fileName));
             StringBuilder sb = new StringBuilder();
@@ -20,6 +30,15 @@ public class FileParseUtils {
             int index = 0;
             while (line != null) {
                 if(index > 3 && line.length() > 0){
+                    Matcher m = tPattern.matcher(line);
+                    if(m.matches()){
+                        //Extract Date
+                        try {
+                            Date date = dateFormat.parse(m.group(1));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     sb.append(line);
                     sb.append("\n");
                 }
@@ -38,7 +57,11 @@ public class FileParseUtils {
         return chat;
     }
 
-
+    public static File getFileFromFolder(File folder){
+        String fileName = folder.getAbsolutePath() + "/KakaoTalkChats.txt";
+        File chatFile = new File(fileName);
+        return chatFile;
+    }
 
     //get chat file size given chat directory
     public static long getChatFileSize(File file){
@@ -98,6 +121,10 @@ public class FileParseUtils {
     }
 
     public static String parseFileForDateRange(File file, SimpleDateFormat dateFormat){
+
+        boolean isKorean = !parseFileForTitle(file).contains("KakaoTalk Chats with ");
+        Pattern tPattern = isKorean ? TextPatterns.korean : TextPatterns.english;
+
         String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
         String chat = "";
         String firstLine = "";
@@ -114,8 +141,11 @@ public class FileParseUtils {
                 if(index == 4){
                     firstLine = line;
                 }
-                if(line.contains(",") && line.contains(":"))
-                lastLine = line;
+                //if(line.contains(",") && line.contains(":"))
+                if(tPattern.matcher(line).matches()){
+                    lastLine = line;
+                }
+
                 index++;
                 line = br.readLine();
             }
@@ -131,7 +161,7 @@ public class FileParseUtils {
         Date startDt = null;
         Date endDt = null;
 
-        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat outputFormat = DateFormats.simpleKoreanFormat;
 
         try {
             startDt = dateFormat.parse(firstLine);

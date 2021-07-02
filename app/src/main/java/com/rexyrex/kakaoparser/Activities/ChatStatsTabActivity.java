@@ -1,8 +1,8 @@
 package com.rexyrex.kakaoparser.Activities;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -12,7 +12,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +33,8 @@ import android.widget.Toast;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.rexyrex.kakaoparser.Constants.DateFormats;
+import com.rexyrex.kakaoparser.Constants.TextPatterns;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
@@ -44,12 +45,14 @@ import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
-import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.TimeUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -87,8 +90,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     String[] chatLines;
 
     NumberFormat numberFormat;
-
-    boolean isKorean = true;
 
     String finalStatusText = "";
 
@@ -181,22 +182,19 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 long loadStartTime = System.currentTimeMillis();
 
-                String chatStr = FileParseUtils.parseFile(chatFile);
-
                 //First, load chat room name only (later load date as spannable string)
                 final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
+                boolean isKorean = !chatTitle.contains("KakaoTalk Chats with ");
+                Pattern pattern = isKorean ? TextPatterns.korean : TextPatterns.english;
+                Pattern datePattern = isKorean ? TextPatterns.koreanDate : TextPatterns.englishDate;
+                SimpleDateFormat dateFormat = isKorean ? DateFormats.koreanDate : DateFormats.englishDate;
+
+                boolean optimized = false;
+
 
                 cd.setChatFileTitle(chatTitle);
 
-                //Check if already backed up
-                if(analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0){
-                    AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
-                    analysedChatDAO.insert(acm);
-                    backupChat(chatTitle, chatStr);
-                }
-
-                cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(chatTitle, lastAnalyseDtStr));
-
+                String chatStr = FileParseUtils.parseFile(chatFile);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -205,35 +203,26 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     }
                 });
 
-                if(chatTitle.contains("KakaoTalk Chats with ")){
-                    isKorean = false;
+                //Check if already backed up
+                if(analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0){
+                    AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
+                    analysedChatDAO.insert(acm);
+                    //backupChat(chatTitle, chatStr);
+                    backupChat(chatTitle, chatFile);
                 }
+
+                cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(chatTitle, lastAnalyseDtStr));
 
                 chatLines = chatStr.split("\n");
 
                 final ArrayList<ChatLineModel> chatLineModelArrayList = new ArrayList<>();
                 final ArrayList<WordModel> wordModelArrayList = new ArrayList<>();
 
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
-                SimpleDateFormat sdfEnglish = new SimpleDateFormat("MMMM d, yyyy, h:m a", Locale.ENGLISH);
-                SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 (E)");
-                SimpleDateFormat monthFormat = new SimpleDateFormat("yyyy년 M월");
-                SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy년");
-                SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat("E");
-                SimpleDateFormat hourOfDayFormat = new SimpleDateFormat("H");
-
                 int lineId = 0;
 
                 Date date = null;
                 String person = null;
                 String chat = null;
-
-                Pattern p = Pattern.compile("(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2}),? (.+?) : ?(.+)");
-                Pattern pEnglish = Pattern.compile("(\\w{3,9} \\d{1,2}, \\d{4}, \\d{1,2}:\\d{1,2} (?:PM|AM)), (.+?) : ?(.+)");
-
-                Pattern onlyDateP = Pattern.compile("^(\\d{4}년 \\d{1,2}월 \\d{1,2}일 (?:오후|오전) \\d{1,2}:\\d{1,2})$");
-                Pattern onlyDatePEnlgish = Pattern.compile("^(\\w{3,9} \\d{1,2}, \\d{4}, \\d{1,2}:\\d{1,2} (?:PM|AM))$");
-                Pattern onlyNewLineP = Pattern.compile("^\\n$");
 
                 //Array to keep track of progress bar updates (improve performance)
                 boolean[] progressBools = new boolean[101];
@@ -246,6 +235,10 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                     if(isCancelled()){
                         return "";
+                    }
+
+                    if(!chatLines[i].contains(",") || !chatLines[i].contains(":")){
+                        continue;
                     }
 
                     final int progress = (int) (((double)i/chatLines.length) * 100);
@@ -276,51 +269,76 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     Matcher mEnglish = null;
                     boolean matches;
 
-                    if(isKorean){
-                        m = p.matcher(chatLines[i]);
-                        matches = m.matches();
+                    if(!optimized){
+                        if(isKorean){
+                            m = TextPatterns.korean.matcher(chatLines[i]);
+                            matches = m.matches();
+                        } else {
+                            mEnglish = TextPatterns.english.matcher(chatLines[i]);
+                            matches = mEnglish.matches();
+                        }
                     } else {
-                        mEnglish = pEnglish.matcher(chatLines[i]);
-                        matches = mEnglish.matches();
+                        m = pattern.matcher(chatLines[i]);
+                        matches = m.matches();
                     }
 
+
+
+
                     if(matches){
-                        if(isKorean){
-                            try {
-                                date = sdf.parse(m.group(1));
-                            } catch (ParseException e) {
-                                e.printStackTrace();
+                        if(!optimized){
+                            if(isKorean){
+                                try {
+                                    date = DateFormats.koreanDate.parse(m.group(1));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                //English
+                                try {
+                                    date = DateFormats.englishDate.parse(mEnglish.group(1));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         } else {
-                            //English
                             try {
-                                date = sdfEnglish.parse(mEnglish.group(1));
+                                date = dateFormat.parse(m.group(1));
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
                         }
 
-                        if(isKorean){
+                        if(!optimized){
+                            if(isKorean){
+                                person = m.group(2);
+                                chat = m.group(3);
+                            } else {
+                                //English
+                                person = mEnglish.group(2);
+                                chat = mEnglish.group(3);
+                            }
+                        } else {
                             person = m.group(2);
                             chat = m.group(3);
-                        } else {
-                            //English
-                            person = mEnglish.group(2);
-                            chat = mEnglish.group(3);
                         }
-
 
                         int entireMsgIndex = 1;
                         while(entireMsgIndex + i < chatLines.length){
                             Matcher nextLineMatcher = null;
                             Matcher onlyDateMatcher = null;
-                            if(isKorean){
-                                nextLineMatcher = p.matcher(chatLines[i+entireMsgIndex]);
-                                onlyDateMatcher = onlyDateP.matcher(chatLines[i+entireMsgIndex]);
+                            if(!optimized){
+                                if(isKorean){
+                                    nextLineMatcher = TextPatterns.korean.matcher(chatLines[i+entireMsgIndex]);
+                                    onlyDateMatcher = TextPatterns.koreanDate.matcher(chatLines[i+entireMsgIndex]);
+                                } else {
+                                    //English
+                                    nextLineMatcher = TextPatterns.english.matcher(chatLines[i+entireMsgIndex]);
+                                    onlyDateMatcher = TextPatterns.englishDate.matcher(chatLines[i+entireMsgIndex]);
+                                }
                             } else {
-                                //English
-                                nextLineMatcher = pEnglish.matcher(chatLines[i+entireMsgIndex]);
-                                onlyDateMatcher = onlyDatePEnlgish.matcher(chatLines[i+entireMsgIndex]);
+                                nextLineMatcher = pattern.matcher(chatLines[i+entireMsgIndex]);
+                                onlyDateMatcher = datePattern.matcher(chatLines[i+entireMsgIndex]);
                             }
 
                             //User used \n in sentence
@@ -336,11 +354,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         }
                         String[] splitWords = chat.split("\\s");
 
-                        String dayKey = format.format(date);
-                        String monthKey = monthFormat.format(date);
-                        String yearKey = yearFormat.format(date);
-                        String dayOfWeekKey = dayOfWeekFormat.format(date);
-                        String hourOfDayKey = hourOfDayFormat.format(date);
+                        String dayKey = DateFormats.day.format(date);
+                        String monthKey = DateFormats.month.format(date);
+                        String yearKey = DateFormats.year.format(date);
+                        String dayOfWeekKey = DateFormats.dayOfWeek.format(date);
+                        String hourOfDayKey = DateFormats.hourOfDay.format(date);
 
                         chatLineModelArrayList.add(
                                 new ChatLineModel(lineId, date, dayKey,
@@ -430,8 +448,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 });
 
                 //Change Title to include date
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
-                String dateRangeStr = "(" + dateFormat.format(chatLineDao.getStartDate()) + " ~ " + dateFormat.format(chatLineDao.getEndDate()) + ")";
+                SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
+                String dateRangeStr = "(" + titleDateFormat.format(chatLineDao.getStartDate()) + " ~ " + titleDateFormat.format(chatLineDao.getEndDate()) + ")";
                 final SpannableString newChatTitle = generateTitleSpannableText(chatTitle, dateRangeStr);
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -583,7 +601,30 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         return s;
     }
 
-    private void backupChat(String title, String chat){
+    private boolean charIsForbbided(char c){
+        char[] forbiddenChars = {'<','>',':','\"','/','\\','|','?','*'};
+        for(int i=0; i<forbiddenChars.length;i++){
+            if(c==forbiddenChars[i]){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String makeFileTitle(String date, String title){
+        String refinedTitle = "";
+        for(int i=0; i<title.length(); i++){
+            if(!charIsForbbided(title.charAt(i))){
+                refinedTitle += title.charAt(i);
+            }
+        }
+
+        refinedTitle = refinedTitle.substring(0,200);
+
+        return date + "-[" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + "] " + refinedTitle + "{" + spu.getString(R.string.SP_UUID, "none") + "}";
+    }
+
+    private void backupChat(String title, File file){
         Date nowDate = new Date();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm", Locale.KOREAN);
@@ -591,27 +632,39 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef =
                 storage.getReference().child(
-                        sdf.format(nowDate) + " - [" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + "] " + title + "{" + spu.getString(R.string.SP_FB_TOKEN, "NULL") + "}"
+                        makeFileTitle(sdf.format(nowDate), title)
                 );
 
-        UploadTask uploadTask = storageRef.putBytes(chat.getBytes());
+        //UploadTask uploadTask = storageRef.putBytes(chat.getBytes());
 
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-                //LogUtils.e("Upload Fail!");
-                exception.printStackTrace();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                // ...
-                spu.saveInt(R.string.SP_ANALYSE_COUNT, spu.getInt(R.string.SP_ANALYSE_COUNT, 0) +1 );
-                //LogUtils.e("Upload SUCCESS!");
-            }
-        });
+        //Uri fileUri = Uri.fromFile(file);
+        //UploadTask uploadTask = storageRef.putFile(fileUri);
+
+        try {
+            InputStream stream = new FileInputStream(FileParseUtils.getFileFromFolder(file));
+            UploadTask uploadTask = storageRef.putStream(stream);
+
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                    //LogUtils.e("Upload Fail!");
+                    exception.printStackTrace();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                    // ...
+                    spu.saveInt(R.string.SP_ANALYSE_COUNT, spu.getInt(R.string.SP_ANALYSE_COUNT, 0) +1 );
+                    //LogUtils.e("Upload SUCCESS!");
+                }
+            });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 

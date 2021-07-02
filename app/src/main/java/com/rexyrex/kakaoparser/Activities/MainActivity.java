@@ -29,6 +29,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
@@ -42,7 +43,19 @@ import com.rexyrex.kakaoparser.Utils.PicUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -113,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
         dateRangeDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dateRangeDialog.setContentView(R.layout.date_range_picker_popup);
         dateRangeDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
-        dateRangeDialog.setCancelable(false);
 
         dateRangeStartDtTV = dateRangeDialog.findViewById(R.id.datePickPopStartDateTV);
         dateRangeEndDtTV = dateRangeDialog.findViewById(R.id.datePickPopEndDateTV);
@@ -134,8 +146,16 @@ public class MainActivity extends AppCompatActivity {
                     statsIntent.putExtra("analysed", false);
                 }
 
+                dateRangeDialog.cancel();
                 cd.setChatFile(reversedFilesArr[fileIndex]);
                 MainActivity.this.startActivity(statsIntent);
+            }
+        });
+
+        loadAnalysisBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
 
@@ -151,8 +171,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
-                String myFormat = "yyyy-MM-dd"; //In which you need put here
-                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
                 if(calendarType.equals("start")){
                     startCalendar.set(Calendar.YEAR, year);
@@ -164,7 +182,12 @@ public class MainActivity extends AppCompatActivity {
                         startCalendar = (Calendar) minCalendar.clone();
                     }
 
-                    dateRangeStartDtTV.setText(sdf.format(startCalendar.getTime()));
+                    if(startCalendar.after(endCalendar)){
+                        Toast.makeText(MainActivity.this, "분석 시작일을 종료일 이후로 설정 할 수 없습니다.", Toast.LENGTH_SHORT).show();
+                        startCalendar = (Calendar) endCalendar.clone();
+                    }
+
+                    dateRangeStartDtTV.setText(DateFormats.simpleKoreanFormat.format(startCalendar.getTime()));
                 } else if(calendarType.equals("end")){
                     endCalendar.set(Calendar.YEAR, year);
                     endCalendar.set(Calendar.MONTH, monthOfYear);
@@ -175,7 +198,12 @@ public class MainActivity extends AppCompatActivity {
                         endCalendar = (Calendar) maxCalendar.clone();
                     }
 
-                    dateRangeEndDtTV.setText(sdf.format(endCalendar.getTime()));
+                    if(endCalendar.before(startCalendar)){
+                        Toast.makeText(MainActivity.this, "분석 종료일을 시작일 이전으로 설정 할 수 없습니다.", Toast.LENGTH_SHORT).show();
+                        endCalendar = (Calendar) startCalendar.clone();
+                    }
+
+                    dateRangeEndDtTV.setText(DateFormats.simpleKoreanFormat.format(endCalendar.getTime()));
                 }
             }
         };
@@ -185,8 +213,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 calendarType = "start";
                 String dtStr = dateRangeStartDtTV.getText().toString();
-                new DatePickerDialog(MainActivity.this, dateSetListener, Integer.parseInt(dtStr.split("-")[0]), Integer.parseInt(dtStr.split("-")[1])-1,
-                        Integer.parseInt(dtStr.split("-")[2])).show();
+                int[] tmpDtArr = getDateFromStr(dtStr);
+                new DatePickerDialog(MainActivity.this, dateSetListener, tmpDtArr[0], tmpDtArr[1], tmpDtArr[2]).show();
             }
         });
 
@@ -195,8 +223,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 calendarType = "end";
                 String dtStr = dateRangeEndDtTV.getText().toString();
-                new DatePickerDialog(MainActivity.this, dateSetListener, Integer.parseInt(dtStr.split("-")[0]), Integer.parseInt(dtStr.split("-")[1])-1,
-                        Integer.parseInt(dtStr.split("-")[2])).show();
+                int[] tmpDtArr = getDateFromStr(dtStr);
+                new DatePickerDialog(MainActivity.this, dateSetListener, tmpDtArr[0], tmpDtArr[1], tmpDtArr[2]).show();
             }
         });
 
@@ -220,8 +248,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         
-        updateTitleTV.setText("1.2.0 업데이트 내용");
-        
+
+        /*
         updateContentsTV.setText("1. 기능 추가 : 퀴즈 (Beta)\n" +
                 "- 분석한 채팅을 기반 다양한 문제 생성\n" +
                 "- 문제 랜덤 생성 알고리즘 적용\n" +
@@ -236,7 +264,12 @@ public class MainActivity extends AppCompatActivity {
                 "- 메인 화면 : 정렬이 잘 안되는 현상 개선\n" +
                 "- 채팅 분석 알고리즘 개선\n" +
                 "- 앱 응답 없음 현상 개선\n" +
-                "- 예상치 못한 앱 닫힘 현상 개선\n");
+                "- 예상치 못한 앱 닫힘 현상 개선\n");*/
+
+
+
+        loadUpdateContents();
+
 
         updatePopupCloseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -277,7 +310,67 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.startActivity(instIntent);
             }
         });
+    }
 
+    protected void loadUpdateContents(){
+        InputStream is = getResources().openRawResource(R.raw.update_1_2);
+        Writer writer = new StringWriter();
+        char[] buffer = new char[1024];
+        try {
+            Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            int n;
+            while ((n = reader.read(buffer)) != -1) {
+                writer.write(buffer, 0, n);
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String jsonString = writer.toString();
+        String resStr = "";
+
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONArray contentsArray = jsonObject.getJSONArray("contents");
+
+            for(int i=0; i<contentsArray.length(); i++){
+                JSONObject contentObject = (JSONObject) contentsArray.get(i);
+                resStr += contentObject.getString("subtitle") + "\n";
+
+                JSONArray contentDescArr = contentObject.getJSONArray("subcontents");
+                for(int j=0; j<contentDescArr.length(); j++){
+                    resStr += "  •  " + (String) contentDescArr.get(j) + "\n";
+                }
+                resStr += "\n";
+            }
+
+            updateTitleTV.setText(jsonObject.getString("title"));
+            updateContentsTV.setText(resStr);
+
+        } catch (JSONException err) {
+            err.printStackTrace();
+        }
+    }
+
+    //"yyyy년 M월 d일" -> [year, month, year]
+    protected int[] getDateFromStr(String strDt){
+        String year = strDt.split(" ")[0];
+        String month = strDt.split(" ")[1];
+        String day = strDt.split(" ")[2];
+
+        int[] res = new int[3];
+        res[0] = Integer.parseInt(year.substring(0, year.length()-1));
+        res[1] = Integer.parseInt(month.substring(0, month.length()-1))-1;
+        res[2] = Integer.parseInt(day.substring(0,day.length()-1));
+        return res;
     }
 
     @Override
@@ -354,16 +447,23 @@ public class MainActivity extends AppCompatActivity {
                     dateRangeEndDtTV.setText(res.split("~")[1]);
 
                     String tmpStartDtStr = dateRangeStartDtTV.getText().toString();
-                    minCalendar.set(Calendar.YEAR, Integer.parseInt(tmpStartDtStr.split("-")[0]));
-                    minCalendar.set(Calendar.MONTH, Integer.parseInt(tmpStartDtStr.split("-")[1])-1);
-                    minCalendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(tmpStartDtStr.split("-")[2]));
+                    int[] tmpDtArr = getDateFromStr(tmpStartDtStr);
+                    minCalendar.set(Calendar.YEAR, tmpDtArr[0]);
+                    minCalendar.set(Calendar.MONTH, tmpDtArr[1]);
+                    minCalendar.set(Calendar.DAY_OF_MONTH, tmpDtArr[2]);
+                    startCalendar = (Calendar) minCalendar.clone();
 
                     String tmpEndDtStr = dateRangeEndDtTV.getText().toString();
-                    maxCalendar.set(Calendar.YEAR, Integer.parseInt(tmpEndDtStr.split("-")[0]));
-                    maxCalendar.set(Calendar.MONTH, Integer.parseInt(tmpEndDtStr.split("-")[1])-1);
-                    maxCalendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(tmpEndDtStr.split("-")[2]));
+                    tmpDtArr = getDateFromStr(tmpEndDtStr);
+                    maxCalendar.set(Calendar.YEAR, tmpDtArr[0]);
+                    maxCalendar.set(Calendar.MONTH, tmpDtArr[1]);
+                    maxCalendar.set(Calendar.DAY_OF_MONTH, tmpDtArr[2]);
+                    endCalendar = (Calendar) maxCalendar.clone();
 
                     fileIndex = position;
+
+                    //Enable load btn only when last analysed is available
+                    loadAnalysisBtn.setEnabled(false);
 
                     dateRangeDialog.show();
                 }
@@ -378,8 +478,6 @@ public class MainActivity extends AppCompatActivity {
             final Button delBtn = delView.findViewById(R.id.delBtnTrue);
             Button delCancel = delView.findViewById(R.id.delBtnFalse);
             final TextView delPopTV = delView.findViewById(R.id.delPopMsg);
-
-
 
             delCancel.setOnClickListener(new View.OnClickListener() {
                 @Override
