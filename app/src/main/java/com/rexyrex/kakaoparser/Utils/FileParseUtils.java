@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileParseUtils {
-    public static String parseFile(File file) {
+    public static String parseFile(File file, Date startDt, Date endDt) {
         String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
         String chat = "";
 
@@ -35,6 +35,13 @@ public class FileParseUtils {
                         //Extract Date
                         try {
                             Date date = dateFormat.parse(m.group(1));
+                            if(date.before(startDt)){
+                                index++;
+                                line = br.readLine();
+                                continue;
+                            } else if(date.after(endDt)){
+                                break;
+                            }
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }

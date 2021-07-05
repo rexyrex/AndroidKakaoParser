@@ -45,6 +45,7 @@ import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
+import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.TimeUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
@@ -53,10 +54,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -98,6 +101,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     boolean analysed;
     String lastAnalyseDtStr;
 
+    Date startDt, endDt;
+    String startDtStr, endDtStr;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +113,31 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         analysed = getIntent().getBooleanExtra("analysed", false);
         lastAnalyseDtStr = getIntent().getStringExtra("lastAnalyseDt");
+
+        try {
+            Calendar tmpCal = Calendar.getInstance();
+            startDtStr = getIntent().getStringExtra("startDt");
+            startDt = DateFormats.defaultFormat.parse(startDtStr);
+            tmpCal.setTime(startDt);
+            tmpCal.set(Calendar.HOUR_OF_DAY, 0);
+            tmpCal.set(Calendar.MINUTE, 0);
+            tmpCal.set(Calendar.SECOND, 0);
+            startDt = new Date(tmpCal.getTimeInMillis());
+
+            endDtStr = getIntent().getStringExtra("endDt");
+            endDt = DateFormats.defaultFormat.parse(endDtStr);
+            tmpCal.setTime(endDt);
+            tmpCal.set(Calendar.HOUR_OF_DAY, 23);
+            tmpCal.set(Calendar.MINUTE, 59);
+            tmpCal.set(Calendar.SECOND, 59);
+            endDt = new Date(tmpCal.getTimeInMillis());
+
+            LogUtils.e("startDt : " + getIntent().getStringExtra("startDt"));
+            LogUtils.e("endDt : " + getIntent().getStringExtra("endDt"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
 
         View view = (LayoutInflater.from(ChatStatsTabActivity.this)).inflate(R.layout.horizontal_progress_popup, null);
         popupPB = view.findViewById(R.id.popupPB);
@@ -194,7 +225,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 cd.setChatFileTitle(chatTitle);
 
-                String chatStr = FileParseUtils.parseFile(chatFile);
+                String chatStr = FileParseUtils.parseFile(chatFile, startDt, endDt);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -449,7 +480,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 //Change Title to include date
                 SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
-                String dateRangeStr = "(" + titleDateFormat.format(chatLineDao.getStartDate()) + " ~ " + titleDateFormat.format(chatLineDao.getEndDate()) + ")";
+                String dateRangeStr = "(" + titleDateFormat.format(startDt) + " ~ " + titleDateFormat.format(endDt) + ")";
                 final SpannableString newChatTitle = generateTitleSpannableText(chatTitle, dateRangeStr);
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -473,6 +504,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 spu.saveString(R.string.SP_LAST_ANALYSE_TITLE, FileParseUtils.parseFileForTitle(chatFile));
                 spu.saveString(R.string.SP_LAST_ANALYSE_DT, lastAnalyseDtStr);
                 dialog.cancel();
+                //save dates
+                spu.saveString(R.string.SP_LAST_ANALYSE_START_DT, startDtStr);
+                spu.saveString(R.string.SP_LAST_ANALYSE_END_DT, endDtStr);
                 sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);
@@ -485,7 +519,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 String tmpTitleStr = FileParseUtils.parseFileForTitle(chatFile);
                 //Change Title to include date
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
-                String dateRangeStr = "(" + dateFormat.format(chatLineDao.getStartDate()) + " ~ " + dateFormat.format(chatLineDao.getEndDate()) + ")";
+                String dateRangeStr = "(" + dateFormat.format(startDt) + " ~ " + dateFormat.format(endDt) + ")";
                 final SpannableString tmpTitle = generateTitleSpannableText(tmpTitleStr, dateRangeStr);
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -614,14 +648,23 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     private String makeFileTitle(String date, String title){
         String refinedTitle = "";
         for(int i=0; i<title.length(); i++){
-            if(!charIsForbbided(title.charAt(i))){
+            if(!charIsForbbided(title.charAt(i)) && getUtf8Length(refinedTitle) < 192){
                 refinedTitle += title.charAt(i);
             }
         }
 
-        refinedTitle = refinedTitle.substring(0,200);
+        //1992-12-17 12:12 [100] title{27acfcf2-c21c-4423-8bea-fbc3060ee46d}
+        return date + " [" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + "] " + refinedTitle + "{" + spu.getString(R.string.SP_UUID, "none") + "}";
+    }
 
-        return date + "-[" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + "] " + refinedTitle + "{" + spu.getString(R.string.SP_UUID, "none") + "}";
+    public int getUtf8Length(String s){
+        try {
+            return s.getBytes("UTF-8").length;
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     private void backupChat(String title, File file){

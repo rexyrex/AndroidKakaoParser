@@ -17,6 +17,8 @@
     <string name="default_notification_channel_id">default_notification_channel_id</string>
 
     <string name="SP_LAST_ANALYSE_TITLE">SP_LAST_ANALYSE_TITLE</string>
+    <string name="SP_LAST_ANALYSE_START_DT">SP_LAST_ANALYSE_START_DT</string>
+    <string name="SP_LAST_ANALYSE_END_DT">SP_LAST_ANALYSE_END_DT</string>
     <string name="SP_LAST_ANALYSE_DT">SP_LAST_ANALYSE_DT</string>
 
     <string name="SP_QUIZ_NICKNAME">SP_QUIZ_NICKNAME</string>

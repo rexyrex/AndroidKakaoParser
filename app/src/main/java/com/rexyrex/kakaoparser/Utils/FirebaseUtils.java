@@ -248,7 +248,7 @@ public class FirebaseUtils {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference citiesRef = db.collection("quiz");
 
-        Query query = citiesRef.whereGreaterThan("highscore", 0).orderBy("highscore", Query.Direction.DESCENDING).limit(50);
+        Query query = citiesRef.whereGreaterThan("highscore", 0).orderBy("highscore", Query.Direction.DESCENDING).limit(100);
         query.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
