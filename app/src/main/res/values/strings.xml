@@ -29,6 +29,7 @@
     <string name="SP_UUID">SP_UUID</string>
 
     <string name="SP_FB_TOKEN">SP_FB_TOKEN</string>
+    <string name="SP_LOAD_COUNT">SP_LOAD_COUNT</string>
     <string name="SP_ANALYSE_COUNT">SP_ANALYSE_COUNT</string>
     <string name="SP_LOGIN_COUNT">SP_LOGIN_COUNT</string>
     <string name="SP_LOGOUT_COUNT">SP_LOGOUT_COUNT</string>

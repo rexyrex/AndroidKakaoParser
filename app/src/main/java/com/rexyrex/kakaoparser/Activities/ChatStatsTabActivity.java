@@ -45,6 +45,7 @@ import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
+import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.TimeUtils;
@@ -510,6 +511,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);
+                FirebaseUtils.updateUserInfo(ChatStatsTabActivity.this, spu, "analyse", database);
+                FirebaseUtils.saveChatStats(spu,cd);
             }
         };
 
@@ -559,7 +562,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
                 cd.setAuthorsList(chatLineDao.getChatters());
 
-
                 return null;
             }
 
@@ -570,6 +572,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);
+                FirebaseUtils.updateUserInfo(ChatStatsTabActivity.this, spu, "load", database);
             }
         };
 

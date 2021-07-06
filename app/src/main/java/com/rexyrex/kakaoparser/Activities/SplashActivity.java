@@ -54,8 +54,6 @@ public class SplashActivity extends AppCompatActivity {
 
     SharedPrefUtils spu;
     MainDatabase db;
-    AnalysedChatDAO acd;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +62,6 @@ public class SplashActivity extends AppCompatActivity {
         backBtnPressed = false;
         spu = new SharedPrefUtils(this);
         db = MainDatabase.getDatabase(this);
-        acd = db.getAnalysedChatDAO();
 
         appTitleTV = findViewById(R.id.appTitleTV);
         splashIV = findViewById(R.id.splashIV);
@@ -207,7 +204,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void startLogic(){
         spu.saveString(R.string.SP_LOGIN_DT, DateUtils.getCurrentTimeStr());
-        FirebaseUtils.updateUserInfo(this, spu, "Login", acd.getAllChatTitles());
+        FirebaseUtils.updateUserInfo(this, spu, "Login", db);
         FirebaseUtils.logFirebaseEventOpenApp(this);
         //허용되지 않은 권한 있으면 권한 요청
         //deniedPermsArr length를 나중에도 확인해서 scheduleSplashScreen이 나중에 호출되도록 구현돼있음

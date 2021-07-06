@@ -18,6 +18,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.rexyrex.kakaoparser.BuildConfig;
+import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.HighscoreData;
 import com.rexyrex.kakaoparser.R;
@@ -48,9 +50,11 @@ public class FirebaseUtils {
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle);
     }
 
-    public static void updateUserInfo(Context c, SharedPrefUtils spu, String type, List<String> analysedChatTitles){
+    public static void updateUserInfo(Context c, SharedPrefUtils spu, String type, MainDatabase database){
+        List<String> analysedChatTitles = database.getAnalysedChatDAO().getAllChatTitles();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
         String uuid = spu.getString(R.string.SP_UUID, "none");
+        String nickname = spu.getString(R.string.SP_QUIZ_NICKNAME, "none");
 
         String manufacturer = Build.MANUFACTURER;
         String model = Build.MODEL;
@@ -74,9 +78,11 @@ public class FirebaseUtils {
         user.put("Login Count", spu.getInt(R.string.SP_LOGIN_COUNT, 0));
         user.put("Logout Count", spu.getInt(R.string.SP_LOGOUT_COUNT, 0));
         user.put("Analyze Count", spu.getInt(R.string.SP_ANALYSE_COUNT, 0));
+        user.put("Load Count", spu.getInt(R.string.SP_LOAD_COUNT, 0));
         user.put("LastChangeDt", sdf.format(date));
         user.put("FirebaseToken", firebaseToken);
         user.put("uuid", uuid);
+        user.put("nickname", nickname);
         user.put("Save Action", type);
         user.put("Exported Chat Count", spu.getInt(R.string.SP_EXPORTED_CHAT_COUNT, -1));
 
@@ -132,6 +138,7 @@ public class FirebaseUtils {
         String uuid = spu.getString(R.string.SP_UUID, "none");
 
         Map<String, Object> quizEntry = new HashMap<>();
+        quizEntry.put("uuid", uuid);
         quizEntry.put("nickname", nickname);
         quizEntry.put("firebaseToken", firebaseToken);
         quizEntry.put("highscore", 0);
@@ -186,6 +193,62 @@ public class FirebaseUtils {
 
     public interface HighscoreCallback{
         void getHighscores(List<HighscoreData> highscores);
+    }
+
+    public static void saveChatStats(SharedPrefUtils spu, ChatData cd){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+        String uuid = spu.getString(R.string.SP_UUID, "none");
+
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        int version = Build.VERSION.SDK_INT;
+
+        Map<String, Object> chatEntry = new HashMap<>();
+
+        chatEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
+        chatEntry.put("firebaseToken", firebaseToken);
+        chatEntry.put("uuid", uuid);
+
+        chatEntry.put("Manufacturer", manufacturer);
+        chatEntry.put("Model", model);
+        chatEntry.put("Android Version", version);
+        chatEntry.put("App Version", BuildConfig.VERSION_NAME);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
+        chatEntry.put("date", sdf.format(new Date()));
+
+        chatEntry.put("ChatterCount", cd.getChatterCount());
+        chatEntry.put("ChatLineCount", cd.getChatLineCount());
+        chatEntry.put("ChatTitle", cd.getChatFileTitle());
+        chatEntry.put("ChatWordCount", cd.getWordCount());
+        chatEntry.put("ChatDayCount", cd.getDayCount());
+        chatEntry.put("ChatDeletedMsgCount", cd.getDeletedMsgCount());
+
+        chatEntry.put("ChatLinkCount", cd.getLinkCount());
+        chatEntry.put("ChatPicCount", cd.getPicCount());
+        chatEntry.put("ChatVideoCount", cd.getVideoCount());
+        chatEntry.put("ChatPowerpointCount", cd.getPptCount());
+
+        chatEntry.put("ChatAnalyseDuration", cd.getLoadElapsedSeconds());
+
+        chatEntry.put("Top10Chatters", cd.getTop10Chatters());
+
+        db.collection("chats").document()
+                .set(chatEntry)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //LogUtils.e("Error adding document" + e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
     }
 
     public static void saveHighscore(int score, SharedPrefUtils spu, ChatData cd){

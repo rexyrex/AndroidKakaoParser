@@ -149,7 +149,7 @@ public class FileParseUtils {
                     firstLine = line;
                 }
                 //if(line.contains(",") && line.contains(":"))
-                if(tPattern.matcher(line).matches()){
+                if(tPattern.matcher(line).find()){
                     lastLine = line;
                 }
 
@@ -172,7 +172,11 @@ public class FileParseUtils {
 
         try {
             startDt = dateFormat.parse(firstLine);
-            endDt = dateFormat.parse(lastLine.split(",")[0]);
+            Matcher m = tPattern.matcher(lastLine);
+            if(m.matches()){
+                endDt = dateFormat.parse(m.group(1));
+            }
+
         } catch (ParseException e) {
             e.printStackTrace();
         }

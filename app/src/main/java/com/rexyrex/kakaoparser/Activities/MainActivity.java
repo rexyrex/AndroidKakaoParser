@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
     SharedPrefUtils spu;
 
     MainDatabase db;
-    AnalysedChatDAO acd;
 
     Dialog updateDialog, dateRangeDialog;
     Dialog loadingDialog;
@@ -118,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
         instructionsBtn = findViewById(R.id.instructionsLayout);
 
         db = MainDatabase.getDatabase(this);
-        acd = db.getAnalysedChatDAO();
         spu = new SharedPrefUtils(this);
 
         startCalendar = Calendar.getInstance();
@@ -154,30 +152,38 @@ public class MainActivity extends AppCompatActivity {
         startAnalysisBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent statsIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
-                statsIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()));
-                statsIntent.putExtra("startDt", DateFormats.defaultFormat.format(new Date(startCalendar.getTimeInMillis())));
-                statsIntent.putExtra("endDt", DateFormats.defaultFormat.format(new Date(endCalendar.getTimeInMillis())));
+                Intent analyseIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
+                analyseIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()));
+                analyseIntent.putExtra("startDt", DateFormats.defaultFormat.format(new Date(startCalendar.getTimeInMillis())));
+                analyseIntent.putExtra("endDt", DateFormats.defaultFormat.format(new Date(endCalendar.getTimeInMillis())));
                 if(FileParseUtils.parseFileForTitle(reversedFilesArr[fileIndex]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
                 && StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
-                        && statsIntent.getStringExtra("startDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null"))
-                        && statsIntent.getStringExtra("endDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null"))
+                        && analyseIntent.getStringExtra("startDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null"))
+                        && analyseIntent.getStringExtra("endDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null"))
                 ){
-                    statsIntent.putExtra("analysed", true);
+                    analyseIntent.putExtra("analysed", true);
                 } else {
-                    statsIntent.putExtra("analysed", false);
+                    analyseIntent.putExtra("analysed", false);
                 }
 
                 dateRangeDialog.cancel();
                 cd.setChatFile(reversedFilesArr[fileIndex]);
-                MainActivity.this.startActivity(statsIntent);
+                MainActivity.this.startActivity(analyseIntent);
             }
         });
 
         loadAnalysisBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                spu.incInt(R.string.SP_LOAD_COUNT);
+                Intent analyseIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
+                analyseIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()));
+                analyseIntent.putExtra("startDt", spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null"));
+                analyseIntent.putExtra("endDt", spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null"));
+                analyseIntent.putExtra("analysed", true);
+                dateRangeDialog.cancel();
+                cd.setChatFile(reversedFilesArr[fileIndex]);
+                MainActivity.this.startActivity(analyseIntent);
             }
         });
 
@@ -243,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                 calendarType = "start";
                 String dtStr = dateRangeStartDtTV.getText().toString();
                 int[] tmpDtArr = getDateFromStr(dtStr);
-                new DatePickerDialog(MainActivity.this, dateSetListener, tmpDtArr[0], tmpDtArr[1], tmpDtArr[2]).show();
+                new DatePickerDialog(MainActivity.this, R.style.DatePickerTheme, dateSetListener, tmpDtArr[0], tmpDtArr[1], tmpDtArr[2]).show();
             }
         });
 
@@ -253,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 calendarType = "end";
                 String dtStr = dateRangeEndDtTV.getText().toString();
                 int[] tmpDtArr = getDateFromStr(dtStr);
-                new DatePickerDialog(MainActivity.this, dateSetListener, tmpDtArr[0], tmpDtArr[1], tmpDtArr[2]).show();
+                new DatePickerDialog(MainActivity.this, R.style.DatePickerTheme, dateSetListener, tmpDtArr[0], tmpDtArr[1], tmpDtArr[2]).show();
             }
         });
 
@@ -276,29 +282,9 @@ public class MainActivity extends AppCompatActivity {
                 spu.saveBool(R.string.SP_UPDATE_POPUP_SHOW, !b);
             }
         });
-        
 
-        /*
-        updateContentsTV.setText("1. 기능 추가 : 퀴즈 (Beta)\n" +
-                "- 분석한 채팅을 기반 다양한 문제 생성\n" +
-                "- 문제 랜덤 생성 알고리즘 적용\n" +
-                "- 문제 공유 기능\n" +
-                "- 온라인 점수 기록\n" +
-                "- 퀴즈 실행 방법 : 분석 후 \"퀴즈\" 탭 선택\n" +
-                "\n" +
-                "2. 버그 수정 및 기능 개선\n" +
-                "- 대화량 탭 : 이름이 길 경우 짤리는 현상 개선\n" +
-                "- 대화 탭 : 채팅 버블 짤리는 현상 개선\n" +
-                "- 단어,대화 탭 : 위로 가기 버튼 추가\n" +
-                "- 메인 화면 : 정렬이 잘 안되는 현상 개선\n" +
-                "- 채팅 분석 알고리즘 개선\n" +
-                "- 앱 응답 없음 현상 개선\n" +
-                "- 예상치 못한 앱 닫힘 현상 개선\n");*/
-
-
-
+        //업데이트 내용
         loadUpdateContents();
-
 
         updatePopupCloseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -342,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void loadUpdateContents(){
-        InputStream is = getResources().openRawResource(R.raw.update_1_2);
+        InputStream is = getResources().openRawResource(R.raw.update_1_3);
         Writer writer = new StringWriter();
         char[] buffer = new char[1024];
         try {
@@ -460,8 +446,6 @@ public class MainActivity extends AppCompatActivity {
             CustomAdapter customAdapter = new CustomAdapter(reversedFilesArr, titleProfilePicMap);
             chatLV.setAdapter(customAdapter);
 
-
-
             chatLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -477,13 +461,11 @@ public class MainActivity extends AppCompatActivity {
                             if(FileParseUtils.parseFileForTitle(reversedFilesArr[position]).contains("KakaoTalk Chats with ")){
                                 format = new SimpleDateFormat("MMMM d, yyyy, h:m a", Locale.ENGLISH);
                             }
-
                             String res = FileParseUtils.parseFileForDateRange(reversedFilesArr[position], format);
 
                             fileIndex = position;
 
                             return res;
-
                         }
 
                         @Override
@@ -524,10 +506,12 @@ public class MainActivity extends AppCompatActivity {
                                         && StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
                                         ){
                                         loadAnalysisBtn.setEnabled(true);
-                                        loadAnalysisBtn.setText("불러오기 \n(" + spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null") + " ~ " +
-                                                        spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null") + ")"
-                                                );
+                                        loadAnalysisBtn.setBackground(getResources().getDrawable(R.drawable.custom_show_more_btn_highlighted, null));
+                                        loadAnalysisBtn.setText("불러오기 \n(" +
+                                                spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null") + " ~ " +
+                                                spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null") + ")");
                                     } else {
+                                        loadAnalysisBtn.setBackground(getResources().getDrawable(R.drawable.custom_show_more_btn_disabled, null));
                                         loadAnalysisBtn.setText("불러오기");
                                         loadAnalysisBtn.setEnabled(false);
                                     }
@@ -536,10 +520,7 @@ public class MainActivity extends AppCompatActivity {
                             });
                         }
                     };
-
                     loadTask.execute(new Integer[] {position});
-
-
                 }
             });
 
@@ -671,8 +652,7 @@ public class MainActivity extends AppCompatActivity {
             //increment logoutCount
             spu.saveInt(R.string.SP_LOGOUT_COUNT, spu.getInt(R.string.SP_LOGOUT_COUNT, 0) + 1);
             spu.saveString(R.string.SP_LOGOUT_DT, DateUtils.getCurrentTimeStr());
-            List<String> chatTitleList = acd.getAllChatTitles();
-            FirebaseUtils.updateUserInfo(this, spu, "Logout", chatTitleList);
+            FirebaseUtils.updateUserInfo(this, spu, "Logout", db);
             finishAndRemoveTask();
         }
     }

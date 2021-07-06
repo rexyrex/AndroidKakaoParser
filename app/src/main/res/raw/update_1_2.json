@@ -2,19 +2,25 @@
   "title": "1.2.0 업데이트",
   "contents": [
     {
-      "subtitle": "1. Update one",
+      "subtitle": "1. 기능 추가 : 퀴즈 (Beta)",
       "subcontents": [
-        "Wrapping text long long very lengthy long long very lengthy long long very lengthy long long very lengthy long long very lengthy long long very lengthy long long very lengthy",
-        "Bigger size",
-        "Faster Times"
+        "분석한 채팅을 기반 다양한 문제 생성",
+        "문제 랜덤 생성 알고리즘 적용",
+        "문제 공유 기능",
+        "온라인 점수 기록",
+        "퀴즈 실행 방법 : 분석 후 \"퀴즈\" 탭 선택"
       ]
     },
     {
-      "subtitle": "2. Update two",
+      "subtitle": "2. 버그 수정 및 기능 개선",
       "subcontents": [
-        "Wrapping text 222",
-        "Bigger size22",
-        "Faster Times 22"
+        "대화량 탭 : 이름이 길 경우 짤리는 현상 개선",
+        "대화 탭 : 채팅 버블 짤리는 현상 개선",
+        "단어,대화 탭 : 위로 가기 버튼 추가",
+        "메인 화면 : 정렬이 잘 안되는 현상 개선",
+        "채팅 분석 알고리즘 개선",
+        "앱 응답 없음 현상 개선",
+        "예상치 못한 앱 닫힘 현상 개선"
       ]
     }
   ]
