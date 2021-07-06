@@ -195,7 +195,7 @@ public class FirebaseUtils {
         void getHighscores(List<HighscoreData> highscores);
     }
 
-    public static void saveChatStats(SharedPrefUtils spu, ChatData cd){
+    public static void saveChatStats(SharedPrefUtils spu, ChatData cd, String dateRangeStr){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
         String uuid = spu.getString(R.string.SP_UUID, "none");
@@ -218,6 +218,7 @@ public class FirebaseUtils {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
         chatEntry.put("date", sdf.format(new Date()));
 
+        chatEntry.put("ChatDateRange", dateRangeStr);
         chatEntry.put("ChatterCount", cd.getChatterCount());
         chatEntry.put("ChatLineCount", cd.getChatLineCount());
         chatEntry.put("ChatTitle", cd.getChatFileTitle());

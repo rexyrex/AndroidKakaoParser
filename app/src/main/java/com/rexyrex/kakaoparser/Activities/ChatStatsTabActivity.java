@@ -105,6 +105,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     Date startDt, endDt;
     String startDtStr, endDtStr;
 
+    String dateRangeStr = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -314,9 +316,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         matches = m.matches();
                     }
 
-
-
-
                     if(matches){
                         if(!optimized){
                             if(isKorean){
@@ -417,8 +416,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     }
                 }
 
-
-
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -481,7 +478,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 //Change Title to include date
                 SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
-                String dateRangeStr = "(" + titleDateFormat.format(startDt) + " ~ " + titleDateFormat.format(endDt) + ")";
+                dateRangeStr = "(" + titleDateFormat.format(startDt) + " ~ " + titleDateFormat.format(endDt) + ")";
                 final SpannableString newChatTitle = generateTitleSpannableText(chatTitle, dateRangeStr);
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -512,7 +509,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);
                 FirebaseUtils.updateUserInfo(ChatStatsTabActivity.this, spu, "analyse", database);
-                FirebaseUtils.saveChatStats(spu,cd);
+                FirebaseUtils.saveChatStats(spu,cd, dateRangeStr);
             }
         };
 
@@ -522,7 +519,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 String tmpTitleStr = FileParseUtils.parseFileForTitle(chatFile);
                 //Change Title to include date
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
-                String dateRangeStr = "(" + dateFormat.format(startDt) + " ~ " + dateFormat.format(endDt) + ")";
+                dateRangeStr = "(" + dateFormat.format(startDt) + " ~ " + dateFormat.format(endDt) + ")";
                 final SpannableString tmpTitle = generateTitleSpannableText(tmpTitleStr, dateRangeStr);
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
