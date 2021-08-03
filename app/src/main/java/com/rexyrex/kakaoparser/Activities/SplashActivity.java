@@ -22,6 +22,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -62,6 +65,13 @@ public class SplashActivity extends AppCompatActivity {
         backBtnPressed = false;
         spu = new SharedPrefUtils(this);
         db = MainDatabase.getDatabase(this);
+
+        //Admob
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
 
         appTitleTV = findViewById(R.id.appTitleTV);
         splashIV = findViewById(R.id.splashIV);

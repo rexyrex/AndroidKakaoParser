@@ -11,6 +11,10 @@
     values-round/strings.xml for round devices.
     -->
 
+    <string name="AdMob_app_ID">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="AdMob_ad_unit_ID">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="AdMob_ad_unit_ID_Banner">ca-app-pub-3940256099942544/6300978111</string>
+
     <string name="FCM_channel_id">kakao_parser_channel</string>
 
     <string name="hello_world">Hello Square World!</string>

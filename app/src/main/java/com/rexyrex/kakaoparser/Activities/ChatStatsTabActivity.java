@@ -7,6 +7,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
@@ -107,15 +114,28 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     String dateRangeStr = "";
 
+    private AdView mAdView;
+    private InterstitialAd mInterstitialAd;
+    private AdRequest adRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
 
+        //ad
+        adRequest = new AdRequest.Builder().build();
+        loadAd();
+
         spu = new SharedPrefUtils(this);
 
         analysed = getIntent().getBooleanExtra("analysed", false);
         lastAnalyseDtStr = getIntent().getStringExtra("lastAnalyseDt");
+
+        //ad
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         try {
             Calendar tmpCal = Calendar.getInstance();
@@ -510,6 +530,12 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 tabs.setupWithViewPager(viewPager);
                 FirebaseUtils.updateUserInfo(ChatStatsTabActivity.this, spu, "analyse", database);
                 FirebaseUtils.saveChatStats(spu,cd, dateRangeStr);
+
+                if (mInterstitialAd != null) {
+                    mInterstitialAd.show(ChatStatsTabActivity.this);
+                } else {
+                    LogUtils.e("The interstitial ad wasn't ready yet.");
+                }
             }
         };
 
@@ -708,6 +734,50 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private void loadAd(){
+        InterstitialAd.load(ChatStatsTabActivity.this,getString(R.string.AdMob_ad_unit_ID), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        mInterstitialAd = interstitialAd;
+
+                        LogUtils.e("Ad Load success");
+
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                // Called when fullscreen content is dismissed.
+                                LogUtils.e("The ad was dismissed.");
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                // Called when fullscreen content failed to show.
+                                LogUtils.e("The ad failed to show.");
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                // Called when fullscreen content is shown.
+                                // Make sure to set your reference to null so you don't
+                                // show it a second time.
+                                mInterstitialAd = null;
+                                LogUtils.e("The ad was shown.");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        mInterstitialAd = null;
+                        LogUtils.e("AD LOAD FAIL : " + loadAdError.toString());
+                    }
+                });
     }
 
 

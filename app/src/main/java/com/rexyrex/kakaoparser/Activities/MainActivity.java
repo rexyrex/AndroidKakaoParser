@@ -27,10 +27,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -105,10 +112,18 @@ public class MainActivity extends AppCompatActivity {
 
     private static long lastBackAttemptTime;
 
+    private InterstitialAd mInterstitialAd;
+    private AdRequest adRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //ad
+        adRequest = new AdRequest.Builder().build();
+
+        //loadAd();
 
         chatLV = findViewById(R.id.chatLV);
         settingsIV = findViewById(R.id.settingsIV);
@@ -152,23 +167,15 @@ public class MainActivity extends AppCompatActivity {
         startAnalysisBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent analyseIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
-                analyseIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()));
-                analyseIntent.putExtra("startDt", DateFormats.defaultFormat.format(new Date(startCalendar.getTimeInMillis())));
-                analyseIntent.putExtra("endDt", DateFormats.defaultFormat.format(new Date(endCalendar.getTimeInMillis())));
-                if(FileParseUtils.parseFileForTitle(reversedFilesArr[fileIndex]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
-                && StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
-                        && analyseIntent.getStringExtra("startDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null"))
-                        && analyseIntent.getStringExtra("endDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null"))
-                ){
-                    analyseIntent.putExtra("analysed", true);
+                //throw new RuntimeException("Test Crash"); // Force a crash
+                startAnalysis();
+                /*loadAd();
+                if (mInterstitialAd != null) {
+                    mInterstitialAd.show(MainActivity.this);
                 } else {
-                    analyseIntent.putExtra("analysed", false);
-                }
-
-                dateRangeDialog.cancel();
-                cd.setChatFile(reversedFilesArr[fileIndex]);
-                MainActivity.this.startActivity(analyseIntent);
+                    LogUtils.e("The interstitial ad wasn't ready yet.");
+                    startAnalysis();
+                }*/
             }
         });
 
@@ -294,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if(spu.getBool(R.string.SP_UPDATE_POPUP_SHOW, true)){
-            updateDialog.show();
+            //updateDialog.show();
         }
 
         kakaoBtn.setOnClickListener(new View.OnClickListener() {
@@ -325,6 +332,72 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.startActivity(instIntent);
             }
         });
+    }
+
+    private void loadAd(){
+        InterstitialAd.load(MainActivity.this,getString(R.string.AdMob_ad_unit_ID), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        mInterstitialAd = interstitialAd;
+
+                        LogUtils.e("Ad Load success");
+
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                // Called when fullscreen content is dismissed.
+                                LogUtils.e("The ad was dismissed.");
+                                startAnalysis();
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                // Called when fullscreen content failed to show.
+                                LogUtils.e("The ad failed to show.");
+                                startAnalysis();
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                // Called when fullscreen content is shown.
+                                // Make sure to set your reference to null so you don't
+                                // show it a second time.
+                                mInterstitialAd = null;
+                                LogUtils.e("The ad was shown.");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        mInterstitialAd = null;
+                        LogUtils.e("AD LOAD FAIL : " + loadAdError.toString());
+                    }
+                });
+    }
+
+    protected void startAnalysis(){
+        Intent analyseIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
+        analyseIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()));
+        analyseIntent.putExtra("startDt", DateFormats.defaultFormat.format(new Date(startCalendar.getTimeInMillis())));
+        analyseIntent.putExtra("endDt", DateFormats.defaultFormat.format(new Date(endCalendar.getTimeInMillis())));
+        if(FileParseUtils.parseFileForTitle(reversedFilesArr[fileIndex]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
+                && StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
+                && analyseIntent.getStringExtra("startDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null"))
+                && analyseIntent.getStringExtra("endDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null"))
+        ){
+            analyseIntent.putExtra("analysed", true);
+        } else {
+            analyseIntent.putExtra("analysed", false);
+        }
+
+        dateRangeDialog.cancel();
+        cd.setChatFile(reversedFilesArr[fileIndex]);
+        MainActivity.this.startActivity(analyseIntent);
     }
 
     protected void loadUpdateContents(){

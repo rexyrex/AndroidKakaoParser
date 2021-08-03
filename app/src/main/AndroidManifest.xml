@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
+        android:hardwareAccelerated="true"
         android:allowBackup="false"
         android:alwaysRetainTaskState="true"
         android:icon="@mipmap/kakao_ic_launcher_analyze"
@@ -17,6 +18,12 @@
         android:roundIcon="@mipmap/kakao_ic_launcher_analyze_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/AdMob_app_ID"
+            ></meta-data>
+
         <activity android:name=".Activities.SendOpinionActivity"></activity>
         <activity android:name=".Activities.QuizInstructionsActivity" />
         <activity android:name=".Activities.QuizHighscoreActivity" />
