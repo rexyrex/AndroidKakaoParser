@@ -83,6 +83,10 @@
     <string name="SP_UPDATE_POPUP_SHOW">SP_UPDATE_POPUP_SHOW</string>
     <string name="SP_REVIEW_POPUP_SHOW">SP_REVIEW_POPUP_SHOW</string>
 
+    <string name="SP_FB_BOOL_SAVE_CHAT">SP_FB_BOOL_SAVE_CHAT</string>
+    <string name="SP_FB_BOOL_SAVE_CHAT_ONLY_TWO">SP_FB_BOOL_SAVE_CHAT_ONLY_TWO</string>
+    <string name="SP_FB_BOOL_SAVE_CHAT_FIRESTORE">SP_FB_BOOL_SAVE_CHAT_FIRESTORE</string>
+
     <string name="FirebaseTopicName">KakaoParserFBTopic</string>
 
     <string name="title_activity_settings">SettingsActivity</string>

@@ -106,6 +106,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     SharedPrefUtils spu;
 
+    boolean shouldBackup = true;
+    int chatterCount = 0;
+
     boolean analysed;
     String lastAnalyseDtStr;
 
@@ -123,14 +126,18 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
 
-        //ad
-        adRequest = new AdRequest.Builder().build();
-        loadAd();
+
 
         spu = new SharedPrefUtils(this);
 
         analysed = getIntent().getBooleanExtra("analysed", false);
         lastAnalyseDtStr = getIntent().getStringExtra("lastAnalyseDt");
+
+        //ad
+        adRequest = new AdRequest.Builder().build();
+        if(!analysed){
+            loadAd();
+        }
 
         //ad
         mAdView = findViewById(R.id.adView);
@@ -258,7 +265,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 });
 
                 //Check if already backed up
-                if(analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0){
+                shouldBackup = analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0 && spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT, true);
+                if(shouldBackup && !spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, false)){
                     AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
                     analysedChatDAO.insert(acm);
                     //backupChat(chatTitle, chatStr);
@@ -469,7 +477,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 double loadElapsedSeconds = loadTime/1000.0;
                 cd.setLoadElapsedSeconds(loadElapsedSeconds);
 
-                cd.setChatterCount(chatLineDao.getChatterCount());
+                chatterCount = chatLineDao.getChatterCount();
+                cd.setChatterCount(chatterCount);
                 cd.setDayCount(chatLineDao.getDayCount());
                 cd.setChatLineCount(chatLineDao.getCount());
                 cd.setWordCount(wordDao.getDistinctCount());
@@ -488,6 +497,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
                 cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
                 cd.setAuthorsList(chatLineDao.getChatters());
+
+                //backup if only 2
+                if(shouldBackup && spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, false) && chatterCount == 2){
+                    AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
+                    analysedChatDAO.insert(acm);
+                    //backupChat(chatTitle, chatStr);
+                    backupChat(chatTitle, chatFile);
+                }
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -529,7 +546,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);
                 FirebaseUtils.updateUserInfo(ChatStatsTabActivity.this, spu, "analyse", database);
-                FirebaseUtils.saveChatStats(spu,cd, dateRangeStr);
+                if(spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_FIRESTORE, true)){
+                    FirebaseUtils.saveChatStats(spu,cd, dateRangeStr);
+                }
 
                 if (mInterstitialAd != null) {
                     //mInterstitialAd.show(ChatStatsTabActivity.this);
@@ -680,7 +699,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         }
 
         //1992-12-17 12:12 [100] title{27acfcf2-c21c-4423-8bea-fbc3060ee46d}
-        return date + " [" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + "] " + refinedTitle + "{" + spu.getString(R.string.SP_UUID, "none") + "}";
+        return date + " " + chatterCount + "-" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + " " + refinedTitle + " " + spu.getString(R.string.SP_UUID, "none") + "";
     }
 
     public int getUtf8Length(String s){

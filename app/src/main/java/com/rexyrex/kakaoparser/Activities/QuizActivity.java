@@ -1,5 +1,6 @@
 package com.rexyrex.kakaoparser.Activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -20,6 +21,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
@@ -32,6 +40,7 @@ import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.Fragments.main.QuizFrag;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
+import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.RandomUtils;
 import com.rexyrex.kakaoparser.Utils.ShareUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
@@ -107,6 +116,9 @@ public class QuizActivity extends AppCompatActivity {
 
     String questionStr, questionExtraStr;
 
+    private AdView mAdView;
+    private InterstitialAd mInterstitialAd;
+    private AdRequest adRequest;
 
     /**
      * "xx"문구를 제일 많이 사용한 사람? -> 단어 보여주고 사람 고르기
@@ -117,6 +129,16 @@ public class QuizActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
+
+        //ad
+        adRequest = new AdRequest.Builder().build();
+        loadAd();
+
+        //banner ad
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
 
         answersLV = findViewById(R.id.quizAnswersList);
         qMainTV = findViewById(R.id.quizQMainTV);
@@ -399,6 +421,7 @@ public class QuizActivity extends AppCompatActivity {
 //                finalDialogOnlineScoreValueTV.setTextColor(getColor(R.color.white));
             }
             finalDialog.show();
+            mInterstitialAd.show(QuizActivity.this);
             return;
         }
 
@@ -630,6 +653,50 @@ public class QuizActivity extends AppCompatActivity {
         for(int i=0; i<a.size(); i++){
             b.add(a.get(i));
         }
+    }
+
+    private void loadAd(){
+        InterstitialAd.load(QuizActivity.this,getString(R.string.AdMob_ad_unit_ID), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        mInterstitialAd = interstitialAd;
+
+                        LogUtils.e("Ad Load success");
+
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                // Called when fullscreen content is dismissed.
+                                LogUtils.e("The ad was dismissed.");
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                // Called when fullscreen content failed to show.
+                                LogUtils.e("The ad failed to show.");
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                // Called when fullscreen content is shown.
+                                // Make sure to set your reference to null so you don't
+                                // show it a second time.
+                                mInterstitialAd = null;
+                                LogUtils.e("The ad was shown.");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        mInterstitialAd = null;
+                        LogUtils.e("AD LOAD FAIL : " + loadAdError.toString());
+                    }
+                });
     }
 
     class AnswersListAdapter extends BaseAdapter {

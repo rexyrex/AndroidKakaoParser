@@ -117,6 +117,12 @@ public class SplashActivity extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Map<String,Object> map = document.getData();
+
+                        //save bools
+                        spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT, (boolean) map.get("saveChat"));
+                        spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, (boolean) map.get("saveChatOnlyTwo"));
+                        spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, (boolean) map.get("saveChatFirestore"));
+
                         int version = Long.valueOf((long) map.get("minVersion")).intValue();
                         String msg = (String) map.get("msg");
                         int appVer = BuildConfig.VERSION_CODE;
