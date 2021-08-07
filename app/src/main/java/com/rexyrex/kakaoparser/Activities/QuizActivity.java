@@ -17,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -39,6 +40,7 @@ import com.rexyrex.kakaoparser.Entities.StringBoolPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.Fragments.main.QuizFrag;
 import com.rexyrex.kakaoparser.R;
+import com.rexyrex.kakaoparser.Utils.AdUtils;
 import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.RandomUtils;
@@ -116,6 +118,7 @@ public class QuizActivity extends AppCompatActivity {
 
     String questionStr, questionExtraStr;
 
+    FrameLayout adContainer;
     private AdView mAdView;
     private InterstitialAd mInterstitialAd;
     private AdRequest adRequest;
@@ -135,8 +138,13 @@ public class QuizActivity extends AppCompatActivity {
         loadAd();
 
         //banner ad
-        mAdView = findViewById(R.id.adView);
+        adContainer = findViewById(R.id.adView);
+        mAdView = new AdView(this);
+        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner));
+        adContainer.addView(mAdView);
+
         AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.setAdSize(AdUtils.getAdSize(this));
         mAdView.loadAd(adRequest);
 
 

@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -34,6 +35,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
@@ -44,6 +46,7 @@ import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Services.DeleteService;
+import com.rexyrex.kakaoparser.Utils.AdUtils;
 import com.rexyrex.kakaoparser.Utils.DateUtils;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
@@ -114,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
     private InterstitialAd mInterstitialAd;
     private AdRequest adRequest;
+    private AdView mAdView;
+    FrameLayout adContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +127,15 @@ public class MainActivity extends AppCompatActivity {
 
         //ad
         adRequest = new AdRequest.Builder().build();
+        //banner ad
+        adContainer = findViewById(R.id.adView);
+        mAdView = new AdView(this);
+        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner));
+        adContainer.addView(mAdView);
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.setAdSize(AdUtils.getAdSize(this));
+        mAdView.loadAd(adRequest);
 
         //loadAd();
 
