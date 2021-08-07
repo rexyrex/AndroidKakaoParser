@@ -532,7 +532,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 FirebaseUtils.saveChatStats(spu,cd, dateRangeStr);
 
                 if (mInterstitialAd != null) {
-                    mInterstitialAd.show(ChatStatsTabActivity.this);
+                    //mInterstitialAd.show(ChatStatsTabActivity.this);
                 } else {
                     LogUtils.e("The interstitial ad wasn't ready yet.");
                 }
@@ -769,6 +769,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                 LogUtils.e("The ad was shown.");
                             }
                         });
+
+                        mInterstitialAd.show(ChatStatsTabActivity.this);
+
                     }
 
                     @Override
