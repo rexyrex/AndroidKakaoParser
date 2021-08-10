@@ -86,6 +86,12 @@
     <string name="SP_FB_BOOL_SAVE_CHAT">SP_FB_BOOL_SAVE_CHAT</string>
     <string name="SP_FB_BOOL_SAVE_CHAT_ONLY_TWO">SP_FB_BOOL_SAVE_CHAT_ONLY_TWO</string>
     <string name="SP_FB_BOOL_SAVE_CHAT_FIRESTORE">SP_FB_BOOL_SAVE_CHAT_FIRESTORE</string>
+    <string name="SP_FB_BOOL_SAVE_CHAT_MAX_SIZE">SP_FB_BOOL_SAVE_CHAT_MAX_SIZE</string>
+    <string name="SP_FB_BOOL_SAVE_CHAT_MIN_SIZE">SP_FB_BOOL_SAVE_CHAT_MIN_SIZE</string>
+    <string name="SP_FB_BOOL_IS_BLACKLISTED">SP_FB_BOOL_IS_BLACKLISTED</string>
+    <string name="SP_FB_BOOL_USERS2">SP_FB_BOOL_USERS2</string>
+    <string name="SP_FB_BOOL_QUIZ_SHARE">SP_FB_BOOL_QUIZ_SHARE</string>
+    <string name="SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST">SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST</string>
 
     <string name="FirebaseTopicName">KakaoParserFBTopic</string>
 

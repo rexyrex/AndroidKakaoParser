@@ -2,6 +2,7 @@ package com.rexyrex.kakaoparser.Entities;
 
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 
 import java.io.File;
 import java.util.List;
@@ -11,6 +12,8 @@ public class ChatData {
     double loadElapsedSeconds;
     File chatFile;
     String chatFileTitle;
+
+    long chatFileSize;
 
     int chatterCount;
     int dayCount;
@@ -47,6 +50,14 @@ public class ChatData {
         }
 
         return the_instance;
+    }
+
+    public long getChatFileSize() {
+        return chatFileSize;
+    }
+
+    public void setChatFileSize(long chatFileSize) {
+        this.chatFileSize = chatFileSize;
     }
 
     public AnalysedChatModel getChatAnalyseDbModel() {
@@ -87,6 +98,7 @@ public class ChatData {
 
     public void setChatFile(File chatFile) {
         this.chatFile = chatFile;
+        this.chatFileSize = FileParseUtils.getChatFileSize(chatFile);
     }
 
     public double getLoadElapsedSeconds() {

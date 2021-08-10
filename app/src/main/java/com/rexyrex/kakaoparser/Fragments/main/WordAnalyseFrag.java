@@ -96,6 +96,9 @@ public class WordAnalyseFrag extends Fragment {
         wordLV.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+                if(wordLV.getCount()==0){
+                    return;
+                }
                 if(wordLV.getChildAt(0).getTop() != 0 && upBtn.getVisibility() != View.VISIBLE){
                     upBtn.setVisibility(View.VISIBLE);
                 } else if(wordLV.getChildAt(0).getTop() == 0 && upBtn.getVisibility() == View.VISIBLE){

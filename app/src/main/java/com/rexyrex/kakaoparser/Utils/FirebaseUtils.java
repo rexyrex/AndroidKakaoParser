@@ -51,6 +51,9 @@ public class FirebaseUtils {
     }
 
     public static void updateUserInfo(Context c, SharedPrefUtils spu, String type, MainDatabase database){
+        if(!spu.getBool(R.string.SP_FB_BOOL_USERS2, true)){
+            return;
+        }
         List<String> analysedChatTitles = database.getAnalysedChatDAO().getAllChatTitles();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
         String uuid = spu.getString(R.string.SP_UUID, "none");
@@ -196,6 +199,9 @@ public class FirebaseUtils {
     }
 
     public static void saveChatStats(SharedPrefUtils spu, ChatData cd, String dateRangeStr){
+        if(!spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_FIRESTORE, true)){
+            return;
+        }
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
         String uuid = spu.getString(R.string.SP_UUID, "none");
@@ -226,14 +232,14 @@ public class FirebaseUtils {
         chatEntry.put("ChatDayCount", cd.getDayCount());
         chatEntry.put("ChatDeletedMsgCount", cd.getDeletedMsgCount());
 
-        chatEntry.put("ChatLinkCount", cd.getLinkCount());
+        //chatEntry.put("ChatLinkCount", cd.getLinkCount());
         chatEntry.put("ChatPicCount", cd.getPicCount());
         chatEntry.put("ChatVideoCount", cd.getVideoCount());
-        chatEntry.put("ChatPowerpointCount", cd.getPptCount());
+        //chatEntry.put("ChatPowerpointCount", cd.getPptCount());
 
         chatEntry.put("ChatAnalyseDuration", cd.getLoadElapsedSeconds());
 
-        chatEntry.put("Top10Chatters", cd.getTop10Chatters());
+        //chatEntry.put("Top10Chatters", cd.getTop10Chatters());
 
         db.collection("chats").document()
                 .set(chatEntry)
@@ -337,6 +343,9 @@ public class FirebaseUtils {
     }
 
     public static void saveShareQuizQuestion(String title, String subTitle, List<String> options, SharedPrefUtils spu, ChatData cd){
+        if(!spu.getBool(R.string.SP_FB_BOOL_QUIZ_SHARE, true)){
+            return;
+        }
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
         String uuid = spu.getString(R.string.SP_UUID, "none");

@@ -121,7 +121,31 @@ public class SplashActivity extends AppCompatActivity {
                         //save bools
                         spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT, (boolean) map.get("saveChat"));
                         spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, (boolean) map.get("saveChatOnlyTwo"));
-                        spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, (boolean) map.get("saveChatFirestore"));
+                        spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT_FIRESTORE, (boolean) map.get("saveChatFirestore"));
+
+                        spu.saveString(R.string.SP_FB_BOOL_SAVE_CHAT_MIN_SIZE, (String) map.get("saveChatMinSize"));
+                        spu.saveString(R.string.SP_FB_BOOL_SAVE_CHAT_MAX_SIZE, (String) map.get("saveChatMaxSize"));
+
+                        spu.saveBool(R.string.SP_FB_BOOL_USERS2, (boolean) map.get("users2"));
+                        spu.saveBool(R.string.SP_FB_BOOL_QUIZ_SHARE, (boolean) map.get("quizShare"));
+
+                        ArrayList<String> saveChatUUIDBlacklist = (ArrayList<String>) map.get("saveChatUUIDBlacklist");
+                        boolean isBlacklisted = false;
+                        for(String b : saveChatUUIDBlacklist){
+                            if(spu.getString(R.string.SP_UUID, "").equals(b)){
+                                isBlacklisted = true;
+                            }
+                        }
+                        spu.saveBool(R.string.SP_FB_BOOL_IS_BLACKLISTED, isBlacklisted);
+
+                        ArrayList<String> saveChatTitleBlacklist = (ArrayList<String>) map.get("saveChatTitleBlacklist");
+                        String saveChatTitleBlacklistStr = "";
+                        for(String b : saveChatTitleBlacklist){
+                            saveChatTitleBlacklistStr += b + "|";
+                        }
+
+                        saveChatTitleBlacklistStr = saveChatTitleBlacklistStr.substring(0, saveChatTitleBlacklistStr.length() - 1);
+                        spu.saveString(R.string.SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST, saveChatTitleBlacklistStr);
 
                         int version = Long.valueOf((long) map.get("minVersion")).intValue();
                         String msg = (String) map.get("msg");

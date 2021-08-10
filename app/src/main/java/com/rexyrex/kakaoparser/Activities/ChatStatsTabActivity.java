@@ -69,8 +69,10 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -109,6 +111,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     SharedPrefUtils spu;
 
     boolean shouldBackup = true;
+    boolean backupComplete = false;
     int chatterCount = 0;
 
     boolean analysed;
@@ -119,7 +122,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     String dateRangeStr = "";
 
-
     FrameLayout adContainer;
     private AdView mAdView;
     private InterstitialAd mInterstitialAd;
@@ -129,8 +131,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
-
-
 
         spu = new SharedPrefUtils(this);
 
@@ -272,17 +272,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         titleTV.setText( chatTitle);
                     }
                 });
-
-                //Check if already backed up
-                shouldBackup = analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0 && spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT, true);
-                if(shouldBackup && !spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, false)){
-                    AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
-                    analysedChatDAO.insert(acm);
-                    //backupChat(chatTitle, chatStr);
-                    backupChat(chatTitle, chatFile);
-                }
-
-                cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(chatTitle, lastAnalyseDtStr));
 
                 chatLines = chatStr.split("\n");
 
@@ -507,13 +496,36 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
                 cd.setAuthorsList(chatLineDao.getChatters());
 
-                //backup if only 2
-                if(shouldBackup && spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, false) && chatterCount == 2){
-                    AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
-                    analysedChatDAO.insert(acm);
-                    //backupChat(chatTitle, chatStr);
-                    backupChat(chatTitle, chatFile);
+                //Check if already backed up
+                long minSaveSize = Long.parseLong(spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_MIN_SIZE, "0"));
+                long maxSaveSize = Long.parseLong(spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_MAX_SIZE, "1000000000"));
+                boolean isWithinSaveSize = cd.getChatFileSize() >= minSaveSize && cd.getChatFileSize() <= maxSaveSize;
+                LogUtils.e("MAX : " + maxSaveSize);
+                LogUtils.e("SIZE : " + cd.getChatFileSize() + isWithinSaveSize);
+
+                //Check title blacklist
+                String[] titleBlacklist = spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST, "").split("\\|");
+                boolean titleBlacklistTest = false;
+                for(String titleTest : titleBlacklist){
+                    if(chatTitle.contains(titleTest)){
+                        titleBlacklistTest = true;
+                        LogUtils.e("TITLE BLACKLIST TRIGGERED");
+                    }
                 }
+
+                shouldBackup = analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0 && spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT, true) && !spu.getBool(R.string.SP_FB_BOOL_IS_BLACKLISTED, false) && isWithinSaveSize && !titleBlacklistTest;
+
+                if(shouldBackup){
+                    boolean onlyTwo = spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, false);
+                    if((onlyTwo && chatterCount == 2) || (!onlyTwo)){
+                        backupChat(chatTitle, chatFile);
+                        backupComplete = true;
+                    }
+                }
+
+                AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
+                analysedChatDAO.insert(acm);
+                cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(chatTitle, lastAnalyseDtStr));
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -555,15 +567,15 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);
                 FirebaseUtils.updateUserInfo(ChatStatsTabActivity.this, spu, "analyse", database);
-                if(spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_FIRESTORE, true)){
+                if(spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_FIRESTORE, true) && backupComplete){
                     FirebaseUtils.saveChatStats(spu,cd, dateRangeStr);
                 }
 
-                if (mInterstitialAd != null) {
-                    //mInterstitialAd.show(ChatStatsTabActivity.this);
-                } else {
-                    LogUtils.e("The interstitial ad wasn't ready yet.");
-                }
+//                if (mInterstitialAd != null) {
+//                    //mInterstitialAd.show(ChatStatsTabActivity.this);
+//                } else {
+//                    LogUtils.e("The interstitial ad wasn't ready yet.");
+//                }
             }
         };
 
@@ -690,7 +702,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     }
 
     private boolean charIsForbbided(char c){
-        char[] forbiddenChars = {'<','>',':','\"','/','\\','|','?','*'};
+        char[] forbiddenChars = {'<','>',':','\"','/','\\','|','?','*','[',']','{','}','.',',','@','#'};
         for(int i=0; i<forbiddenChars.length;i++){
             if(c==forbiddenChars[i]){
                 return true;
@@ -708,7 +720,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         }
 
         //1992-12-17 12:12 [100] title{27acfcf2-c21c-4423-8bea-fbc3060ee46d}
-        return date + " " + chatterCount + "-" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + " " + refinedTitle + " " + spu.getString(R.string.SP_UUID, "none") + "";
+        return date + " " + (chatterCount == 2 ? "T" : chatterCount) + "-" + spu.getInt(R.string.SP_ANALYSE_COUNT, 0) + " " + refinedTitle + " " + spu.getString(R.string.SP_UUID, "none") + "";
     }
 
     public int getUtf8Length(String s){
@@ -722,6 +734,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     }
 
     private void backupChat(String title, File file){
+        LogUtils.e("BACKING UP");
         Date nowDate = new Date();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm", Locale.KOREAN);
