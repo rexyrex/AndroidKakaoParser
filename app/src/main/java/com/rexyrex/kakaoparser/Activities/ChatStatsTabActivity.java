@@ -12,6 +12,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.ResponseInfo;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -509,7 +510,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 for(String titleTest : titleBlacklist){
                     if(chatTitle.contains(titleTest)){
                         titleBlacklistTest = true;
-                        LogUtils.e("TITLE BLACKLIST TRIGGERED");
                     }
                 }
 
@@ -734,7 +734,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     }
 
     private void backupChat(String title, File file){
-        LogUtils.e("BACKING UP");
         Date nowDate = new Date();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm", Locale.KOREAN);
@@ -758,7 +757,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
                     // Handle unsuccessful uploads
-                    //LogUtils.e("Upload Fail!");
                     exception.printStackTrace();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -767,7 +765,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                     // ...
                     spu.saveInt(R.string.SP_ANALYSE_COUNT, spu.getInt(R.string.SP_ANALYSE_COUNT, 0) +1 );
-                    //LogUtils.e("Upload SUCCESS!");
                 }
             });
         } catch (FileNotFoundException e) {
@@ -816,10 +813,28 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                    public void onAdFailedToLoad(@NonNull LoadAdError error) {
                         // Handle the error
                         mInterstitialAd = null;
-                        LogUtils.e("AD LOAD FAIL : " + loadAdError.toString());
+                        // Gets the domain from which the error came.
+                        String errorDomain = error.getDomain();
+                        // Gets the error code. See
+                        // https://developers.google.com/android/reference/com/google/android/gms/ads/AdRequest#constant-summary
+                        // for a list of possible codes.
+                        int errorCode = error.getCode();
+                        // Gets an error message.
+                        // For example "Account not approved yet". See
+                        // https://support.google.com/admob/answer/9905175 for explanations of
+                        // common errors.
+                        String errorMessage = error.getMessage();
+                        // Gets additional response information about the request. See
+                        // https://developers.google.com/admob/android/response-info for more
+                        // information.
+                        ResponseInfo responseInfo = error.getResponseInfo();
+                        // Gets the cause of the error, if available.
+                        AdError cause = error.getCause();
+                        // All of this information is available via the error's toString() method.
+                        LogUtils.e("AD LOAD ERROR: " + error.toString());
                     }
                 });
     }
