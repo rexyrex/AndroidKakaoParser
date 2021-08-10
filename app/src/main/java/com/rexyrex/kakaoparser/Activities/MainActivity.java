@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
         //banner ad
         adContainer = findViewById(R.id.adView);
         mAdView = new AdView(this);
-        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner));
+        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner_Main));
         adContainer.addView(mAdView);
 
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadAd(){
-        InterstitialAd.load(MainActivity.this,getString(R.string.AdMob_ad_unit_ID), adRequest,
+        InterstitialAd.load(MainActivity.this,getString(R.string.AdMob_ad_unit_Interstitial_Chat_Tab), adRequest,
                 new InterstitialAdLoadCallback() {
                     @Override
                     public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {

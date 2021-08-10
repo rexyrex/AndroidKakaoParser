@@ -140,7 +140,7 @@ public class QuizActivity extends AppCompatActivity {
         //banner ad
         adContainer = findViewById(R.id.adView);
         mAdView = new AdView(this);
-        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner));
+        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner_Quiz));
         adContainer.addView(mAdView);
 
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -664,7 +664,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void loadAd(){
-        InterstitialAd.load(QuizActivity.this,getString(R.string.AdMob_ad_unit_ID), adRequest,
+        InterstitialAd.load(QuizActivity.this,getString(R.string.AdMob_ad_unit_Interstitial_Quiz_Finish), adRequest,
                 new InterstitialAdLoadCallback() {
                     @Override
                     public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {

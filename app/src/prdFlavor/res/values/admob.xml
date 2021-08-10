@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="AdMob_app_ID">ca-app-pub-3210898875531707~3466594102</string>
-    <string name="AdMob_ad_unit_ID">ca-app-pub-3210898875531707/3511660285</string>
-    <string name="AdMob_ad_unit_ID_Banner">ca-app-pub-3210898875531707/7678136001</string>
+
+    <string name="AdMob_ad_unit_Interstitial_Chat_Tab">ca-app-pub-3210898875531707/3511660285</string>
+    <string name="AdMob_ad_unit_Interstitial_Quiz_Finish">ca-app-pub-3210898875531707/5975926110</string>
+
+    <string name="AdMob_ad_unit_ID_Banner_Chat_Tab">ca-app-pub-3210898875531707/7382993662</string>
+    <string name="AdMob_ad_unit_ID_Banner_Main">ca-app-pub-3210898875531707/5139973703</string>
+    <string name="AdMob_ad_unit_ID_Banner_Quiz">ca-app-pub-3210898875531707/8612314857</string>
 </resources>
