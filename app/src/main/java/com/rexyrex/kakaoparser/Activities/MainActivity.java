@@ -536,22 +536,16 @@ public class MainActivity extends AppCompatActivity {
             chatLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    //Toast.makeText(MainActivity.this, FileParseUtils.parseFileForType(reversedFilesArr[position]), Toast.LENGTH_LONG).show();
+                    cd.setChatType(FileParseUtils.parseFileForType(reversedFilesArr[position]));
                     loadingDialog.show();
-
                     loadTask = new AsyncTask<Integer, Void, String>() {
 
                         @Override
                         protected String doInBackground(Integer... integers) {
                             int position = integers[0];
-
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
-                            if(FileParseUtils.parseFileForTitle(reversedFilesArr[position]).contains("KakaoTalk Chats with ")){
-                                format = new SimpleDateFormat("MMMM d, yyyy, h:m a", Locale.ENGLISH);
-                            }
-                            String res = FileParseUtils.parseFileForDateRange(reversedFilesArr[position], format);
-
+                            String res = FileParseUtils.parseFileForDateRange(reversedFilesArr[position]);
                             fileIndex = position;
-
                             return res;
                         }
 

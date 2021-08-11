@@ -429,7 +429,9 @@ public class QuizActivity extends AppCompatActivity {
 //                finalDialogOnlineScoreValueTV.setTextColor(getColor(R.color.white));
             }
             finalDialog.show();
-            mInterstitialAd.show(QuizActivity.this);
+            if(mInterstitialAd!=null){
+                mInterstitialAd.show(QuizActivity.this);
+            }
             return;
         }
 

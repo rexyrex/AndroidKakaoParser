@@ -6,6 +6,7 @@ import java.util.Locale;
 public final class DateFormats {
     public static final SimpleDateFormat koreanDate = new SimpleDateFormat("yyyy년 M월 d일 a h:m", Locale.KOREAN);
     public static final SimpleDateFormat englishDate = new SimpleDateFormat("MMMM d, yyyy, h:m a", Locale.ENGLISH);
+    public static final SimpleDateFormat englishDate2 = new SimpleDateFormat("d MMMM yyyy, h:m a", Locale.ENGLISH);
 
     public static final SimpleDateFormat day = new SimpleDateFormat("yyyy년 M월 d일 (E)");
     public static final SimpleDateFormat month = new SimpleDateFormat("yyyy년 M월");

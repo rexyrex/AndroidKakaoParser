@@ -84,6 +84,11 @@ public class FirebaseUtils {
         user.put("Load Count", spu.getInt(R.string.SP_LOAD_COUNT, 0));
         user.put("LastChangeDt", sdf.format(date));
         user.put("FirebaseToken", firebaseToken);
+        if(firebaseToken.contains("Firebase")){
+            user.put("FirebaseError", true);
+        } else {
+            user.put("FirebaseError", false);
+        }
         user.put("uuid", uuid);
         user.put("nickname", nickname);
         user.put("Save Action", type);

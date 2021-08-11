@@ -256,12 +256,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 //First, load chat room name only (later load date as spannable string)
                 final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
                 boolean isKorean = !chatTitle.contains("KakaoTalk Chats with ");
-                Pattern pattern = isKorean ? TextPatterns.korean : TextPatterns.english;
-                Pattern datePattern = isKorean ? TextPatterns.koreanDate : TextPatterns.englishDate;
-                SimpleDateFormat dateFormat = isKorean ? DateFormats.koreanDate : DateFormats.englishDate;
+                Pattern pattern = cd.getChatLinePattern();
+                Pattern datePattern = cd.getDatePattern();
+                SimpleDateFormat dateFormat = cd.getDateFormat();
 
-                boolean optimized = false;
-
+                boolean optimized = true;
 
                 cd.setChatFileTitle(chatTitle);
 
@@ -702,7 +701,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     }
 
     private boolean charIsForbbided(char c){
-        char[] forbiddenChars = {'<','>',':','\"','/','\\','|','?','*','[',']','{','}','.',',','@','#'};
+        char[] forbiddenChars = {'<','>',':','\"','/','\\','|','?','*','[',']','{','}','(',')','.',',','@','#','!','&','%'};
         for(int i=0; i<forbiddenChars.length;i++){
             if(c==forbiddenChars[i]){
                 return true;

@@ -1,11 +1,15 @@
 package com.rexyrex.kakaoparser.Entities;
 
+import com.rexyrex.kakaoparser.Constants.DateFormats;
+import com.rexyrex.kakaoparser.Constants.TextPatterns;
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class ChatData {
 
@@ -26,6 +30,11 @@ public class ChatData {
     int videoCount;
     int pptCount;
     int deletedMsgCount;
+
+    String chatType;
+    Pattern chatLinePattern;
+    Pattern datePattern;
+    SimpleDateFormat dateFormat;
 
     AnalysedChatModel chatAnalyseDbModel;
 
@@ -50,6 +59,53 @@ public class ChatData {
         }
 
         return the_instance;
+    }
+
+    public String getChatType() {
+        return chatType;
+    }
+
+    public void setChatType(String chatType) {
+        this.chatType = chatType;
+
+        switch(chatType){
+            case "korean":
+                chatLinePattern = TextPatterns.korean;
+                datePattern = TextPatterns.koreanDate;
+                dateFormat = DateFormats.koreanDate;
+                break;
+
+            case "english1":
+                chatLinePattern = TextPatterns.english;
+                datePattern = TextPatterns.englishDate;
+                dateFormat = DateFormats.englishDate;
+                break;
+
+            case "english2":
+                chatLinePattern = TextPatterns.english2;
+                datePattern = TextPatterns.englishDate2;
+                dateFormat = DateFormats.englishDate2;
+                break;
+
+            default:
+                chatLinePattern = TextPatterns.korean;
+                datePattern = TextPatterns.koreanDate;
+                dateFormat = DateFormats.koreanDate;
+                break;
+        }
+
+    }
+
+    public Pattern getChatLinePattern() {
+        return chatLinePattern;
+    }
+
+    public Pattern getDatePattern() {
+        return datePattern;
+    }
+
+    public SimpleDateFormat getDateFormat() {
+        return dateFormat;
     }
 
     public long getChatFileSize() {

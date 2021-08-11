@@ -1,7 +1,9 @@
 package com.rexyrex.kakaoparser.Utils;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Constants.TextPatterns;
+import com.rexyrex.kakaoparser.Entities.ChatData;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,9 +21,9 @@ public class FileParseUtils {
         String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
         String chat = "";
 
-        boolean isKorean = !parseFileForTitle(file).contains("KakaoTalk Chats with ");
-        Pattern tPattern = isKorean ? TextPatterns.korean : TextPatterns.english;
-        SimpleDateFormat dateFormat = isKorean ? DateFormats.koreanDate : DateFormats.englishDate;
+        ChatData cd = ChatData.getInstance();
+        Pattern tPattern = cd.getChatLinePattern();
+        SimpleDateFormat dateFormat = cd.getDateFormat();
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(fileName));
@@ -127,18 +129,58 @@ public class FileParseUtils {
         return chat;
     }
 
-    public static String parseFileForDateRange(File file, SimpleDateFormat dateFormat){
+    public static String parseFileForType(File file){
+        String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
+        String checkLine = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
 
-        boolean isKorean = !parseFileForTitle(file).contains("KakaoTalk Chats with ");
-        Pattern tPattern = isKorean ? TextPatterns.korean : TextPatterns.english;
+            int index = 0;
+            while (line != null) {
+                if(index == 4){
+                    checkLine = line;
+                }
+
+                if(index>4){
+                    break;
+                }
+
+                index++;
+                line = br.readLine();
+            }
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Matcher mk = TextPatterns.koreanDate.matcher(checkLine);
+        Matcher me1 = TextPatterns.englishDate.matcher(checkLine);
+        Matcher me2 = TextPatterns.englishDate2.matcher(checkLine);
+        if(mk.matches()){
+            return "korean";
+        } else if(me1.matches()){
+            return "english1";
+        } else if(me2.matches()){
+            return "english2";
+        } else {
+            return "unknown";
+        }
+
+    }
+
+    public static String parseFileForDateRange(File file){
+
+        ChatData cd = ChatData.getInstance();
+        Pattern tPattern = cd.getChatLinePattern();
+        SimpleDateFormat dateFormat = cd.getDateFormat();
 
         String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
-        String chat = "";
         String firstLine = "";
         String lastLine ="";
         try {
             BufferedReader br = new BufferedReader(new FileReader(fileName));
-            StringBuilder sb = new StringBuilder();
             String line = br.readLine();
             firstLine = line;
             lastLine = line;
@@ -156,7 +198,6 @@ public class FileParseUtils {
                 index++;
                 line = br.readLine();
             }
-            chat = sb.toString();
             br.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -170,6 +211,8 @@ public class FileParseUtils {
 
         SimpleDateFormat outputFormat = DateFormats.simpleKoreanFormat;
 
+        boolean parseError = false;
+
         try {
             startDt = dateFormat.parse(firstLine);
             Matcher m = tPattern.matcher(lastLine);
@@ -178,7 +221,13 @@ public class FileParseUtils {
             }
 
         } catch (ParseException e) {
+            parseError = true;
+            FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
+        }
+
+        if(parseError){
+            return "parse error";
         }
 
         String res = outputFormat.format(startDt) + "~" + outputFormat.format(endDt);

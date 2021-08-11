@@ -8,8 +8,11 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +28,8 @@ import android.widget.Toast;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -108,6 +113,23 @@ public class SplashActivity extends AppCompatActivity {
         ArrayList<String> deniedPerms =  DeviceInfoUtils.getDeniedPermissions(this, permissions);
         deniedPermsArr = deniedPerms.toArray(new String[0]);
 
+        ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo nInfo = cm.getActiveNetworkInfo();
+        boolean connected = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
+        if(!connected){
+            Toast.makeText(SplashActivity.this, "앱 업데이트 여부 확인을 위해 인터넷 연결이 필요합니다.", Toast.LENGTH_LONG).show();
+            scheduleAppClose(2000);
+            return;
+        }
+
+        if(!checkPlayServices()){
+            GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this);
+            Toast.makeText(SplashActivity.this, "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+            scheduleAppClose(2000);
+            return;
+        }
+
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("Version").document("MinVersion");
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -158,9 +180,25 @@ public class SplashActivity extends AppCompatActivity {
                             fcmCheck();
                         }
                     }
+                } else {
+                    Toast.makeText(SplashActivity.this, "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+                    scheduleAppClose(2000);
                 }
             }
         });
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        if(result != ConnectionResult.SUCCESS) {
+            if(googleAPI.isUserResolvableError(result)) {
+                googleAPI.getErrorDialog(this, result,
+                        9000).show();
+            }
+            return false;
+        }
+        return true;
     }
 
     private void createNotificationChannel() {
@@ -207,39 +245,50 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void fcmCheck(){
-        //log fcm token
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                // Get new Instance ID token
-                String token = task.getResult();
-                LogUtils.e( "FB_Token: " + token);
-                spu.saveString(R.string.SP_FB_TOKEN, token);
+        try {
+            //log fcm token
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                    if (!task.isSuccessful()) {
+                        spu.saveString(R.string.SP_FB_TOKEN, "Firebase Messaging Token Error " + spu.getString(R.string.SP_UUID, "x"));
+                        spu.saveString(R.string.SP_REGIST_DT, DateUtils.getCurrentTimeStr());
+                        startLogic();
+                        return;
+                    }
 
-                String registered = spu.getString(R.string.SP_REGISTERED, "false");
+                    // Get new Instance ID token
+                    String token = task.getResult();
+                    LogUtils.e("FB_Token: " + token);
+                    spu.saveString(R.string.SP_FB_TOKEN, token);
 
-                if(registered.equals("false")){
-                    //subscribe to topic
-                    FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.FirebaseTopicName))
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
+                    String registered = spu.getString(R.string.SP_REGISTERED, "false");
 
-                                    if (!task.isSuccessful()) {
-                                        Toast.makeText(SplashActivity.this, "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
-                                        scheduleAppClose(1500);
-                                    } else {
-                                        spu.saveString(R.string.SP_REGISTERED, "true");
+                    if (registered.equals("false")) {
+                        //subscribe to topic
+                        FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.FirebaseTopicName))
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
                                         spu.saveString(R.string.SP_REGIST_DT, DateUtils.getCurrentTimeStr());
+                                        if (!task.isSuccessful()) {
+                                            spu.saveString(R.string.SP_FB_TOKEN, "Firebase Messaging Subscribe " + spu.getString(R.string.SP_UUID, "x"));
+                                        } else {
+                                            spu.saveString(R.string.SP_REGISTERED, "true");
+                                        }
                                         startLogic();
                                     }
-                                }
-                            });
-                } else {
-                    startLogic();
+                                });
+                    } else {
+                        startLogic();
+                    }
                 }
-            }
-        });
+            });
+        } catch (Exception e){
+            spu.saveString(R.string.SP_FB_TOKEN, "Firebase Messaging Token Error Catch " + spu.getString(R.string.SP_UUID, "x"));
+            spu.saveString(R.string.SP_REGIST_DT, DateUtils.getCurrentTimeStr());
+            startLogic();
+        }
     }
 
     private void startLogic(){
