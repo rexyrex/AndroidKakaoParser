@@ -108,6 +108,12 @@ public class FileParseUtils {
 
     }
 
+    public static boolean checkIfChatFileExists(File file){
+        String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
+        File testFile = new File(fileName);
+        return testFile.exists();
+    }
+
     public static String parseFileForTitle(File file){
         String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
         String chat = "";

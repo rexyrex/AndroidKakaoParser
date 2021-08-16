@@ -501,13 +501,25 @@ public class MainActivity extends AppCompatActivity {
         if (dir.isDirectory()) {
             files = dir.listFiles();
             Arrays.sort(files);
-            reversedFilesArr = new File[files.length];
+
+            List<File> goodFiles = new ArrayList<>();
+            int notDeleteFileCount = 0;
+            //filter deleted or deleting folders
+            for(int i=files.length-1; i>=0; i--){
+                if(FileParseUtils.checkIfChatFileExists(files[i])){
+                    goodFiles.add(files[i]);
+                }
+            }
+
+            reversedFilesArr = new File[goodFiles.size()];
 
             //update file count
             spu.saveInt(R.string.SP_EXPORTED_CHAT_COUNT, files.length);
 
-            for(int i=0; i<files.length; i++){
-                reversedFilesArr[i] = files[files.length-i-1];
+            for(int i=0; i<goodFiles.size(); i++){
+                if(FileParseUtils.checkIfChatFileExists(goodFiles.get(i))){
+                    reversedFilesArr[i] = goodFiles.get(i);
+                }
             }
 
             //프로필 이미지
@@ -537,6 +549,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     //Toast.makeText(MainActivity.this, FileParseUtils.parseFileForType(reversedFilesArr[position]), Toast.LENGTH_LONG).show();
+
+                    if(!FileParseUtils.checkIfChatFileExists(reversedFilesArr[position])){
+                        Toast.makeText(MainActivity.this, "삭제중이거나 분석 불가능한 폴더입니다.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
                     cd.setChatType(FileParseUtils.parseFileForType(reversedFilesArr[position]));
                     loadingDialog.show();
                     loadTask = new AsyncTask<Integer, Void, String>() {
