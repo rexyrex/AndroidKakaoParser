@@ -56,7 +56,7 @@ public class FileParseUtils {
             }
             chat = sb.toString();
             //LogUtils.e( "chat size: " + chat.length());
-            String[] lines = chat.split("\n");
+            //String[] lines = chat.split("\n");
             //LogUtils.e( "lines: " + lines.length);
             br.close();
         } catch (Exception e) {
