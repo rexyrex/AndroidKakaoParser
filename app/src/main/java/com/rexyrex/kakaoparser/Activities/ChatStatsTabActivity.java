@@ -678,6 +678,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if(cd == null || cd.getChatFile() == null){
+            finish();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if(!statsTask.isCancelled()){

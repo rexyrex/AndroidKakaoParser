@@ -93,6 +93,14 @@ public class PersonListActivity extends AppCompatActivity {
         customAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(cd == null || cd.getChatFile() == null){
+            finish();
+        }
+    }
+
     class CustomAdapter extends BaseAdapter {
 
         List<StringIntPair> pairs;
