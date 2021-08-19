@@ -69,7 +69,7 @@ public class PersonAnalyseFrag extends Fragment {
         if (getArguments() != null) {
             numberFormat = NumberFormat.getInstance();
             numberFormat.setGroupingUsed(true);
-            cd = ChatData.getInstance();
+            cd = ChatData.getInstance(getContext());
         }
     }
 

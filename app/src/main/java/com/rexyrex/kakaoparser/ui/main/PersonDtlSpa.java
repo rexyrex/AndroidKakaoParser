@@ -27,7 +27,7 @@ public class PersonDtlSpa extends FragmentPagerAdapter {
 
     public PersonDtlSpa(Context context, FragmentManager fm) {
         super(fm);
-        this.cd = ChatData.getInstance();
+        this.cd = ChatData.getInstance(context);
         mContext = context;
     }
 

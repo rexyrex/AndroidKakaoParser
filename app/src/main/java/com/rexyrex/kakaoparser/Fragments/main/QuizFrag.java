@@ -62,7 +62,7 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            cd = ChatData.getInstance();
+            cd = ChatData.getInstance(getContext());
             acm = cd.getChatAnalyseDbModel();
             spu = new SharedPrefUtils(getContext());
 

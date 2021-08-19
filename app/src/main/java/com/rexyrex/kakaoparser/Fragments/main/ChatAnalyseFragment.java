@@ -76,7 +76,7 @@ public class ChatAnalyseFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            cd = ChatData.getInstance();
+            cd = ChatData.getInstance(getContext());
             database = MainDatabase.getDatabase(getContext());
             chatLineDao = database.getChatLineDAO();
             numberFormat = NumberFormat.getInstance();

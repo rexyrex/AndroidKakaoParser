@@ -105,7 +105,7 @@ public class TimeAnalyseFrag extends Fragment {
         super.onCreate(savedInstanceState);
         database = MainDatabase.getDatabase(getContext());
         cld = database.getChatLineDAO();
-        cd = ChatData.getInstance();
+        cd = ChatData.getInstance(getContext());
 
         numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);

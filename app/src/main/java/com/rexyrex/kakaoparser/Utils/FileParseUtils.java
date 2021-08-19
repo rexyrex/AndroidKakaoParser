@@ -1,5 +1,7 @@
 package com.rexyrex.kakaoparser.Utils;
 
+import android.content.Context;
+
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Constants.TextPatterns;
@@ -17,11 +19,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileParseUtils {
-    public static String parseFile(File file, Date startDt, Date endDt) {
+    public static String parseFile(File file, Date startDt, Date endDt, Context c) {
         String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
         String chat = "";
 
-        ChatData cd = ChatData.getInstance();
+        ChatData cd = ChatData.getInstance(c);
         Pattern tPattern = cd.getChatLinePattern();
         SimpleDateFormat dateFormat = cd.getDateFormat();
 
@@ -176,9 +178,9 @@ public class FileParseUtils {
 
     }
 
-    public static String parseFileForDateRange(File file){
+    public static String parseFileForDateRange(File file, Context c){
 
-        ChatData cd = ChatData.getInstance();
+        ChatData cd = ChatData.getInstance(c);
         Pattern tPattern = cd.getChatLinePattern();
         SimpleDateFormat dateFormat = cd.getDateFormat();
 
@@ -228,6 +230,7 @@ public class FileParseUtils {
 
         } catch (ParseException e) {
             parseError = true;
+            FirebaseCrashlytics.getInstance().log("[REXYREX] parse or matcher error");
             FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
         }

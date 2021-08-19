@@ -46,7 +46,7 @@ public class PersonListActivity extends AppCompatActivity {
         numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
 
-        cd = ChatData.getInstance();
+        cd = ChatData.getInstance(this);
         int totalCount = cd.getChatLineCount();
 
         freqList = new ArrayList<>();
@@ -96,9 +96,6 @@ public class PersonListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(cd == null || cd.getChatFile() == null){
-            finish();
-        }
     }
 
     class CustomAdapter extends BaseAdapter {

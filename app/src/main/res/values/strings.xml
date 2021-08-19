@@ -93,6 +93,14 @@
     <string name="SP_FB_BOOL_QUIZ_SHARE">SP_FB_BOOL_QUIZ_SHARE</string>
     <string name="SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST">SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST</string>
 
+    <string name="SP_CD_CHAT_FILE_TITLE_AND_DATE">SP_CD_CHAT_FILE_TITLE_AND_DATE</string>
+    <string name="SP_CD_CHAT_FILE_TITLE">SP_CD_CHAT_FILE_TITLE</string>
+    <string name="SP_CD_CHAT_FILE_SIZE">SP_CD_CHAT_FILE_SIZE</string>
+    <string name="SP_CD_LAST_ANALYSE_DT">SP_CD_LAST_ANALYSE_DT</string>
+    <string name="SP_CD_CHAT_FILE_PATH">SP_CD_CHAT_FILE_PATH</string>
+    <string name="SP_CD_CHAT_TYPE">SP_CD_CHAT_TYPE</string>
+    <string name="SP_CD_LOAD_SECONDS">SP_CD_LOAD_SECONDS</string>
+
     <string name="FirebaseTopicName">KakaoParserFBTopic</string>
 
     <string name="title_activity_settings">SettingsActivity</string>

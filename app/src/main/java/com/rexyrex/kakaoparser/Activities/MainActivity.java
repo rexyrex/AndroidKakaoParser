@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 analyseIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()));
                 analyseIntent.putExtra("startDt", spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null"));
                 analyseIntent.putExtra("endDt", spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null"));
-                analyseIntent.putExtra("analysed", true);
+                //analyseIntent.putExtra("analysed", true);
                 dateRangeDialog.cancel();
                 cd.setChatFile(reversedFilesArr[fileIndex]);
                 MainActivity.this.startActivity(analyseIntent);
@@ -394,6 +394,15 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    public long getRemainingHeapSize(){
+        Runtime runtime = Runtime.getRuntime();
+        long usedMemInMB=(runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
+        long maxHeapSizeInMB=runtime.maxMemory() / 1048576L;
+        long availHeapSizeInMB = maxHeapSizeInMB - usedMemInMB;
+        LogUtils.e("AvailHeapSizeInMB : " + (availHeapSizeInMB));
+        return availHeapSizeInMB;
+    }
+
     protected void startAnalysis(){
         Intent analyseIntent = new Intent(MainActivity.this, ChatStatsTabActivity.class);
         analyseIntent.putExtra("lastAnalyseDt", StringParseUtils.chatFileNameToDate(reversedFilesArr[fileIndex].getName()));
@@ -404,9 +413,9 @@ public class MainActivity extends AppCompatActivity {
                 && analyseIntent.getStringExtra("startDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null"))
                 && analyseIntent.getStringExtra("endDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null"))
         ){
-            analyseIntent.putExtra("analysed", true);
+            //analyseIntent.putExtra("analysed", true);
         } else {
-            analyseIntent.putExtra("analysed", false);
+            //analyseIntent.putExtra("analysed", false);
         }
 
         dateRangeDialog.cancel();
@@ -488,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadList(){
-        cd = ChatData.getInstance();
+        cd = ChatData.getInstance(this);
         lastBackAttemptTime = 0;
 
         numberFormat = NumberFormat.getInstance();
@@ -562,7 +571,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         protected String doInBackground(Integer... integers) {
                             int position = integers[0];
-                            String res = FileParseUtils.parseFileForDateRange(reversedFilesArr[position]);
+                            String res = FileParseUtils.parseFileForDateRange(reversedFilesArr[position], MainActivity.this);
                             fileIndex = position;
                             return res;
                         }
@@ -599,6 +608,7 @@ public class MainActivity extends AppCompatActivity {
                                     endCalendar = (Calendar) maxCalendar.clone();
 
                                     //Enable load btn only when last analysed is available
+
                                     loadingDialog.cancel();
 
                                     if(FileParseUtils.parseFileForTitle(reversedFilesArr[fileIndex]).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
@@ -614,7 +624,9 @@ public class MainActivity extends AppCompatActivity {
                                         loadAnalysisBtn.setText("불러오기");
                                         loadAnalysisBtn.setEnabled(false);
                                     }
-                                    dateRangeDialog.show();
+                                    if(!isFinishing()){
+                                        dateRangeDialog.show();
+                                    }
                                 }
                             });
                         }

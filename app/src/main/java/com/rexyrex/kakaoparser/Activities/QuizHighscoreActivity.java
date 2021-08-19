@@ -57,7 +57,7 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
         }
 
         database = MainDatabase.getDatabase(this);
-        cd = ChatData.getInstance();
+        cd = ChatData.getInstance(this);
         analysedChatDAO = database.getAnalysedChatDAO();
 
 

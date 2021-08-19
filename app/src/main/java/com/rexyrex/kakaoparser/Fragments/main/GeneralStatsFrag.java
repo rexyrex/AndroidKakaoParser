@@ -63,7 +63,7 @@ public class GeneralStatsFrag extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             //cd = getArguments().getParcelable(ARG_PARAM1);
-            cd = ChatData.getInstance();
+            cd = ChatData.getInstance(getContext());
             database = MainDatabase.getDatabase(getContext());
             chatLineDao = database.getChatLineDAO();
             wordDao = database.getWordDAO();

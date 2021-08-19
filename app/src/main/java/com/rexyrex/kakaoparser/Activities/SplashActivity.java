@@ -32,6 +32,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -97,6 +98,8 @@ public class SplashActivity extends AppCompatActivity {
         if(spu.getString(R.string.SP_UUID, "none").equals("none")){
             spu.saveString(R.string.SP_UUID, UUID.randomUUID().toString());
         }
+
+        FirebaseCrashlytics.getInstance().setUserId(spu.getString(R.string.SP_UUID, "no uuid"));
 
         //LogUtils("splashIV isnull? : " + (splashIV == null));
 
@@ -251,6 +254,7 @@ public class SplashActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<String> task) {
                     if (!task.isSuccessful()) {
+                        FirebaseCrashlytics.getInstance().setCustomKey("FirebaseError", "Firebase Messaging Token Error");
                         spu.saveString(R.string.SP_FB_TOKEN, "Firebase Messaging Token Error " + spu.getString(R.string.SP_UUID, "x"));
                         spu.saveString(R.string.SP_REGIST_DT, DateUtils.getCurrentTimeStr());
                         startLogic();
@@ -272,6 +276,7 @@ public class SplashActivity extends AppCompatActivity {
                                     public void onComplete(@NonNull Task<Void> task) {
                                         spu.saveString(R.string.SP_REGIST_DT, DateUtils.getCurrentTimeStr());
                                         if (!task.isSuccessful()) {
+                                            FirebaseCrashlytics.getInstance().setCustomKey("FirebaseError", "Firebase Messaging Subscribe Error");
                                             spu.saveString(R.string.SP_FB_TOKEN, "Firebase Messaging Subscribe " + spu.getString(R.string.SP_UUID, "x"));
                                         } else {
                                             spu.saveString(R.string.SP_REGISTERED, "true");
@@ -285,6 +290,7 @@ public class SplashActivity extends AppCompatActivity {
                 }
             });
         } catch (Exception e){
+            FirebaseCrashlytics.getInstance().setCustomKey("FirebaseError", "Firebase Messaging Token Catch");
             spu.saveString(R.string.SP_FB_TOKEN, "Firebase Messaging Token Error Catch " + spu.getString(R.string.SP_UUID, "x"));
             spu.saveString(R.string.SP_REGIST_DT, DateUtils.getCurrentTimeStr());
             startLogic();

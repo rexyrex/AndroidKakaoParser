@@ -42,6 +42,11 @@ public class SharedPrefUtils {
         sharedEditor.apply();
     }
 
+    public void saveDouble(int keyID, double value){
+        sharedEditor.putLong(c.getResources().getString(keyID), Double.doubleToRawLongBits(value));
+        sharedEditor.apply();
+    }
+
     public String getString(int keyID, String defaultVal){
         return sharedPref.getString(c.getResources().getString(keyID), defaultVal);
     }
@@ -56,6 +61,10 @@ public class SharedPrefUtils {
 
     public long getLong(int keyID, long defaultVal){
         return sharedPref.getLong(c.getResources().getString(keyID), defaultVal);
+    }
+
+    public double getDouble(int keyID, double defaultVal){
+        return Double.longBitsToDouble(sharedPref.getLong(c.getResources().getString(keyID), Double.doubleToRawLongBits(defaultVal)));
     }
 
 }

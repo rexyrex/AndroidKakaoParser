@@ -1,10 +1,18 @@
 package com.rexyrex.kakaoparser.Entities;
 
+import android.content.Context;
+
 import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Constants.TextPatterns;
+import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
+import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
+import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
+import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
+import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -12,12 +20,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class ChatData {
-
-    double loadElapsedSeconds;
-    File chatFile;
-    String chatFileTitle;
-
-    long chatFileSize;
 
     int chatterCount;
     int dayCount;
@@ -31,12 +33,9 @@ public class ChatData {
     int pptCount;
     int deletedMsgCount;
 
-    String chatType;
     Pattern chatLinePattern;
     Pattern datePattern;
     SimpleDateFormat dateFormat;
-
-    AnalysedChatModel chatAnalyseDbModel;
 
     List<StringIntPair> chatterFreqArrList;
     List<StringIntPair> top10Chatters;
@@ -48,25 +47,54 @@ public class ChatData {
 
     List<String> authorsList;
 
-    public ChatData() {
+    MainDatabase database;
+    ChatLineDAO chatLineDao;
+    WordDAO wordDao;
+    AnalysedChatDAO analysedChatDAO;
+    SharedPrefUtils spu;
 
+    public ChatData(Context c) {
+        spu = new SharedPrefUtils(c);
+
+        database = MainDatabase.getDatabase(c);
+        chatLineDao = database.getChatLineDAO();
+        wordDao = database.getWordDAO();
+        analysedChatDAO = database.getAnalysedChatDAO();
+
+        setChatterCount(chatLineDao.getChatterCount());
+        setDayCount(chatLineDao.getDayCount());
+        setChatLineCount(chatLineDao.getCount());
+        setWordCount(wordDao.getDistinctCount());
+        setAvgWordCount(chatLineDao.getAverageWordCount());
+        setAvgLetterCount(wordDao.getAverageLetterCount());
+        setLinkCount(wordDao.getLinkCount());
+        setPicCount(wordDao.getPicCount());
+        setVideoCount(wordDao.getVideoCount());
+        setPptCount(wordDao.getPowerpointCount());
+        setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
+
+        setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
+        setTop10Chatters(chatLineDao.getTop10Chatters());
+        setWordFreqArrList(wordDao.getFreqWordList());
+        setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
+        setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
+        setAllChatInit(chatLineDao.getAllChatsByDateDesc());
+        setAuthorsList(chatLineDao.getChatters());
+
+        setChatType(spu.getString(R.string.SP_CD_CHAT_TYPE, ""));
     }
 
     private static ChatData the_instance;
-    public static ChatData getInstance() {
+    public static ChatData getInstance(Context c) {
         if (the_instance == null) {
-            the_instance = new ChatData();
+            the_instance = new ChatData(c);
         }
 
         return the_instance;
     }
 
-    public String getChatType() {
-        return chatType;
-    }
-
     public void setChatType(String chatType) {
-        this.chatType = chatType;
+        spu.saveString(R.string.SP_CD_CHAT_TYPE, chatType);
 
         switch(chatType){
             case "korean":
@@ -93,7 +121,6 @@ public class ChatData {
                 dateFormat = DateFormats.koreanDate;
                 break;
         }
-
     }
 
     public Pattern getChatLinePattern() {
@@ -109,27 +136,24 @@ public class ChatData {
     }
 
     public long getChatFileSize() {
-        return chatFileSize;
-    }
-
-    public void setChatFileSize(long chatFileSize) {
-        this.chatFileSize = chatFileSize;
+        return spu.getLong(R.string.SP_CD_CHAT_FILE_SIZE, 0);
     }
 
     public AnalysedChatModel getChatAnalyseDbModel() {
-        return chatAnalyseDbModel;
+        return analysedChatDAO.getItemByTitleDt(spu.getString(R.string.SP_CD_CHAT_FILE_TITLE, ""), spu.getString(R.string.SP_CD_LAST_ANALYSE_DT, ""));
     }
 
-    public void setChatAnalyseDbModel(AnalysedChatModel chatAnalyseDbModel) {
-        this.chatAnalyseDbModel = chatAnalyseDbModel;
+    public void setChatAnalyseDbModel(String title, String lastDt) {
+        spu.saveString(R.string.SP_CD_CHAT_FILE_TITLE, title);
+        spu.saveString(R.string.SP_CD_LAST_ANALYSE_DT, lastDt);
     }
 
     public String getChatFileTitle() {
-        return chatFileTitle;
+        return spu.getString(R.string.SP_CD_CHAT_FILE_TITLE_AND_DATE, "");
     }
 
     public void setChatFileTitle(String chatFileTitle) {
-        this.chatFileTitle = chatFileTitle;
+        spu.saveString(R.string.SP_CD_CHAT_FILE_TITLE_AND_DATE, chatFileTitle);
     }
 
     public List<String> getAuthorsList() {
@@ -149,20 +173,20 @@ public class ChatData {
     }
 
     public File getChatFile() {
-        return chatFile;
+        return new File(spu.getString(R.string.SP_CD_CHAT_FILE_PATH, ""));
     }
 
     public void setChatFile(File chatFile) {
-        this.chatFile = chatFile;
-        this.chatFileSize = FileParseUtils.getChatFileSize(chatFile);
+        spu.saveString(R.string.SP_CD_CHAT_FILE_PATH, chatFile.getAbsolutePath());
+        spu.saveLong(R.string.SP_CD_CHAT_FILE_SIZE, FileParseUtils.getChatFileSize(chatFile));
     }
 
     public double getLoadElapsedSeconds() {
-        return loadElapsedSeconds;
+        return spu.getDouble(R.string.SP_CD_LOAD_SECONDS, 0);
     }
 
     public void setLoadElapsedSeconds(double loadElapsedSeconds) {
-        this.loadElapsedSeconds = loadElapsedSeconds;
+        spu.saveDouble(R.string.SP_CD_LOAD_SECONDS, loadElapsedSeconds);
     }
 
     public List<StringIntPair> getFreqByDayOfWeek() {
@@ -210,6 +234,7 @@ public class ChatData {
     }
 
     public void setDayCount(int dayCount) {
+
         this.dayCount = dayCount;
     }
 

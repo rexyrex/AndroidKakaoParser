@@ -67,7 +67,7 @@ public class WordAnalyseFrag extends Fragment {
         if (getArguments() != null) {
             database = MainDatabase.getDatabase(getContext());
             wordDao = database.getWordDAO();
-            cd = ChatData.getInstance();
+            cd = ChatData.getInstance(getContext());
         }
     }
 

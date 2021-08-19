@@ -162,7 +162,7 @@ public class QuizActivity extends AppCompatActivity {
 
         aCLM = null;
 
-        cd = ChatData.getInstance();
+        cd = ChatData.getInstance(this);
         database = MainDatabase.getDatabase(this);
         spu = new SharedPrefUtils(this);
         chatLineDAO = database.getChatLineDAO();

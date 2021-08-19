@@ -38,7 +38,7 @@ public class DeleteService extends Service {
     @Override
     public void onCreate(){
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        cd = ChatData.getInstance();
+        cd = ChatData.getInstance(this);
 
         filesDeleted = 0;
         deletedSize = 0;

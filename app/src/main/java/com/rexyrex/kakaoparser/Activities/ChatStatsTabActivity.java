@@ -32,6 +32,7 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -58,6 +59,7 @@ import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
+import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 import com.rexyrex.kakaoparser.Utils.TimeUtils;
 import com.rexyrex.kakaoparser.ui.main.SectionsPagerAdapter;
 
@@ -128,14 +130,29 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     private InterstitialAd mInterstitialAd;
     private AdRequest adRequest;
 
+    Runtime runtime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        cd = ChatData.getInstance(this);
+        final File chatFile = cd.getChatFile();
+
+        runtime = Runtime.getRuntime();
 
         spu = new SharedPrefUtils(this);
 
-        analysed = getIntent().getBooleanExtra("analysed", false);
+        //analysed = getIntent().getBooleanExtra("analysed", false);
+
+        analysed = FileParseUtils.parseFileForTitle(cd.getChatFile()).equals(spu.getString(R.string.SP_LAST_ANALYSE_TITLE, "null"))
+                && StringParseUtils.chatFileNameToDate(cd.getChatFile().getName()).equals(spu.getString(R.string.SP_LAST_ANALYSE_DT, "null"))
+                && getIntent().getStringExtra("startDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_START_DT, "null"))
+                && getIntent().getStringExtra("endDt").equals(spu.getString(R.string.SP_LAST_ANALYSE_END_DT, "null"));
+
+
         lastAnalyseDtStr = getIntent().getStringExtra("lastAnalyseDt");
 
         //ad
@@ -218,8 +235,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
-        cd = ChatData.getInstance();
-        final File chatFile = cd.getChatFile();
+
 
 
         statsTask = new AsyncTask<String, Void, String>() {
@@ -264,7 +280,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 cd.setChatFileTitle(chatTitle);
 
-                String chatStr = FileParseUtils.parseFile(chatFile, startDt, endDt);
+                String chatStr = FileParseUtils.parseFile(chatFile, startDt, endDt, ChatStatsTabActivity.this);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -279,6 +295,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 final ArrayList<WordModel> wordModelArrayList = new ArrayList<>();
 
                 int lineId = 0;
+                int wordCount = 0;
 
                 Date date = null;
                 String person = null;
@@ -304,13 +321,13 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     final int progress = (int) (((double)i/chatLines.length) * 100);
                     final double progressD = (double) (((double)i/chatLines.length));
                     final int tmpInd = i;
+                    final int tmpWordCount = wordCount;
 
-                    if(!progressBools[progress]){
+                    if(lineId % 2000 == 0){
                         progressBools[progress] = true;
 
-                        long elapseedTime = System.currentTimeMillis() - loadStartTime;
-                        final double elapsedSeconds = elapseedTime/1000.0;
-
+                        long elapsedTime = System.currentTimeMillis() - loadStartTime;
+                        final double elapsedSeconds = elapsedTime/1000.0;
 
                         ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                             @Override
@@ -318,7 +335,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                 double eta = elapsedSeconds / progressD - elapsedSeconds + 1;
                                 popupPBProgressTV.setText(progress + "%");
                                 if(showPopupPBDtl){
-                                    popupPBProgressDtlTV.setText("분석 대화 : " + numberFormat.format(tmpInd) + " / " + numberFormat.format(chatLines.length) + "\n분석 단어 : "+ numberFormat.format(wordModelArrayList.size()) +"\n예상 소요 시간 : " + TimeUtils.getTimeLeftKorean((long)eta));
+                                    popupPBProgressDtlTV.setText("분석 대화 : " + numberFormat.format(tmpInd) + " / " + numberFormat.format(chatLines.length) + "\n분석 단어 : "+ numberFormat.format(tmpWordCount) +"\n예상 소요 시간 : " + TimeUtils.getTimeLeftKorean((long)eta));
                                 }
                                 popupPB.setProgress( progress, false);
                             }
@@ -435,9 +452,26 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                 boolean isPic = splitWord.matches(".+(\\.jpg|\\.jpeg|\\.png)$");
                                 boolean isVideo = splitWord.matches(".+(\\.avi|\\.mov|\\.mkv)$");
                                 boolean isPowerpoint = splitWord.matches(".+(\\.ppt|\\.pptx)$");
+                                wordCount++;
                                 wordModelArrayList.add(new WordModel(lineId, date, person, splitWords[w], isLink, isPic, isVideo, isPowerpoint, letterCount));
                             }
                         }
+                        if(lineId % 127 == 0){
+                            if(getRemainingHeapSize() < 42){
+                                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        popupPBProgressDtlTV.setText(popupPBProgressDtlTV.getText().toString() + "\nRAM 확보중... 잠시만 기다려주세요...");
+                                    }
+                                });
+                                LogUtils.e("Clearing");
+                                chatLineDao.insertAll(chatLineModelArrayList);
+                                wordDao.insertAll(wordModelArrayList);
+                                wordModelArrayList.clear();
+                                chatLineModelArrayList.clear();
+                            }
+                        }
+
                         lineId++;
                     }
                 }
@@ -454,6 +488,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     }
                 });
                 chatLineDao.insertAll(chatLineModelArrayList);
+                chatLineModelArrayList.clear();
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -463,6 +498,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 });
 
                 wordDao.insertAll(wordModelArrayList);
+                wordModelArrayList.clear();
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -524,7 +560,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
                 analysedChatDAO.insert(acm);
-                cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(chatTitle, lastAnalyseDtStr));
+                cd.setChatAnalyseDbModel(chatTitle, lastAnalyseDtStr);
 
                 ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -566,7 +602,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);
                 FirebaseUtils.updateUserInfo(ChatStatsTabActivity.this, spu, "analyse", database);
-                if(spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_FIRESTORE, true) && backupComplete){
+                if(spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_FIRESTORE, true) && backupComplete && chatterCount == 2){
                     FirebaseUtils.saveChatStats(spu,cd, dateRangeStr);
                 }
 
@@ -600,10 +636,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 });
 
                 cd.setChatFileTitle(tmpTitleStr);
+                cd.setChatAnalyseDbModel(FileParseUtils.parseFileForTitle(chatFile), lastAnalyseDtStr);
 
-                cd.setChatAnalyseDbModel(analysedChatDAO.getItemByTitleDt(FileParseUtils.parseFileForTitle(chatFile), lastAnalyseDtStr));
-
-                cd.setLoadElapsedSeconds(0);
                 cd.setChatterCount(chatLineDao.getChatterCount());
                 cd.setDayCount(chatLineDao.getDayCount());
                 cd.setChatLineCount(chatLineDao.getCount());
@@ -668,6 +702,14 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         }
     }
 
+    public long getRemainingHeapSize(){
+        long usedMemInMB=(runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
+        long maxHeapSizeInMB=runtime.maxMemory() / 1048576L;
+        long availHeapSizeInMB = maxHeapSizeInMB - usedMemInMB;
+        LogUtils.e("AvailHeapSizeInMB : " + (availHeapSizeInMB));
+        return availHeapSizeInMB;
+    }
+
     public String getLoadStatusText(String newStatus, boolean last){
         finalStatusText = finalStatusText.replace('⌛', '✅');
         if(last){
@@ -680,9 +722,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(cd == null || cd.getChatFile() == null){
-            finish();
-        }
     }
 
     @Override
