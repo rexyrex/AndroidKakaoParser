@@ -706,7 +706,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         long usedMemInMB=(runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
         long maxHeapSizeInMB=runtime.maxMemory() / 1048576L;
         long availHeapSizeInMB = maxHeapSizeInMB - usedMemInMB;
-        LogUtils.e("AvailHeapSizeInMB : " + (availHeapSizeInMB));
+        //LogUtils.e("AvailHeapSizeInMB : " + (availHeapSizeInMB));
         return availHeapSizeInMB;
     }
 

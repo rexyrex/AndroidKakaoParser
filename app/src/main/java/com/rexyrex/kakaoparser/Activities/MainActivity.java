@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        cd = ChatData.getInstance(this);
+
         //ad
         adRequest = new AdRequest.Builder().build();
         //banner ad
@@ -162,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         loadingDialog.setContentView(R.layout.loading_popup);
         loadingDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
+        loadingDialog.setCancelable(false);
         ImageView loadingIV = loadingDialog.findViewById(R.id.loadingPopupIV);
         TextView loadingTV = loadingDialog.findViewById(R.id.loadingPopupTV);
         Glide.with(this).asGif().load(R.drawable.loading1).into(loadingIV);
@@ -497,7 +500,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadList(){
-        cd = ChatData.getInstance(this);
         lastBackAttemptTime = 0;
 
         numberFormat = NumberFormat.getInstance();

@@ -53,6 +53,8 @@ public class ChatData {
     AnalysedChatDAO analysedChatDAO;
     SharedPrefUtils spu;
 
+    boolean reset;
+
     public ChatData(Context c) {
         spu = new SharedPrefUtils(c);
 
@@ -60,26 +62,6 @@ public class ChatData {
         chatLineDao = database.getChatLineDAO();
         wordDao = database.getWordDAO();
         analysedChatDAO = database.getAnalysedChatDAO();
-
-        setChatterCount(chatLineDao.getChatterCount());
-        setDayCount(chatLineDao.getDayCount());
-        setChatLineCount(chatLineDao.getCount());
-        setWordCount(wordDao.getDistinctCount());
-        setAvgWordCount(chatLineDao.getAverageWordCount());
-        setAvgLetterCount(wordDao.getAverageLetterCount());
-        setLinkCount(wordDao.getLinkCount());
-        setPicCount(wordDao.getPicCount());
-        setVideoCount(wordDao.getVideoCount());
-        setPptCount(wordDao.getPowerpointCount());
-        setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
-
-        setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
-        setTop10Chatters(chatLineDao.getTop10Chatters());
-        setWordFreqArrList(wordDao.getFreqWordList());
-        setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
-        setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
-        setAllChatInit(chatLineDao.getAllChatsByDateDesc());
-        setAuthorsList(chatLineDao.getChatters());
 
         setChatType(spu.getString(R.string.SP_CD_CHAT_TYPE, ""));
     }
@@ -157,7 +139,7 @@ public class ChatData {
     }
 
     public List<String> getAuthorsList() {
-        return authorsList;
+        return (authorsList == null) ? chatLineDao.getChatters() : authorsList;
     }
 
     public void setAuthorsList(List<String> authorsList) {
@@ -165,7 +147,7 @@ public class ChatData {
     }
 
     public List<ChatLineModel> getAllChatInit() {
-        return allChatInit;
+        return (allChatInit == null) ? chatLineDao.getAllChatsByDateDesc() : allChatInit;
     }
 
     public void setAllChatInit(List<ChatLineModel> allChatInit) {
@@ -190,7 +172,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getFreqByDayOfWeek() {
-        return freqByDayOfWeek;
+        return (freqByDayOfWeek == null) ? chatLineDao.getFreqByDayOfWeek() : freqByDayOfWeek;
     }
 
     public void setFreqByDayOfWeek(List<StringIntPair> freqByDayOfWeek) {
@@ -198,7 +180,7 @@ public class ChatData {
     }
 
     public int getMaxFreqByDayOfWeek() {
-        return maxFreqByDayOfWeek;
+        return (maxFreqByDayOfWeek == 0) ? chatLineDao.getMaxFreqDayOfWeek() : maxFreqByDayOfWeek;
     }
 
     public void setMaxFreqByDayOfWeek(int maxFreqByDayOfWeek) {
@@ -206,7 +188,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getWordFreqArrList() {
-        return wordFreqArrList;
+        return (wordFreqArrList == null) ? wordDao.getFreqWordList() : wordFreqArrList;
     }
 
     public void setWordFreqArrList(List<StringIntPair> wordFreqArrList) {
@@ -214,7 +196,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getTop10Chatters() {
-        return top10Chatters;
+        return (top10Chatters==null) ? chatLineDao.getTop10Chatters() : top10Chatters;
     }
 
     public void setTop10Chatters(List<StringIntPair> top10Chatters) {
@@ -222,7 +204,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getChatterFreqArrList() {
-        return chatterFreqArrList;
+        return (chatterFreqArrList==null) ? chatLineDao.getChatterFrequencyPairs() : chatterFreqArrList;
     }
 
     public void setChatterFreqArrList(List<StringIntPair> chatterFreqArrList) {
@@ -230,7 +212,7 @@ public class ChatData {
     }
 
     public int getDayCount() {
-        return dayCount;
+        return (dayCount==0) ? chatLineDao.getDayCount() : dayCount;
     }
 
     public void setDayCount(int dayCount) {
@@ -239,7 +221,11 @@ public class ChatData {
     }
 
     public int getChatterCount() {
-        return chatterCount;
+        if(chatterCount == 0){
+            return chatLineDao.getChatterCount();
+        } else {
+            return chatterCount;
+        }
     }
 
     public void setChatterCount(int chatterCount) {
@@ -247,7 +233,11 @@ public class ChatData {
     }
 
     public int getChatLineCount() {
-        return chatLineCount;
+        if(chatLineCount == 0){
+            return chatLineDao.getCount();
+        } else {
+            return chatLineCount;
+        }
     }
 
     public void setChatLineCount(int chatLineCount) {
@@ -255,7 +245,7 @@ public class ChatData {
     }
 
     public int getWordCount() {
-        return wordCount;
+        return (wordCount==0) ? wordDao.getDistinctCount() : wordCount;
     }
 
     public void setWordCount(int wordCount) {
@@ -263,7 +253,7 @@ public class ChatData {
     }
 
     public double getAvgWordCount() {
-        return avgWordCount;
+        return (avgWordCount==0) ? chatLineDao.getAverageWordCount() : avgWordCount;
     }
 
     public void setAvgWordCount(double avgWordCount) {
@@ -271,7 +261,7 @@ public class ChatData {
     }
 
     public double getAvgLetterCount() {
-        return avgLetterCount;
+        return (avgLetterCount==0) ? wordDao.getAverageLetterCount() : avgLetterCount;
     }
 
     public void setAvgLetterCount(double avgLetterCount) {
@@ -279,7 +269,7 @@ public class ChatData {
     }
 
     public int getLinkCount() {
-        return linkCount;
+        return (linkCount==0) ? wordDao.getLinkCount() : linkCount;
     }
 
     public void setLinkCount(int linkCount) {
@@ -287,7 +277,7 @@ public class ChatData {
     }
 
     public int getPicCount() {
-        return picCount;
+        return (picCount==0) ? wordDao.getPicCount() : picCount;
     }
 
     public void setPicCount(int picCount) {
@@ -295,7 +285,7 @@ public class ChatData {
     }
 
     public int getVideoCount() {
-        return videoCount;
+        return (videoCount==0) ? wordDao.getVideoCount() : videoCount;
     }
 
     public void setVideoCount(int videoCount) {
@@ -303,7 +293,7 @@ public class ChatData {
     }
 
     public int getPptCount() {
-        return pptCount;
+        return (pptCount==0) ? wordDao.getPowerpointCount() : pptCount;
     }
 
     public void setPptCount(int pptCount) {
@@ -311,7 +301,7 @@ public class ChatData {
     }
 
     public int getDeletedMsgCount() {
-        return deletedMsgCount;
+        return deletedMsgCount==0 ? chatLineDao.getDeletedMsgCount() : deletedMsgCount;
     }
 
     public void setDeletedMsgCount(int deletedMsgCount) {
