@@ -509,7 +509,7 @@ public class MainActivity extends AppCompatActivity {
         String folderPath = Environment.getExternalStorageDirectory()
                 + File.separator + "KakaoTalk/Chats/";
         File dir = new File(folderPath);
-        if (dir.isDirectory()) {
+        if (dir.isDirectory() && dir.listFiles()!=null) {
             files = dir.listFiles();
             Arrays.sort(files);
 
@@ -584,6 +584,13 @@ public class MainActivity extends AppCompatActivity {
                             MainActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    if(!s.contains("~")){
+                                        //parse error
+                                        Toast.makeText(MainActivity.this, "선택하신 대화는 현재 지원되지 않은 날짜 형식을 사용합니다. 불편을 끼쳐드려 죄송합니다.", Toast.LENGTH_LONG);
+                                        return;
+                                    }
+
+
                                     dateRangeStartDtTV.setText(s.split("~")[0]);
                                     dateRangeEndDtTV.setText(s.split("~")[1]);
 

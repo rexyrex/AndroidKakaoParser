@@ -548,6 +548,10 @@ public class QuizActivity extends AppCompatActivity {
         //Get Correct Answer
         ChatLineModel sampleSent = chatLineDAO.getChatterRandomChatlineSample(author);
 
+        if(sampleSent==null){
+            sampleSent = chatLineDAO.getChatterRandomChatlineSampleShort(author);
+        }
+
         QuizChoiceData sbp = new QuizChoiceData(
                 true,
                 sampleSent.getContent(),

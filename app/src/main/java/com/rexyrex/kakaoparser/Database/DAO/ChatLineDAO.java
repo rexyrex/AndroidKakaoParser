@@ -66,6 +66,9 @@ public interface ChatLineDAO {
     @Query("SELECT * FROM tb_chat_line WHERE author = :author AND LENGTH(content)>2 ORDER BY RANDOM() LIMIT 1")
     public ChatLineModel getChatterRandomChatlineSample(String author);
 
+    @Query("SELECT * FROM tb_chat_line WHERE author = :author ORDER BY RANDOM() LIMIT 1")
+    public ChatLineModel getChatterRandomChatlineSampleShort(String author);
+
     @Query("SELECT * FROM tb_chat_line WHERE author = :author ORDER BY RANDOM() LIMIT 5")
     public List<ChatLineModel> getChatterRandomChatlineSamples(String author);
 

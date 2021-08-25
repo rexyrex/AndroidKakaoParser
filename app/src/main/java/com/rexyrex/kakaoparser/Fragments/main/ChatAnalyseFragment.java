@@ -183,6 +183,9 @@ public class ChatAnalyseFragment extends Fragment {
                 if(chatLV.getCount()==0){
                     return;
                 }
+                if(chatLV.getChildAt(0) == null){
+                    return;
+                }
                 if(chatLV.getChildAt(0).getTop() != 0 && upBtn.getVisibility() != View.VISIBLE){
                     upBtn.setVisibility(View.VISIBLE);
                 } else if(chatLV.getChildAt(0).getTop() == 0 && upBtn.getVisibility() == View.VISIBLE){

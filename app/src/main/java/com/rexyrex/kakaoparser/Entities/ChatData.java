@@ -105,6 +105,10 @@ public class ChatData {
         }
     }
 
+    public String getChatType(){
+        return spu.getString(R.string.SP_CD_CHAT_TYPE, "");
+    }
+
     public Pattern getChatLinePattern() {
         return chatLinePattern;
     }

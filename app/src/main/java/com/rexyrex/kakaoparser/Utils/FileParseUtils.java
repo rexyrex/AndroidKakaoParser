@@ -230,8 +230,13 @@ public class FileParseUtils {
 
         } catch (ParseException e) {
             parseError = true;
+
             FirebaseCrashlytics.getInstance().log("[REXYREX] parse or matcher error");
-            FirebaseCrashlytics.getInstance().recordException(e);
+            FirebaseCrashlytics.getInstance().log("[REXYREX] first line : " + firstLine);
+            FirebaseCrashlytics.getInstance().log("[REXYREX] last line : " + lastLine);
+            FirebaseCrashlytics.getInstance().log("[REXYREX] chat type : " + cd.getChatType());
+
+            //FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
         }
 
