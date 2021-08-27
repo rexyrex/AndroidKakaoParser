@@ -40,6 +40,7 @@ import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -573,6 +574,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         protected String doInBackground(Integer... integers) {
                             int position = integers[0];
+                            FirebaseCrashlytics.getInstance().log("[REXYREX] Chat Click : " + FileParseUtils.parseFileForTitle(reversedFilesArr[position]));
                             String res = FileParseUtils.parseFileForDateRange(reversedFilesArr[position], MainActivity.this);
                             fileIndex = position;
                             return res;
@@ -671,6 +673,7 @@ public class MainActivity extends AppCompatActivity {
                     delBtn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            FirebaseCrashlytics.getInstance().log("[REXYREX] delete start");
                             cd.setChatFile(reversedFilesArr[z]);
                             Intent serviceIntent = new Intent(MainActivity.this, DeleteService.class);
                             MainActivity.this.startService(serviceIntent);

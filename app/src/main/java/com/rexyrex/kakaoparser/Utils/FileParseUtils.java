@@ -236,7 +236,7 @@ public class FileParseUtils {
             FirebaseCrashlytics.getInstance().log("[REXYREX] last line : " + lastLine);
             FirebaseCrashlytics.getInstance().log("[REXYREX] chat type : " + cd.getChatType());
 
-            //FirebaseCrashlytics.getInstance().recordException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
         }
 
