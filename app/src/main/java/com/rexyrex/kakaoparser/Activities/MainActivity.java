@@ -11,7 +11,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -25,33 +24,24 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.rexyrex.kakaoparser.Constants.DateFormats;
-import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.R;
-import com.rexyrex.kakaoparser.Services.DeleteService;
 import com.rexyrex.kakaoparser.Utils.AdUtils;
 import com.rexyrex.kakaoparser.Utils.DateUtils;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
-import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.PicUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
@@ -70,20 +60,26 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     ListView chatLV;
     File[] files;
     File[] reversedFilesArr;
     int fileIndex = 0;
+    View delFileView;
+    long delTotalSize, deletedSize;
+    TextView delPopTV, delPrgTV, delAlertMsgTV;
+    Button delBtn, delCancel;
+    ProgressBar delPb;
+    Dialog deleteDialog;
+
+    int delFileIndex = 0;
 
     ChatData cd;
 
@@ -113,11 +109,10 @@ public class MainActivity extends AppCompatActivity {
     Button startAnalysisBtn, loadAnalysisBtn, dateRangeBackBtn;
 
     AsyncTask<Integer, Void, String> loadTask;
+    AsyncTask<Integer, Void, String> delTask;
 
     private static long lastBackAttemptTime;
 
-    private InterstitialAd mInterstitialAd;
-    private AdRequest adRequest;
     private AdView mAdView;
     FrameLayout adContainer;
 
@@ -128,8 +123,6 @@ public class MainActivity extends AppCompatActivity {
 
         cd = ChatData.getInstance(this);
 
-        //ad
-        adRequest = new AdRequest.Builder().build();
         //banner ad
         adContainer = findViewById(R.id.adView);
         mAdView = new AdView(this);
@@ -139,8 +132,6 @@ public class MainActivity extends AppCompatActivity {
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.setAdSize(AdUtils.getAdSize(this));
         mAdView.loadAd(adRequest);
-
-        //loadAd();
 
         chatLV = findViewById(R.id.chatLV);
         settingsIV = findViewById(R.id.settingsIV);
@@ -160,6 +151,20 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(deleteReceiver, new IntentFilter("kakaoChatDelete"));
 
         //View view = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.loading_popup, null);
+
+        deleteDialog = new Dialog(this);
+        deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        deleteDialog.setContentView(R.layout.popup_delete);
+        deleteDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
+        deleteDialog.setCancelable(false);
+
+        delBtn = deleteDialog.findViewById(R.id.delBtnTrue);
+        delCancel = deleteDialog.findViewById(R.id.delBtnFalse);
+        delPopTV = deleteDialog.findViewById(R.id.delPopMsg);
+        delPrgTV = deleteDialog.findViewById(R.id.delPrgTV);
+        delPb = deleteDialog.findViewById(R.id.delPB);
+        delAlertMsgTV = deleteDialog.findViewById(R.id.delAlertMsgTV);
+
 
         loadingDialog = new Dialog(this);
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -185,15 +190,7 @@ public class MainActivity extends AppCompatActivity {
         startAnalysisBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //throw new RuntimeException("Test Crash"); // Force a crash
                 startAnalysis();
-                /*loadAd();
-                if (mInterstitialAd != null) {
-                    mInterstitialAd.show(MainActivity.this);
-                } else {
-                    LogUtils.e("The interstitial ad wasn't ready yet.");
-                    startAnalysis();
-                }*/
             }
         });
 
@@ -350,61 +347,6 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.startActivity(instIntent);
             }
         });
-    }
-
-    private void loadAd(){
-        InterstitialAd.load(MainActivity.this,getString(R.string.AdMob_ad_unit_Interstitial_Chat_Tab), adRequest,
-                new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                        // The mInterstitialAd reference will be null until
-                        // an ad is loaded.
-                        mInterstitialAd = interstitialAd;
-
-                        LogUtils.e("Ad Load success");
-
-                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
-                            @Override
-                            public void onAdDismissedFullScreenContent() {
-                                // Called when fullscreen content is dismissed.
-                                LogUtils.e("The ad was dismissed.");
-                                startAnalysis();
-                            }
-
-                            @Override
-                            public void onAdFailedToShowFullScreenContent(AdError adError) {
-                                // Called when fullscreen content failed to show.
-                                LogUtils.e("The ad failed to show.");
-                                startAnalysis();
-                            }
-
-                            @Override
-                            public void onAdShowedFullScreenContent() {
-                                // Called when fullscreen content is shown.
-                                // Make sure to set your reference to null so you don't
-                                // show it a second time.
-                                mInterstitialAd = null;
-                                LogUtils.e("The ad was shown.");
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        // Handle the error
-                        mInterstitialAd = null;
-                        LogUtils.e("AD LOAD FAIL : " + loadAdError.toString());
-                    }
-                });
-    }
-
-    public long getRemainingHeapSize(){
-        Runtime runtime = Runtime.getRuntime();
-        long usedMemInMB=(runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
-        long maxHeapSizeInMB=runtime.maxMemory() / 1048576L;
-        long availHeapSizeInMB = maxHeapSizeInMB - usedMemInMB;
-        LogUtils.e("AvailHeapSizeInMB : " + (availHeapSizeInMB));
-        return availHeapSizeInMB;
     }
 
     protected void startAnalysis(){
@@ -646,59 +588,103 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            final View delView = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.popup_delete, null);
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(MainActivity.this, R.style.PopupStyle);
-            alertBuilder.setView(delView);
-            alertBuilder.setCancelable(true);
-            final AlertDialog dialog = alertBuilder.create();
-
-            final Button delBtn = delView.findViewById(R.id.delBtnTrue);
-            Button delCancel = delView.findViewById(R.id.delBtnFalse);
-            final TextView delPopTV = delView.findViewById(R.id.delPopMsg);
-
             delCancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    dialog.hide();
+                    deleteDialog.hide();
                 }
             });
 
             chatLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> adapterView, View longView, int i, long l) {
+                    delFileIndex = i;
+                    delFileView = longView;
+                    delTotalSize = FileParseUtils.getSizeRecursive(reversedFilesArr[delFileIndex]);
+                    deletedSize = 0;
+                    delPb.setProgress(0);
+                    delPrgTV.setText("");
 
-                    final int z = i;
-                    final View tmpView = longView;
+                    delPb.setVisibility(View.GONE);
+                    delPrgTV.setVisibility(View.GONE);
+                    delAlertMsgTV.setVisibility(View.GONE);
+                    delBtn.setVisibility(View.VISIBLE);
+                    delCancel.setVisibility(View.VISIBLE);
 
-                    delBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            FirebaseCrashlytics.getInstance().log("[REXYREX] delete start");
-                            cd.setChatFile(reversedFilesArr[z]);
-                            Intent serviceIntent = new Intent(MainActivity.this, DeleteService.class);
-                            MainActivity.this.startService(serviceIntent);
-
-                            spu.incInt(R.string.SP_DELETE_CHAT_COUNT);
-
-                            TextView tv = tmpView.findViewById(R.id.elemTV3);
-                            tv.setText("삭제중... (알림창 확인)");
-
-//                            File delFile = reversedFilesArr[z];
-                            Toast.makeText(MainActivity.this, "삭제가 완료되면 대화목록이 새로고침 됩니다.", Toast.LENGTH_LONG).show();
-//                            deleteRecursive(delFile);
-//                            loadList();
-//                            Toast.makeText(MainActivity.this, "삭제 완료", Toast.LENGTH_SHORT).show();
-                            dialog.hide();
-                        }
-                    });
-                    delPopTV.setText("폴더 전체 크기 : " + FileParseUtils.humanReadableByteCountBin(FileParseUtils.getSizeRecursive(reversedFilesArr[z])) + "\n채팅 파일 크기 : " +FileParseUtils.humanReadableByteCountBin(FileParseUtils.getChatFileSize(reversedFilesArr[z])));
-                    dialog.show();
+                    delPopTV.setText("전체 : " + FileParseUtils.humanReadableByteCountBin(FileParseUtils.getSizeRecursive(reversedFilesArr[delFileIndex])) + "\n채팅 : " +FileParseUtils.humanReadableByteCountBin(FileParseUtils.getChatFileSize(reversedFilesArr[delFileIndex])));
+                    deleteDialog.show();
 
                     return true;
                 }
             });
+
+            delBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    FirebaseCrashlytics.getInstance().log("[REXYREX] delete start");
+                    //Intent serviceIntent = new Intent(MainActivity.this, DeleteService.class);
+                    //MainActivity.this.startService(serviceIntent);
+
+                    delBtn.setVisibility(View.GONE);
+                    delCancel.setVisibility(View.GONE);
+                    delAlertMsgTV.setVisibility(View.VISIBLE);
+                    delPb.setVisibility(View.VISIBLE);
+                    delPrgTV.setVisibility(View.VISIBLE);
+                    spu.incInt(R.string.SP_DELETE_CHAT_COUNT);
+
+                    TextView tv = delFileView.findViewById(R.id.elemTV3);
+                    tv.setText("삭제중...");
+
+                    delTask = new AsyncTask<Integer, Void, String>() {
+
+                        @Override
+                        protected String doInBackground(Integer... integers) {
+                            deleteRecursive(reversedFilesArr[delFileIndex]);
+                            return "";
+                        }
+
+                        @Override
+                        protected void onPostExecute(String s) {
+                            super.onPostExecute(s);
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    deleteDialog.hide();
+                                    loadList();
+                                    Toast.makeText(MainActivity.this, "삭제 완료", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    };
+                    delTask.execute(new Integer[] {0});
+
+                    //dialog.hide();
+                }
+            });
         }
     }
+
+    void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+        deletedSize += fileOrDirectory.length();
+        fileOrDirectory.delete();
+
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delPopTV.setText("삭제중...");
+
+                //update prg bar
+                int delProgress = (int) ( (double) deletedSize / delTotalSize * 100);
+                delPb.setProgress(delProgress);
+                delPrgTV.setText(FileParseUtils.humanReadableByteCountBin(deletedSize) + " / " + FileParseUtils.humanReadableByteCountBin(delTotalSize));
+            }
+        });
+    }
+
+
 
     class CustomAdapter extends BaseAdapter {
 

@@ -12,8 +12,13 @@
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/activity_quiz.xml" value="0.40217391304347827" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/activity_tab.xml" value="0.3145833333333333" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/activity_word_detail_analyse.xml" value="0.3145833333333333" />
+        <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/date_range_picker_popup.xml" value="0.55" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/fragment_quiz.xml" value="0.5369791666666667" />
+        <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/horizontal_progress_popup.xml" value="0.24479166666666666" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/list_view_elem_show_more_btn.xml" value="0.3145833333333333" />
+        <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/list_view_elem_word.xml" value="0.55" />
+        <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/loading_popup.xml" value="0.55" />
+        <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/popup_delete.xml" value="0.55" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/quiz_highscore_popup.xml" value="0.5369791666666667" />
       </map>
     </option>
