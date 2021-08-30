@@ -8,6 +8,8 @@ import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -15,6 +17,8 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.ResponseInfo;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.ads.nativead.NativeAd;
+import com.google.android.gms.ads.nativead.NativeAdOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
@@ -159,6 +163,41 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         adRequest = new AdRequest.Builder().build();
         if(!analysed){
             loadAd();
+
+            final AdLoader adLoader = new AdLoader.Builder(this, "ca-app-pub-3940256099942544/2247696110")
+                    .forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
+                        @Override
+                        public void onNativeAdLoaded(NativeAd NativeAd) {
+                            // Show the ad.
+                            LogUtils.e("native ad vid content: " + NativeAd.getMediaContent().hasVideoContent());
+
+//                            if (adLoader.isLoading()) {
+//                                // The AdLoader is still loading ads.
+//                                // Expect more adLoaded or onAdFailedToLoad callbacks.
+//                            } else {
+//                                // The AdLoader has finished loading ads.
+//                            }
+
+                            if (isDestroyed()) {
+                                NativeAd.destroy();
+                                return;
+                            }
+                        }
+                    })
+                    .withAdListener(new AdListener() {
+                        @Override
+                        public void onAdFailedToLoad(LoadAdError adError) {
+                            LogUtils.e("native ad vid fail: " + adError.toString());
+                            // Handle the failure by logging, altering the UI, and so on.
+                        }
+                    })
+                    .withNativeAdOptions(new NativeAdOptions.Builder()
+                            // Methods in the NativeAdOptions.Builder class can be
+                            // used here to specify individual options settings.
+                            .build())
+                    .build();
+
+            adLoader.loadAds(new AdRequest.Builder().build(), 3);
         }
 
         //ad
