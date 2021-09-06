@@ -2,10 +2,7 @@ package com.rexyrex.kakaoparser.Activities;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -147,8 +144,6 @@ public class MainActivity extends AppCompatActivity {
         minCalendar = Calendar.getInstance();
         maxCalendar = Calendar.getInstance();
         calendarType = "";
-
-        registerReceiver(deleteReceiver, new IntentFilter("kakaoChatDelete"));
 
         //View view = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.loading_popup, null);
 
@@ -439,7 +434,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(deleteReceiver);
     }
 
     public void loadList(){
@@ -766,11 +760,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    BroadcastReceiver deleteReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            loadList();
-            Toast.makeText(MainActivity.this, "삭제 완료 - 대화 목록이 새로고침 됐습니다", Toast.LENGTH_LONG).show();
-        }
-    };
 }
