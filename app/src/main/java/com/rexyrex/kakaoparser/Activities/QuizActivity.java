@@ -472,6 +472,10 @@ public class QuizActivity extends AppCompatActivity {
         //SELECT word from top 100 most used
         //word must be used by at least 2 people
         List<StringIntPair> wordFreqList = wordDAO.getFreqWordListForQuiz();
+        if(wordFreqList.size()==0){
+            moveToNextQuestion();
+            return;
+        }
         int randWordIndex = RandomUtils.getRandomInt(0, wordFreqList.size());
 
         String word = wordFreqList.get(randWordIndex).getword();
@@ -504,6 +508,10 @@ public class QuizActivity extends AppCompatActivity {
         for(String s : cd.getAuthorsList()){
             authorList.add(s);
         }
+        if(authorList.size()==0){
+            moveToNextQuestion();
+            return;
+        }
         int randAuthorIndex = RandomUtils.getRandomInt(0, authorList.size());
         String author = authorList.get(randAuthorIndex);
 
@@ -533,6 +541,10 @@ public class QuizActivity extends AppCompatActivity {
         List<String> authorList = new ArrayList<>();
         for(String s : cd.getAuthorsList()){
             authorList.add(s);
+        }
+        if(authorList.size()==0){
+            moveToNextQuestion();
+            return;
         }
         int randAuthorIndex = RandomUtils.getRandomInt(0, authorList.size());
         String author = authorList.get(randAuthorIndex);
@@ -572,6 +584,10 @@ public class QuizActivity extends AppCompatActivity {
         List<String> authorList = new ArrayList<>();
         for(String s : cd.getAuthorsList()){
             authorList.add(s);
+        }
+        if(authorList.size()==0){
+            moveToNextQuestion();
+            return;
         }
         int randAuthorIndex = RandomUtils.getRandomInt(0, authorList.size());
         String author = authorList.get(randAuthorIndex);

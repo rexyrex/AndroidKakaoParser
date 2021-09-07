@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -328,11 +329,13 @@ public class FirebaseUtils {
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<HighscoreData> highscoreDataList = new ArrayList<>();
                         if (task.isSuccessful()) {
+
                             if(task.getResult().isEmpty()){
-                                highscoreCallback.getHighscores(null);
+                                highscoreCallback.getHighscores(highscoreDataList);
                             }
-                            List<HighscoreData> highscoreDataList = new ArrayList<>();
+
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 LogUtils.e(document.getId() + " => " + document.getData());
                                 if(document.getData().containsKey("nickname") && document.getData().containsKey("highscore"))
@@ -340,7 +343,8 @@ public class FirebaseUtils {
                             }
                             highscoreCallback.getHighscores(highscoreDataList);
                         } else {
-                            highscoreCallback.getHighscores(null);
+                            highscoreCallback.getHighscores(highscoreDataList);
+                            FirebaseCrashlytics.getInstance().log("[REXYREX] Highscore list get fail");
                             LogUtils.e("Error getting documents: " + task.getException().toString());
                         }
                     }

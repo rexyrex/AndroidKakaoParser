@@ -44,6 +44,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -285,339 +286,350 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
             @Override
             protected String doInBackground(String... params) {
-
-                //Text to alert user loading not started yet (DB clear can take some time)
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTextTV.setText("분석 준비중...");
-                    }
-                });
-
-                //clear tables
-                wordDao.truncateTable();
-                chatLineDao.truncateTable();
-
-                //Actual analysis start
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTextTV.setText("대화 내용 분석중...");
-                    }
-                });
-
-                long loadStartTime = System.currentTimeMillis();
-
-                //First, load chat room name only (later load date as spannable string)
                 final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
-                boolean isKorean = !chatTitle.contains("KakaoTalk Chats with ");
-                Pattern pattern = cd.getChatLinePattern();
-                Pattern datePattern = cd.getDatePattern();
-                SimpleDateFormat dateFormat = cd.getDateFormat();
+                try {
+                    //Text to alert user loading not started yet (DB clear can take some time)
+                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadingTextTV.setText("분석 준비중...");
+                        }
+                    });
 
-                boolean optimized = true;
+                    //clear tables
+                    wordDao.truncateTable();
+                    chatLineDao.truncateTable();
 
-                cd.setChatFileTitle(chatTitle);
+                    //Actual analysis start
+                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadingTextTV.setText("대화 내용 분석중...");
+                        }
+                    });
 
-                String chatStr = FileParseUtils.parseFile(chatFile, startDt, endDt, ChatStatsTabActivity.this);
+                    long loadStartTime = System.currentTimeMillis();
 
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        titleTV.setText( chatTitle);
+                    //First, load chat room name only (later load date as spannable string)
+
+                    boolean isKorean = !chatTitle.contains("KakaoTalk Chats with ");
+                    Pattern pattern = cd.getChatLinePattern();
+                    Pattern datePattern = cd.getDatePattern();
+                    SimpleDateFormat dateFormat = cd.getDateFormat();
+
+                    boolean optimized = true;
+
+                    cd.setChatFileTitle(chatTitle);
+
+                    String chatStr = FileParseUtils.parseFile(chatFile, startDt, endDt, ChatStatsTabActivity.this);
+
+                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            titleTV.setText(chatTitle);
+                        }
+                    });
+
+                    chatLines = chatStr.split("\n");
+                    chatStr = "";
+
+                    final ArrayList<ChatLineModel> chatLineModelArrayList = new ArrayList<>();
+                    final ArrayList<WordModel> wordModelArrayList = new ArrayList<>();
+
+                    int lineId = 0;
+                    int wordCount = 0;
+
+                    Date date = null;
+                    String person = null;
+                    String chat = null;
+
+                    //Array to keep track of progress bar updates (improve performance)
+                    boolean[] progressBools = new boolean[101];
+
+                    for (int i = 0; i < progressBools.length; i++) {
+                        progressBools[i] = false;
                     }
-                });
 
-                chatLines = chatStr.split("\n");
+                    for (int i = 0; i < chatLines.length; i++) {
 
-                final ArrayList<ChatLineModel> chatLineModelArrayList = new ArrayList<>();
-                final ArrayList<WordModel> wordModelArrayList = new ArrayList<>();
+                        if (isCancelled()) {
+                            return "";
+                        }
 
-                int lineId = 0;
-                int wordCount = 0;
+                        if (!chatLines[i].contains(",") || !chatLines[i].contains(":")) {
+                            continue;
+                        }
 
-                Date date = null;
-                String person = null;
-                String chat = null;
+                        final int progress = (int) (((double) i / chatLines.length) * 100);
+                        final double progressD = (double) (((double) i / chatLines.length));
+                        final int tmpInd = i;
+                        final int tmpWordCount = wordCount;
 
-                //Array to keep track of progress bar updates (improve performance)
-                boolean[] progressBools = new boolean[101];
+                        if (lineId % 2000 == 0) {
+                            progressBools[progress] = true;
 
-                for(int i=0; i<progressBools.length; i++){
-                    progressBools[i] = false;
-                }
+                            long elapsedTime = System.currentTimeMillis() - loadStartTime;
+                            final double elapsedSeconds = elapsedTime / 1000.0;
 
-                for(int i=0; i<chatLines.length; i++){
-
-                    if(isCancelled()){
-                        return "";
-                    }
-
-                    if(!chatLines[i].contains(",") || !chatLines[i].contains(":")){
-                        continue;
-                    }
-
-                    final int progress = (int) (((double)i/chatLines.length) * 100);
-                    final double progressD = (double) (((double)i/chatLines.length));
-                    final int tmpInd = i;
-                    final int tmpWordCount = wordCount;
-
-                    if(lineId % 2000 == 0){
-                        progressBools[progress] = true;
-
-                        long elapsedTime = System.currentTimeMillis() - loadStartTime;
-                        final double elapsedSeconds = elapsedTime/1000.0;
-
-                        ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                double eta = elapsedSeconds / progressD - elapsedSeconds + 1;
-                                popupPBProgressTV.setText(progress + "%");
-                                if(showPopupPBDtl){
-                                    popupPBProgressDtlTV.setText("분석 대화 : " + numberFormat.format(tmpInd) + " / " + numberFormat.format(chatLines.length) + "\n분석 단어 : "+ numberFormat.format(tmpWordCount) +"\n예상 소요 시간 : " + TimeUtils.getTimeLeftKorean((long)eta));
+                            ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    double eta = elapsedSeconds / progressD - elapsedSeconds + 1;
+                                    popupPBProgressTV.setText(progress + "%");
+                                    if (showPopupPBDtl) {
+                                        popupPBProgressDtlTV.setText("분석 대화 : " + numberFormat.format(tmpInd) + " / " + numberFormat.format(chatLines.length) + "\n분석 단어 : " + numberFormat.format(tmpWordCount) + "\n예상 소요 시간 : " + TimeUtils.getTimeLeftKorean((long) eta));
+                                    }
+                                    popupPB.setProgress(progress, false);
                                 }
-                                popupPB.setProgress( progress, false);
+                            });
+                        }
+
+                        Matcher m = null;
+                        Matcher mEnglish = null;
+                        boolean matches;
+
+                        if (!optimized) {
+                            if (isKorean) {
+                                m = TextPatterns.korean.matcher(chatLines[i]);
+                                matches = m.matches();
+                            } else {
+                                mEnglish = TextPatterns.english.matcher(chatLines[i]);
+                                matches = mEnglish.matches();
                             }
-                        });
-                    }
-
-                    Matcher m = null;
-                    Matcher mEnglish = null;
-                    boolean matches;
-
-                    if(!optimized){
-                        if(isKorean){
-                            m = TextPatterns.korean.matcher(chatLines[i]);
+                        } else {
+                            m = pattern.matcher(chatLines[i]);
                             matches = m.matches();
-                        } else {
-                            mEnglish = TextPatterns.english.matcher(chatLines[i]);
-                            matches = mEnglish.matches();
-                        }
-                    } else {
-                        m = pattern.matcher(chatLines[i]);
-                        matches = m.matches();
-                    }
-
-                    if(matches){
-                        if(!optimized){
-                            if(isKorean){
-                                try {
-                                    date = DateFormats.koreanDate.parse(m.group(1));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                //English
-                                try {
-                                    date = DateFormats.englishDate.parse(mEnglish.group(1));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        } else {
-                            try {
-                                date = dateFormat.parse(m.group(1));
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
                         }
 
-                        if(!optimized){
-                            if(isKorean){
-                                person = m.group(2);
-                                chat = m.group(3);
-                            } else {
-                                //English
-                                person = mEnglish.group(2);
-                                chat = mEnglish.group(3);
-                            }
-                        } else {
-                            person = m.group(2);
-                            chat = m.group(3);
-                        }
-
-                        int entireMsgIndex = 1;
-                        while(entireMsgIndex + i < chatLines.length){
-                            Matcher nextLineMatcher = null;
-                            Matcher onlyDateMatcher = null;
-                            if(!optimized){
-                                if(isKorean){
-                                    nextLineMatcher = TextPatterns.korean.matcher(chatLines[i+entireMsgIndex]);
-                                    onlyDateMatcher = TextPatterns.koreanDate.matcher(chatLines[i+entireMsgIndex]);
+                        if (matches) {
+                            if (!optimized) {
+                                if (isKorean) {
+                                    try {
+                                        date = DateFormats.koreanDate.parse(m.group(1));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
                                 } else {
                                     //English
-                                    nextLineMatcher = TextPatterns.english.matcher(chatLines[i+entireMsgIndex]);
-                                    onlyDateMatcher = TextPatterns.englishDate.matcher(chatLines[i+entireMsgIndex]);
+                                    try {
+                                        date = DateFormats.englishDate.parse(mEnglish.group(1));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             } else {
-                                nextLineMatcher = pattern.matcher(chatLines[i+entireMsgIndex]);
-                                onlyDateMatcher = datePattern.matcher(chatLines[i+entireMsgIndex]);
+                                try {
+                                    date = dateFormat.parse(m.group(1));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
                             }
 
-                            //User used \n in sentence
-
-                            //next line is continuation of previous line
-                            if(!nextLineMatcher.matches() && !onlyDateMatcher.matches()){
-                                //append lines to chatline content
-                                chat += '\n' + chatLines[i+entireMsgIndex];
+                            if (!optimized) {
+                                if (isKorean) {
+                                    person = m.group(2);
+                                    chat = m.group(3);
+                                } else {
+                                    //English
+                                    person = mEnglish.group(2);
+                                    chat = mEnglish.group(3);
+                                }
                             } else {
-                                break;
+                                person = m.group(2);
+                                chat = m.group(3);
                             }
-                            entireMsgIndex++;
-                        }
-                        String[] splitWords = chat.split("\\s");
 
-                        String dayKey = DateFormats.day.format(date);
-                        String monthKey = DateFormats.month.format(date);
-                        String yearKey = DateFormats.year.format(date);
-                        String dayOfWeekKey = DateFormats.dayOfWeek.format(date);
-                        String hourOfDayKey = DateFormats.hourOfDay.format(date);
-
-                        chatLineModelArrayList.add(
-                                new ChatLineModel(lineId, date, dayKey,
-                                        monthKey, yearKey, dayOfWeekKey,
-                                        hourOfDayKey, person, chat, splitWords.length, chat.length()));
-
-                        for(int w=0; w<splitWords.length; w++){
-                            if(isCancelled()){
-                                return "";
-                            }
-                            String splitWord = splitWords[w];
-                            if(splitWord.length()>0){
-                                Pattern urlP = Pattern.compile("(http|https):\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?");
-                                Matcher urlMatcher = urlP.matcher(splitWord);
-                                int letterCount = splitWord.length();
-                                boolean isLink = urlMatcher.matches();
-                                boolean isPic = splitWord.matches(".+(\\.jpg|\\.jpeg|\\.png)$");
-                                boolean isVideo = splitWord.matches(".+(\\.avi|\\.mov|\\.mkv)$");
-                                boolean isPowerpoint = splitWord.matches(".+(\\.ppt|\\.pptx)$");
-                                wordCount++;
-                                wordModelArrayList.add(new WordModel(lineId, date, person, splitWords[w], isLink, isPic, isVideo, isPowerpoint, letterCount));
-                            }
-                        }
-                        if(lineId % 127 == 0){
-                            if(getRemainingHeapSize() < 42){
-                                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        popupPBProgressDtlTV.setText(popupPBProgressDtlTV.getText().toString() + "\nRAM 확보중... 잠시만 기다려주세요...");
+                            int entireMsgIndex = 1;
+                            while (entireMsgIndex + i < chatLines.length) {
+                                Matcher nextLineMatcher = null;
+                                Matcher onlyDateMatcher = null;
+                                if (!optimized) {
+                                    if (isKorean) {
+                                        nextLineMatcher = TextPatterns.korean.matcher(chatLines[i + entireMsgIndex]);
+                                        onlyDateMatcher = TextPatterns.koreanDate.matcher(chatLines[i + entireMsgIndex]);
+                                    } else {
+                                        //English
+                                        nextLineMatcher = TextPatterns.english.matcher(chatLines[i + entireMsgIndex]);
+                                        onlyDateMatcher = TextPatterns.englishDate.matcher(chatLines[i + entireMsgIndex]);
                                     }
-                                });
-                                LogUtils.e("Clearing");
-                                chatLineDao.insertAll(chatLineModelArrayList);
-                                wordDao.insertAll(wordModelArrayList);
-                                wordModelArrayList.clear();
-                                chatLineModelArrayList.clear();
+                                } else {
+                                    nextLineMatcher = pattern.matcher(chatLines[i + entireMsgIndex]);
+                                    onlyDateMatcher = datePattern.matcher(chatLines[i + entireMsgIndex]);
+                                }
+
+                                //User used \n in sentence
+
+                                //next line is continuation of previous line
+                                if (!nextLineMatcher.matches() && !onlyDateMatcher.matches()) {
+                                    //append lines to chatline content
+                                    chat += '\n' + chatLines[i + entireMsgIndex];
+                                } else {
+                                    break;
+                                }
+                                entireMsgIndex++;
                             }
+                            String[] splitWords = chat.split("\\s");
+
+                            String dayKey = DateFormats.day.format(date);
+                            String monthKey = DateFormats.month.format(date);
+                            String yearKey = DateFormats.year.format(date);
+                            String dayOfWeekKey = DateFormats.dayOfWeek.format(date);
+                            String hourOfDayKey = DateFormats.hourOfDay.format(date);
+
+                            chatLineModelArrayList.add(
+                                    new ChatLineModel(lineId, date, dayKey,
+                                            monthKey, yearKey, dayOfWeekKey,
+                                            hourOfDayKey, person, chat, splitWords.length, chat.length()));
+
+                            for (int w = 0; w < splitWords.length; w++) {
+                                if (isCancelled()) {
+                                    return "";
+                                }
+                                String splitWord = splitWords[w];
+                                if (splitWord.length() > 0) {
+                                    Pattern urlP = Pattern.compile("(http|https):\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?");
+                                    Matcher urlMatcher = urlP.matcher(splitWord);
+                                    int letterCount = splitWord.length();
+                                    boolean isLink = urlMatcher.matches();
+                                    boolean isPic = splitWord.matches(".+(\\.jpg|\\.jpeg|\\.png)$");
+                                    boolean isVideo = splitWord.matches(".+(\\.avi|\\.mov|\\.mkv)$");
+                                    boolean isPowerpoint = splitWord.matches(".+(\\.ppt|\\.pptx)$");
+                                    wordCount++;
+                                    wordModelArrayList.add(new WordModel(lineId, date, person, splitWords[w], isLink, isPic, isVideo, isPowerpoint, letterCount));
+                                }
+                            }
+                            if (lineId % 127 == 0) {
+                                if (getRemainingHeapSize() < 42) {
+                                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            popupPBProgressDtlTV.setText(popupPBProgressDtlTV.getText().toString() + "\nRAM 확보중... 잠시만 기다려주세요...");
+                                        }
+                                    });
+                                    LogUtils.e("Clearing");
+                                    chatLineDao.insertAll(chatLineModelArrayList);
+                                    wordDao.insertAll(wordModelArrayList);
+                                    wordModelArrayList.clear();
+                                    chatLineModelArrayList.clear();
+                                }
+                            }
+
+                            lineId++;
                         }
-
-                        lineId++;
                     }
+
+                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            popupPBProgressTV.setVisibility(View.GONE);
+                            popupPB.setVisibility(View.INVISIBLE);
+                            popupPBProgressDtlTV.setVisibility(View.GONE);
+                            popupPBCancelBtn.setVisibility(View.GONE);
+                            loadingTextTV.setText(getLoadStatusText("대화 정리", false));
+                            loadingGifIV.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    chatLineDao.insertAll(chatLineModelArrayList);
+                    chatLineModelArrayList.clear();
+
+                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadingTextTV.setText(getLoadStatusText("단어 정리", false));
+                        }
+                    });
+
+                    wordDao.insertAll(wordModelArrayList);
+                    wordModelArrayList.clear();
+
+                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadingTextTV.setText(getLoadStatusText("기타 정리", false));
+                        }
+                    });
+
+                    long loadTime = System.currentTimeMillis() - loadStartTime;
+                    double loadElapsedSeconds = loadTime / 1000.0;
+                    cd.setLoadElapsedSeconds(loadElapsedSeconds);
+
+                    chatterCount = chatLineDao.getChatterCount();
+                    cd.setChatterCount(chatterCount);
+                    cd.setDayCount(chatLineDao.getDayCount());
+                    cd.setChatLineCount(chatLineDao.getCount());
+                    cd.setWordCount(wordDao.getDistinctCount());
+                    cd.setAvgWordCount(chatLineDao.getAverageWordCount());
+                    cd.setAvgLetterCount(wordDao.getAverageLetterCount());
+                    cd.setLinkCount(wordDao.getLinkCount());
+                    cd.setPicCount(wordDao.getPicCount());
+                    cd.setVideoCount(wordDao.getVideoCount());
+                    cd.setPptCount(wordDao.getPowerpointCount());
+                    cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
+
+                    cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
+                    cd.setTop10Chatters(chatLineDao.getTop10Chatters());
+                    cd.setWordFreqArrList(wordDao.getFreqWordList());
+                    cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
+                    cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
+                    cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
+                    cd.setAuthorsList(chatLineDao.getChatters());
+
+                    //Check if already backed up
+                    long minSaveSize = Long.parseLong(spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_MIN_SIZE, "0"));
+                    long maxSaveSize = Long.parseLong(spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_MAX_SIZE, "1000000000"));
+                    boolean isWithinSaveSize = cd.getChatFileSize() >= minSaveSize && cd.getChatFileSize() <= maxSaveSize;
+                    LogUtils.e("MAX : " + maxSaveSize);
+                    LogUtils.e("SIZE : " + cd.getChatFileSize() + isWithinSaveSize);
+
+                    //Check title blacklist
+                    String[] titleBlacklist = spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST, "").split("\\|");
+                    boolean titleBlacklistTest = false;
+                    for (String titleTest : titleBlacklist) {
+                        if (chatTitle.contains(titleTest)) {
+                            titleBlacklistTest = true;
+                        }
+                    }
+
+                    shouldBackup = analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0 && spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT, true) && !spu.getBool(R.string.SP_FB_BOOL_IS_BLACKLISTED, false) && isWithinSaveSize && !titleBlacklistTest;
+
+                    if (shouldBackup) {
+                        boolean onlyTwo = spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, false);
+                        if ((onlyTwo && chatterCount == 2) || (!onlyTwo)) {
+                            backupChat(chatTitle, chatFile);
+                            backupComplete = true;
+                        }
+                    }
+
+                    AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
+                    analysedChatDAO.insert(acm);
+                    cd.setChatAnalyseDbModel(chatTitle, lastAnalyseDtStr);
+
+                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadingTextTV.setText(getLoadStatusText("", true));
+                        }
+                    });
+
+                    //Change Title to include date
+                    SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
+                    dateRangeStr = "(" + titleDateFormat.format(startDt) + " ~ " + titleDateFormat.format(endDt) + ")";
+                    final SpannableString newChatTitle = generateTitleSpannableText(chatTitle, dateRangeStr);
+                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            titleTV.setText(newChatTitle);
+                        }
+                    });
+
+                    return "";
+                } catch (OutOfMemoryError oome){
+                    chatLines = null;
+                    Toast.makeText(ChatStatsTabActivity.this, "램이 부족합니다. 대화 기간을 줄이거나 램을 확보해주세요.", Toast.LENGTH_LONG).show();
+                    ChatStatsTabActivity.this.finish();
+                    FirebaseCrashlytics.getInstance().log("[REXYREX] 램 부족 : " + chatTitle);
+                    FirebaseCrashlytics.getInstance().recordException(oome);
                 }
-
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        popupPBProgressTV.setVisibility(View.GONE);
-                        popupPB.setVisibility(View.INVISIBLE);
-                        popupPBProgressDtlTV.setVisibility(View.GONE);
-                        popupPBCancelBtn.setVisibility(View.GONE);
-                        loadingTextTV.setText(getLoadStatusText("대화 정리", false));
-                        loadingGifIV.setVisibility(View.VISIBLE);
-                    }
-                });
-                chatLineDao.insertAll(chatLineModelArrayList);
-                chatLineModelArrayList.clear();
-
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTextTV.setText(getLoadStatusText("단어 정리", false));
-                    }
-                });
-
-                wordDao.insertAll(wordModelArrayList);
-                wordModelArrayList.clear();
-
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTextTV.setText(getLoadStatusText("기타 정리", false));
-                    }
-                });
-
-                long loadTime = System.currentTimeMillis() - loadStartTime;
-                double loadElapsedSeconds = loadTime/1000.0;
-                cd.setLoadElapsedSeconds(loadElapsedSeconds);
-
-                chatterCount = chatLineDao.getChatterCount();
-                cd.setChatterCount(chatterCount);
-                cd.setDayCount(chatLineDao.getDayCount());
-                cd.setChatLineCount(chatLineDao.getCount());
-                cd.setWordCount(wordDao.getDistinctCount());
-                cd.setAvgWordCount(chatLineDao.getAverageWordCount());
-                cd.setAvgLetterCount(wordDao.getAverageLetterCount());
-                cd.setLinkCount(wordDao.getLinkCount());
-                cd.setPicCount(wordDao.getPicCount());
-                cd.setVideoCount(wordDao.getVideoCount());
-                cd.setPptCount(wordDao.getPowerpointCount());
-                cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
-
-                cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
-                cd.setTop10Chatters(chatLineDao.getTop10Chatters());
-                cd.setWordFreqArrList(wordDao.getFreqWordList());
-                cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
-                cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
-                cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
-                cd.setAuthorsList(chatLineDao.getChatters());
-
-                //Check if already backed up
-                long minSaveSize = Long.parseLong(spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_MIN_SIZE, "0"));
-                long maxSaveSize = Long.parseLong(spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_MAX_SIZE, "1000000000"));
-                boolean isWithinSaveSize = cd.getChatFileSize() >= minSaveSize && cd.getChatFileSize() <= maxSaveSize;
-                LogUtils.e("MAX : " + maxSaveSize);
-                LogUtils.e("SIZE : " + cd.getChatFileSize() + isWithinSaveSize);
-
-                //Check title blacklist
-                String[] titleBlacklist = spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST, "").split("\\|");
-                boolean titleBlacklistTest = false;
-                for(String titleTest : titleBlacklist){
-                    if(chatTitle.contains(titleTest)){
-                        titleBlacklistTest = true;
-                    }
-                }
-
-                shouldBackup = analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0 && spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT, true) && !spu.getBool(R.string.SP_FB_BOOL_IS_BLACKLISTED, false) && isWithinSaveSize && !titleBlacklistTest;
-
-                if(shouldBackup){
-                    boolean onlyTwo = spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, false);
-                    if((onlyTwo && chatterCount == 2) || (!onlyTwo)){
-                        backupChat(chatTitle, chatFile);
-                        backupComplete = true;
-                    }
-                }
-
-                AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
-                analysedChatDAO.insert(acm);
-                cd.setChatAnalyseDbModel(chatTitle, lastAnalyseDtStr);
-
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTextTV.setText(getLoadStatusText("", true));
-                    }
-                });
-
-                //Change Title to include date
-                SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
-                dateRangeStr = "(" + titleDateFormat.format(startDt) + " ~ " + titleDateFormat.format(endDt) + ")";
-                final SpannableString newChatTitle = generateTitleSpannableText(chatTitle, dateRangeStr);
-                ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        titleTV.setText( newChatTitle);
-                    }
-                });
 
                 return "";
             }

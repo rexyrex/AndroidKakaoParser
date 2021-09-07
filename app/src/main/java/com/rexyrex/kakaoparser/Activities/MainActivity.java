@@ -512,6 +512,7 @@ public class MainActivity extends AppCompatActivity {
                             int position = integers[0];
                             FirebaseCrashlytics.getInstance().log("[REXYREX] Chat Click : " + FileParseUtils.parseFileForTitle(reversedFilesArr[position]));
                             String res = FileParseUtils.parseFileForDateRange(reversedFilesArr[position], MainActivity.this);
+                            //FileParseUtils.printLastLinesTest(reversedFilesArr[position], MainActivity.this);
                             fileIndex = position;
                             return res;
                         }
@@ -524,7 +525,7 @@ public class MainActivity extends AppCompatActivity {
                                 public void run() {
                                     if(!s.contains("~")){
                                         //parse error
-                                        Toast.makeText(MainActivity.this, "선택하신 대화는 현재 지원되지 않은 날짜 형식을 사용합니다. 불편을 끼쳐드려 죄송합니다.", Toast.LENGTH_LONG);
+                                        Toast.makeText(MainActivity.this, "선택하신 대화는 현재 지원되지 않은 포맷을 사용합니다. 불편을 끼쳐드려 죄송합니다.", Toast.LENGTH_LONG);
                                         return;
                                     }
 

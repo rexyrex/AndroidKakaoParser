@@ -7,9 +7,15 @@ import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Constants.TextPatterns;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 
+import org.apache.commons.io.input.ReversedLinesFileReader;
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
 import java.text.CharacterIterator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -185,29 +191,42 @@ public class FileParseUtils {
         SimpleDateFormat dateFormat = cd.getDateFormat();
 
         String fileName = file.getAbsolutePath() + "/KakaoTalkChats.txt";
+        File txtFile = new File(fileName);
         String firstLine = "";
         String lastLine ="";
+
+        //Get first line
         try {
             BufferedReader br = new BufferedReader(new FileReader(fileName));
             String line = br.readLine();
             firstLine = line;
-            lastLine = line;
 
-            int index = 0;
             while (line != null) {
-                if(index == 4){
-                    firstLine = line;
-                }
-                //if(line.contains(",") && line.contains(":"))
                 if(tPattern.matcher(line).find()){
-                    lastLine = line;
+                    firstLine = line;
+                    break;
                 }
-
-                index++;
                 line = br.readLine();
             }
             br.close();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Get Last Line
+        try {
+            ReversedLinesFileReader reader
+                    = new ReversedLinesFileReader(txtFile, Charset.forName("UTF-8"));
+            String line = reader.readLine();
+            while(line!=null){
+                if(tPattern.matcher(line).find()){
+                    lastLine = line;
+                    break;
+                }
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (Exception e){
             e.printStackTrace();
         }
 
@@ -217,25 +236,22 @@ public class FileParseUtils {
         Date startDt = null;
         Date endDt = null;
 
-        SimpleDateFormat outputFormat = DateFormats.simpleKoreanFormat;
-
         boolean parseError = false;
-
         try {
-            startDt = dateFormat.parse(firstLine);
-            Matcher m = tPattern.matcher(lastLine);
-            if(m.matches()){
-                endDt = dateFormat.parse(m.group(1));
+            Matcher firstMatch = tPattern.matcher(firstLine);
+            Matcher lastMatch = tPattern.matcher(lastLine);
+            if(firstMatch.matches() && lastMatch.matches()){
+                startDt = dateFormat.parse(firstMatch.group(1));
+                endDt = dateFormat.parse(lastMatch.group(1));
+            } else {
+                return "parse error";
             }
-
         } catch (ParseException e) {
             parseError = true;
-
             FirebaseCrashlytics.getInstance().log("[REXYREX] parse or matcher error");
             FirebaseCrashlytics.getInstance().log("[REXYREX] first line : " + firstLine);
             FirebaseCrashlytics.getInstance().log("[REXYREX] last line : " + lastLine);
             FirebaseCrashlytics.getInstance().log("[REXYREX] chat type : " + cd.getChatType());
-
             FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
         }
@@ -244,8 +260,7 @@ public class FileParseUtils {
             return "parse error";
         }
 
-        String res = outputFormat.format(startDt) + "~" + outputFormat.format(endDt);
-
-        return res;
+        SimpleDateFormat outputFormat = DateFormats.simpleKoreanFormat;
+        return outputFormat.format(startDt) + "~" + outputFormat.format(endDt);
     }
 }

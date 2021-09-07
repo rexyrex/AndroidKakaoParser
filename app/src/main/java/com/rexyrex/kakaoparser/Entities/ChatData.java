@@ -143,7 +143,7 @@ public class ChatData {
     }
 
     public List<String> getAuthorsList() {
-        return (authorsList == null) ? chatLineDao.getChatters() : authorsList;
+        return (authorsList == null || authorsList.size() == 0) ? chatLineDao.getChatters() : authorsList;
     }
 
     public void setAuthorsList(List<String> authorsList) {
@@ -151,7 +151,7 @@ public class ChatData {
     }
 
     public List<ChatLineModel> getAllChatInit() {
-        return (allChatInit == null) ? chatLineDao.getAllChatsByDateDesc() : allChatInit;
+        return (allChatInit == null || allChatInit.size()==0 ) ? chatLineDao.getAllChatsByDateDesc() : allChatInit;
     }
 
     public void setAllChatInit(List<ChatLineModel> allChatInit) {
