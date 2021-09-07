@@ -1,8 +1,14 @@
 package com.rexyrex.kakaoparser.Utils;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 public class StringParseUtils {
     public static String chatFileNameToDate(String chatFileName){
         String[] split = chatFileName.split("_");
+        if(split.length != 5){
+            FirebaseCrashlytics.getInstance().log("[REXYREX] chatFileNameToDate not parsable : " + chatFileName);
+            return chatFileName + " [파싱 에러]";
+        }
         return split[2] + " " + split[3].replace(".", ":");
     }
 
