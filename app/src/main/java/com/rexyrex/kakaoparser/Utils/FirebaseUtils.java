@@ -212,29 +212,20 @@ public class FirebaseUtils {
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
         String uuid = spu.getString(R.string.SP_UUID, "none");
 
-        String manufacturer = Build.MANUFACTURER;
-        String model = Build.MODEL;
-        int version = Build.VERSION.SDK_INT;
-
         Map<String, Object> chatEntry = new HashMap<>();
 
-        chatEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
-        chatEntry.put("firebaseToken", firebaseToken);
+        //chatEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
+        //chatEntry.put("firebaseToken", firebaseToken);
         chatEntry.put("uuid", uuid);
-
-        chatEntry.put("Manufacturer", manufacturer);
-        chatEntry.put("Model", model);
-        chatEntry.put("Android Version", version);
-        chatEntry.put("App Version", BuildConfig.VERSION_NAME);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
         chatEntry.put("date", sdf.format(new Date()));
 
         chatEntry.put("ChatDateRange", dateRangeStr);
-        chatEntry.put("ChatterCount", cd.getChatterCount());
+        //chatEntry.put("ChatterCount", cd.getChatterCount());
         chatEntry.put("ChatLineCount", cd.getChatLineCount());
         chatEntry.put("ChatTitle", cd.getChatFileTitle());
-        chatEntry.put("ChatWordCount", cd.getWordCount());
+        //chatEntry.put("ChatWordCount", cd.getWordCount());
         chatEntry.put("ChatDayCount", cd.getDayCount());
         chatEntry.put("ChatDeletedMsgCount", cd.getDeletedMsgCount());
 
@@ -245,7 +236,7 @@ public class FirebaseUtils {
 
         chatEntry.put("ChatAnalyseDuration", cd.getLoadElapsedSeconds());
 
-        //chatEntry.put("Top10Chatters", cd.getTop10Chatters());
+        chatEntry.put("Top10Chatters", cd.getTop10Chatters());
 
         db.collection("chats").document()
                 .set(chatEntry)
@@ -271,7 +262,7 @@ public class FirebaseUtils {
 
         Map<String, Object> quizEntry = new HashMap<>();
         quizEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
-        quizEntry.put("firebaseToken", firebaseToken);
+        //quizEntry.put("firebaseToken", firebaseToken);
         quizEntry.put("uuid", uuid);
         quizEntry.put("highscore", score);
 
@@ -286,18 +277,18 @@ public class FirebaseUtils {
         quizEntry.put("quizShareQuestionCount", spu.getInt(R.string.SP_QUIZ_SHARE_QUESTION_COUNT, 0));
         quizEntry.put("quizInstructionsCount", spu.getInt(R.string.SP_QUIZ_INSTRUCTIONS_COUNT, 0));
         quizEntry.put("quizSeeOnlineRankingCount", spu.getInt(R.string.SP_QUIZ_SEE_ONLINE_RANKING_COUNT, 0));
-        quizEntry.put("quizSeeMyRankingCount", spu.getInt(R.string.SP_QUIZ_SEE_MY_RANKING_COUNT, 0));
+//        quizEntry.put("quizSeeMyRankingCount", spu.getInt(R.string.SP_QUIZ_SEE_MY_RANKING_COUNT, 0));
 
-        quizEntry.put("quizQ1CorrectCount", spu.getInt(R.string.SP_QUIZ_Q1_CORRECT_COUNT, 0));
-        quizEntry.put("quizQ1TotalCount", spu.getInt(R.string.SP_QUIZ_Q1_TOTAL_COUNT, 0));
-        quizEntry.put("quizQ2CorrectCount", spu.getInt(R.string.SP_QUIZ_Q2_CORRECT_COUNT, 0));
-        quizEntry.put("quizQ2TotalCount", spu.getInt(R.string.SP_QUIZ_Q2_TOTAL_COUNT, 0));
-        quizEntry.put("quizQ3CorrectCount", spu.getInt(R.string.SP_QUIZ_Q3_CORRECT_COUNT, 0));
-        quizEntry.put("quizQ3TotalCount", spu.getInt(R.string.SP_QUIZ_Q3_TOTAL_COUNT, 0));
-        quizEntry.put("quizQ4CorrectCount", spu.getInt(R.string.SP_QUIZ_Q4_CORRECT_COUNT, 0));
-        quizEntry.put("quizQ4TotalCount", spu.getInt(R.string.SP_QUIZ_Q4_TOTAL_COUNT, 0));
-        quizEntry.put("quizQ5CorrectCount", spu.getInt(R.string.SP_QUIZ_Q5_CORRECT_COUNT, 0));
-        quizEntry.put("quizQ5TotalCount", spu.getInt(R.string.SP_QUIZ_Q5_TOTAL_COUNT, 0));
+//        quizEntry.put("quizQ1CorrectCount", spu.getInt(R.string.SP_QUIZ_Q1_CORRECT_COUNT, 0));
+//        quizEntry.put("quizQ1TotalCount", spu.getInt(R.string.SP_QUIZ_Q1_TOTAL_COUNT, 0));
+//        quizEntry.put("quizQ2CorrectCount", spu.getInt(R.string.SP_QUIZ_Q2_CORRECT_COUNT, 0));
+//        quizEntry.put("quizQ2TotalCount", spu.getInt(R.string.SP_QUIZ_Q2_TOTAL_COUNT, 0));
+//        quizEntry.put("quizQ3CorrectCount", spu.getInt(R.string.SP_QUIZ_Q3_CORRECT_COUNT, 0));
+//        quizEntry.put("quizQ3TotalCount", spu.getInt(R.string.SP_QUIZ_Q3_TOTAL_COUNT, 0));
+//        quizEntry.put("quizQ4CorrectCount", spu.getInt(R.string.SP_QUIZ_Q4_CORRECT_COUNT, 0));
+//        quizEntry.put("quizQ4TotalCount", spu.getInt(R.string.SP_QUIZ_Q4_TOTAL_COUNT, 0));
+//        quizEntry.put("quizQ5CorrectCount", spu.getInt(R.string.SP_QUIZ_Q5_CORRECT_COUNT, 0));
+//        quizEntry.put("quizQ5TotalCount", spu.getInt(R.string.SP_QUIZ_Q5_TOTAL_COUNT, 0));
 
         quizEntry.put("ChatterCount", cd.getChatterCount());
         quizEntry.put("ChatLineCount", cd.getChatLineCount());
