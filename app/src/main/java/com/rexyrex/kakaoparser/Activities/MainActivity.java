@@ -60,6 +60,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -445,10 +446,47 @@ public class MainActivity extends AppCompatActivity {
 
         String folderPath = Environment.getExternalStorageDirectory()
                 + File.separator + "KakaoTalk/Chats/";
-        File dir = new File(folderPath);
-        if (dir.isDirectory() && dir.listFiles()!=null) {
-            files = dir.listFiles();
-            Arrays.sort(files);
+
+        String folderPath2 = Environment.getExternalStorageDirectory()
+                + File.separator + "Documents/Chats/";
+
+
+        File dir1 = new File(folderPath);
+        File dir2 = new File(folderPath2);
+        int totalFileCount = 0;
+        boolean dir1Exists = false, dir2Exists = false;
+
+        if(dir1.isDirectory() && dir1.listFiles()!=null){
+            totalFileCount += dir1.listFiles().length;
+            dir1Exists = true;
+        }
+
+        if(dir2.isDirectory() && dir2.listFiles()!=null){
+            totalFileCount += dir2.listFiles().length;
+            dir2Exists = true;
+        }
+
+        if (totalFileCount>0) {
+
+            files = new File[totalFileCount];
+            int tmpFileIndex = 0;
+
+            if(dir1Exists){
+                for(int i=0; i<dir1.listFiles().length; i++){
+                    files[tmpFileIndex] = dir1.listFiles()[i];
+                    tmpFileIndex++;
+                }
+            }
+
+            if(dir2Exists){
+                for(int i=0; i<dir2.listFiles().length; i++){
+                    files[tmpFileIndex] = dir2.listFiles()[i];
+                    tmpFileIndex++;
+                }
+            }
+
+
+            Arrays.sort(files, new CustomComparator());
 
             List<File> goodFiles = new ArrayList<>();
             int notDeleteFileCount = 0;
@@ -760,5 +798,14 @@ public class MainActivity extends AppCompatActivity {
             finishAndRemoveTask();
         }
     }
+
+    class CustomComparator implements Comparator<File> {
+        @Override public int compare(File f1, File f2) {
+            return StringParseUtils.chatFileNameToDate(f1.getName()).compareTo(StringParseUtils.chatFileNameToDate(f2.getName()));
+        }
+
+    }
+
+
 
 }

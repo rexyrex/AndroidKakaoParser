@@ -7,7 +7,7 @@ public class StringParseUtils {
         String[] split = chatFileName.split("_");
         if(split.length != 5){
             FirebaseCrashlytics.getInstance().log("[REXYREX] chatFileNameToDate not parsable : " + chatFileName);
-            return chatFileName + " [파싱 에러]";
+            return "[저장 시간 알 수 없음]";
         }
         return split[2] + " " + split[3].replace(".", ":");
     }
