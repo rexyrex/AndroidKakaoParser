@@ -625,10 +625,15 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     return "";
                 } catch (OutOfMemoryError oome){
                     chatLines = null;
-                    Toast.makeText(ChatStatsTabActivity.this, "램이 부족합니다. 대화 기간을 줄이거나 램을 확보해주세요.", Toast.LENGTH_LONG).show();
-                    ChatStatsTabActivity.this.finish();
+                    ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(ChatStatsTabActivity.this, "램이 부족합니다. 대화 기간을 줄이거나 램을 확보해주세요.", Toast.LENGTH_LONG).show();
+                        }
+                    });
                     FirebaseCrashlytics.getInstance().log("[REXYREX] 램 부족 : " + chatTitle);
                     FirebaseCrashlytics.getInstance().recordException(oome);
+                    ChatStatsTabActivity.this.finish();
                 }
 
                 return "";

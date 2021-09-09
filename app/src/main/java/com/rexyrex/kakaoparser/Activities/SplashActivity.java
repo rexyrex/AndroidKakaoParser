@@ -242,8 +242,9 @@ public class SplashActivity extends AppCompatActivity {
                     }
                 });
         // Create the AlertDialog object and return it
-        builder.create().show();
-
+        if(!isFinishing()){
+            builder.create().show();
+        }
     }
 
     private void fcmCheck(){

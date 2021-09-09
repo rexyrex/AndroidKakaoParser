@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.rexyrex.kakaoparser"
-        minSdkVersion 24
+        minSdkVersion 26
         targetSdkVersion 29
         versionCode 5
         versionName "1.3.0"
@@ -32,13 +32,13 @@ android {
     productFlavors {
         devFlavor {
             dimension = 'default'
-            versionCode 14
-            versionName '1.3.9'
+            versionCode 15
+            versionName '1.3.10'
         }
         prdFlavor {
             dimension = 'default'
-            versionCode 14
-            versionName '1.3.9'
+            versionCode 15
+            versionName '1.3.10'
         }
     }
 
