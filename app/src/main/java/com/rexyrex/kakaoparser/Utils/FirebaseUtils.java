@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -84,6 +85,7 @@ public class FirebaseUtils {
         user.put("Analyze Count", spu.getInt(R.string.SP_ANALYSE_COUNT, 0));
         user.put("Load Count", spu.getInt(R.string.SP_LOAD_COUNT, 0));
         user.put("LastChangeDt", sdf.format(date));
+        user.put("LastChangeServerDt", FieldValue.serverTimestamp());
         user.put("FirebaseToken", firebaseToken);
         if(firebaseToken.contains("Firebase")){
             user.put("FirebaseError", true);
@@ -220,6 +222,7 @@ public class FirebaseUtils {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
         chatEntry.put("date", sdf.format(new Date()));
+        chatEntry.put("serverDt", FieldValue.serverTimestamp());
 
         chatEntry.put("ChatDateRange", dateRangeStr);
         //chatEntry.put("ChatterCount", cd.getChatterCount());
@@ -268,6 +271,7 @@ public class FirebaseUtils {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
         quizEntry.put("highscoreUpdateDt", sdf.format(new Date()));
+        quizEntry.put("highscoreUpdateServerDt", FieldValue.serverTimestamp());
 
         quizEntry.put("quizStartCount", spu.getInt(R.string.SP_QUIZ_START_COUNT, 0));
         quizEntry.put("quizLoadQuestionCount", spu.getInt(R.string.SP_QUIZ_LOAD_QUESTION_COUNT, 0));
@@ -328,7 +332,7 @@ public class FirebaseUtils {
                             }
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                LogUtils.e(document.getId() + " => " + document.getData());
+                                //LogUtils.e(document.getId() + " => " + document.getData());
                                 if(document.getData().containsKey("nickname") && document.getData().containsKey("highscore"))
                                 highscoreDataList.add(new HighscoreData((int) ((long) document.getData().get("highscore")), (String) document.getData().get("nickname")));
                             }
@@ -357,6 +361,7 @@ public class FirebaseUtils {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.KOREAN);
         quizEntry.put("dt", sdf.format(new Date()));
+        quizEntry.put("serverDt", FieldValue.serverTimestamp());
 
         quizEntry.put("ChatterCount", cd.getChatterCount());
         quizEntry.put("ChatLineCount", cd.getChatLineCount());
@@ -396,6 +401,7 @@ public class FirebaseUtils {
         opinionEntry.put("firebaseToken", firebaseToken);
         opinionEntry.put("uuid", uuid);
         opinionEntry.put("dt", sdf.format(new Date()));
+        opinionEntry.put("serverDt", FieldValue.serverTimestamp());
 
         db.collection("opinions").document()
                 .set(opinionEntry)

@@ -46,10 +46,6 @@ public class QuizInstructionsActivity extends AppCompatActivity {
                         "(대화 길이가 길고, 참여인원이 많고, 문제 유형이 어려울수록 점수는 높아집니다)"
         ));
         instructionsDataList.add(new StringStringPair(
-                "화면에 보이는 최고점수랑 \"전체 랭킹\"에 보이는 최고 점수가 달라요",
-                "화면에 보이는 최고점수는 현재 분석된 채팅의 최고 점수이며 \"전체 랭킹\"에 보이는 점수는 모든 채팅 퀴즈 결과를 통합하여 가장 높은 점수가 기록됩니다."
-        ));
-        instructionsDataList.add(new StringStringPair(
                 "닉네임을 수정하고싶어요",
                 "현재로서는 닉네임 수정을 허용하지 않습니다. 추후 정책이 바뀌면 공지드리겠습니다."
         ));

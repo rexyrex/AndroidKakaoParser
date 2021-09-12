@@ -8,6 +8,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/activity_chat_peek.xml" value="0.27708333333333335" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/activity_main.xml" value="0.5369791666666667" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/activity_quiz.xml" value="0.40217391304347827" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/activity_tab.xml" value="0.3145833333333333" />
@@ -19,6 +20,7 @@
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/list_view_elem_word.xml" value="0.55" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/loading_popup.xml" value="0.55" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/popup_delete.xml" value="0.55" />
+        <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/quiz_complete_popup.xml" value="0.27708333333333335" />
         <entry key="..\:/AndroidProjects/AndroidKakaoParser/app/src/main/res/layout/quiz_highscore_popup.xml" value="0.5369791666666667" />
       </map>
     </option>

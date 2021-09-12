@@ -99,15 +99,16 @@ public class QuizActivity extends AppCompatActivity {
 
     TextView finalDialogCurrentQuizScoreTV;
 
-    ConstraintLayout finalDialogLocalHighScoreCL;
-    TextView finalDialogLocalHighScoreTitleTV, finalDialogLocalHighScoreValueTV;
-    TextView finalDialogLocalScoreDescTV;
+//    ConstraintLayout finalDialogLocalHighScoreCL;
+//    TextView finalDialogLocalHighScoreTitleTV, finalDialogLocalHighScoreValueTV;
+//    TextView finalDialogLocalScoreDescTV;
 
     ConstraintLayout finalDialogOnlineScoreCL;
     TextView finalDialogOnlineScoreTitleTV, finalDialogOnlineScoreValueTV;
     TextView finalDialogOnlineScoreDescTV;
 
-    Button finalDialogCloseBtn, finalDialogMyRankingBtn, finalDialogOnlineRankingBtn;
+    Button finalDialogCloseBtn, finalDialogOnlineRankingBtn;
+    //Button finalDialogMyRankingBtn;
 
     int triesLeft = 3;
     int score = 0;
@@ -137,14 +138,14 @@ public class QuizActivity extends AppCompatActivity {
         loadAd();
 
         //banner ad
-        adContainer = findViewById(R.id.adView);
-        mAdView = new AdView(this);
-        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner_Quiz));
-        adContainer.addView(mAdView);
-
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.setAdSize(AdUtils.getAdSize(this));
-        mAdView.loadAd(adRequest);
+//        adContainer = findViewById(R.id.adView);
+//        mAdView = new AdView(this);
+//        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner_Quiz));
+//        adContainer.addView(mAdView);
+//
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        mAdView.setAdSize(AdUtils.getAdSize(this));
+//        mAdView.loadAd(adRequest);
 
 
         answersLV = findViewById(R.id.quizAnswersList);
@@ -200,10 +201,10 @@ public class QuizActivity extends AppCompatActivity {
 
         finalDialogCurrentQuizScoreTV = finalDialog.findViewById(R.id.quizCompleteCurrentScoreTV);
 
-        finalDialogLocalHighScoreCL = finalDialog.findViewById(R.id.quizLocalHighScoreCL);
-        finalDialogLocalHighScoreTitleTV = finalDialog.findViewById(R.id.quizLocalScoreTitleTV);
-        finalDialogLocalHighScoreValueTV = finalDialog.findViewById(R.id.quizLocalScoreValueTV);
-        finalDialogLocalScoreDescTV = finalDialog.findViewById(R.id.quizLocalHighScoreCLSubTextTV);
+//        finalDialogLocalHighScoreCL = finalDialog.findViewById(R.id.quizLocalHighScoreCL);
+//        finalDialogLocalHighScoreTitleTV = finalDialog.findViewById(R.id.quizLocalScoreTitleTV);
+//        finalDialogLocalHighScoreValueTV = finalDialog.findViewById(R.id.quizLocalScoreValueTV);
+//        finalDialogLocalScoreDescTV = finalDialog.findViewById(R.id.quizLocalHighScoreCLSubTextTV);
 
         finalDialogOnlineScoreCL = finalDialog.findViewById(R.id.quizOnlineScoreCL);
         finalDialogOnlineScoreTitleTV = finalDialog.findViewById(R.id.quizOnlineScoreTitleTV);
@@ -212,7 +213,7 @@ public class QuizActivity extends AppCompatActivity {
 
         finalDialogTitleTV = finalDialog.findViewById(R.id.quizCompleteTitleTV);
         finalDialogCloseBtn = finalDialog.findViewById(R.id.quizCompleteCloseBtn);
-        finalDialogMyRankingBtn = finalDialog.findViewById(R.id.quizCompleteMyRankingBtn);
+//        finalDialogMyRankingBtn = finalDialog.findViewById(R.id.quizCompleteMyRankingBtn);
         finalDialogOnlineRankingBtn = finalDialog.findViewById(R.id.quizCompleteOnlineRankBtn);
 
         finalDialogCloseBtn.setOnClickListener(new View.OnClickListener() {
@@ -222,14 +223,14 @@ public class QuizActivity extends AppCompatActivity {
             }
         });
 
-        finalDialogMyRankingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(QuizActivity.this, QuizHighscoreActivity.class);
-                intent.putExtra("my", true);
-                startActivity(intent);
-            }
-        });
+//        finalDialogMyRankingBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(QuizActivity.this, QuizHighscoreActivity.class);
+//                intent.putExtra("my", true);
+//                startActivity(intent);
+//            }
+//        });
 
         finalDialogOnlineRankingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -378,8 +379,8 @@ public class QuizActivity extends AppCompatActivity {
         if(triesLeft < 1){
             //End Condition -> display final dialog
             finalDialogCurrentQuizScoreTV = finalDialog.findViewById(R.id.quizCompleteCurrentScoreTV);
-            finalDialogLocalHighScoreTitleTV = finalDialog.findViewById(R.id.quizLocalScoreTitleTV);
-            finalDialogLocalHighScoreValueTV = finalDialog.findViewById(R.id.quizLocalScoreValueTV);
+//            finalDialogLocalHighScoreTitleTV = finalDialog.findViewById(R.id.quizLocalScoreTitleTV);
+//            finalDialogLocalHighScoreValueTV = finalDialog.findViewById(R.id.quizLocalScoreValueTV);
             finalDialogOnlineScoreTitleTV = finalDialog.findViewById(R.id.quizOnlineScoreTitleTV);
             finalDialogOnlineScoreValueTV = finalDialog.findViewById(R.id.quizOnlineScoreValueTV);
 
@@ -393,17 +394,17 @@ public class QuizActivity extends AppCompatActivity {
                 cd.getChatAnalyseDbModel().setHighscore(score);
                 analysedChatDAO.update(cd.getChatAnalyseDbModel());
 
-                finalDialogLocalHighScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_correct));
-                finalDialogLocalScoreDescTV.setTextColor(getColor(R.color.lightGreen));
-                finalDialogLocalScoreDescTV.setText("기록 갱신!");
-                finalDialogLocalHighScoreValueTV.setText("" + prevHighScore + "->" + score);
+//                finalDialogLocalHighScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_correct));
+//                finalDialogLocalScoreDescTV.setTextColor(getColor(R.color.lightGreen));
+//                finalDialogLocalScoreDescTV.setText("기록 갱신!");
+//                finalDialogLocalHighScoreValueTV.setText("" + prevHighScore + "->" + score);
             } else {
-                finalDialogLocalHighScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_white));
+//                finalDialogLocalHighScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_white));
 //                finalDialogLocalScoreDescTV.setTextColor(getColor(R.color.design_default_color_error));
 //                finalDialogLocalScoreDescTV.setText("갱신 실패");
-                finalDialogLocalScoreDescTV.setVisibility(View.GONE);
-
-                finalDialogLocalHighScoreValueTV.setText("" + prevHighScore);
+//                finalDialogLocalScoreDescTV.setVisibility(View.GONE);
+//
+//                finalDialogLocalHighScoreValueTV.setText("" + prevHighScore);
 //                finalDialogLocalHighScoreTitleTV.setTextColor(getColor(R.color.white));
 //                finalDialogLocalHighScoreValueTV.setTextColor(getColor(R.color.white));
             }
@@ -418,14 +419,14 @@ public class QuizActivity extends AppCompatActivity {
                 finalDialogOnlineScoreDescTV.setText("기록 갱신!");
                 finalDialogOnlineScoreValueTV.setText("" + onlineHighScore + "->" + score);
             } else {
-                finalDialogOnlineScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_white));
-//                finalDialogOnlineScoreDescTV.setTextColor(getColor(R.color.design_default_color_error));
-//                finalDialogOnlineScoreDescTV.setText("갱신 실패");
-                finalDialogOnlineScoreDescTV.setVisibility(View.GONE);
+                finalDialogOnlineScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_incorrect));
+                finalDialogOnlineScoreDescTV.setTextColor(getColor(R.color.design_default_color_error));
+                finalDialogOnlineScoreDescTV.setText("갱신 실패");
+                //finalDialogOnlineScoreDescTV.setVisibility(View.GONE);
 
                 finalDialogOnlineScoreValueTV.setText("" + onlineHighScore);
-//                finalDialogOnlineScoreTitleTV.setTextColor(getColor(R.color.white));
-//                finalDialogOnlineScoreValueTV.setTextColor(getColor(R.color.white));
+                finalDialogOnlineScoreTitleTV.setTextColor(getColor(R.color.white));
+                finalDialogOnlineScoreValueTV.setTextColor(getColor(R.color.white));
             }
             finalDialog.show();
             if(mInterstitialAd!=null){

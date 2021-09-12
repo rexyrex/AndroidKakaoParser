@@ -2,20 +2,13 @@ package com.rexyrex.kakaoparser.Entities;
 
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ChatSnippetData {
+public class ChatSnippetData implements Serializable {
 
     List<ChatLineModel> clm;
     ChatLineModel highlightChatLine;
-
-    private static ChatSnippetData the_instance;
-    public static ChatSnippetData getInstance() {
-        if (the_instance == null) {
-            the_instance = new ChatSnippetData();
-        }
-        return the_instance;
-    }
 
     public ChatSnippetData(){
 

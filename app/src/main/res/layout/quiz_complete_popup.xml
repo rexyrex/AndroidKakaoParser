@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="320dp"
-    android:layout_height="350dp"
+    android:layout_height="270dp"
     android:background="@color/colorPrimary">
 
     <TextView
@@ -53,62 +53,62 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/quizCompleteCurrentScoreTV">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/quizLocalHighScoreCL"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/quiz_choice_correct"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            >
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:id="@+id/quizLocalHighScoreCL"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@drawable/quiz_choice_correct"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:layout_marginStart="8dp"-->
+<!--            android:layout_marginEnd="8dp"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            >-->
 
-            <TextView
-                android:id="@+id/quizLocalScoreTitleTV"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:fontFamily="@font/nanum_square_round_r"
-                android:text="현재 채팅 기록"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+<!--            <TextView-->
+<!--                android:id="@+id/quizLocalScoreTitleTV"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:fontFamily="@font/nanum_square_round_r"-->
+<!--                android:text="현재 채팅 기록"-->
+<!--                android:textSize="18sp"-->
+<!--                android:textStyle="bold"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent" />-->
 
-            <TextView
-                android:id="@+id/quizLocalScoreValueTV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:fontFamily="@font/nanum_square_round_r"
-                android:text="1,234"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@+id/quizLocalScoreTitleTV"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/quizLocalScoreTitleTV" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+<!--            <TextView-->
+<!--                android:id="@+id/quizLocalScoreValueTV"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginEnd="8dp"-->
+<!--                android:fontFamily="@font/nanum_square_round_r"-->
+<!--                android:text="1,234"-->
+<!--                android:textSize="18sp"-->
+<!--                android:textStyle="bold"-->
+<!--                app:layout_constraintBottom_toBottomOf="@+id/quizLocalScoreTitleTV"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="@+id/quizLocalScoreTitleTV" />-->
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
-        <TextView
-            android:id="@+id/quizLocalHighScoreCLSubTextTV"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/nanum_square_round_r"
-            android:text="갱신 성공!"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:textColor="@color/lightGreen"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/quizLocalHighScoreCL" />
+<!--        <TextView-->
+<!--            android:id="@+id/quizLocalHighScoreCLSubTextTV"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="8dp"-->
+<!--            android:layout_marginEnd="8dp"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            android:fontFamily="@font/nanum_square_round_r"-->
+<!--            android:text="갱신 성공!"-->
+<!--            android:textSize="18sp"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textAlignment="center"-->
+<!--            android:textColor="@color/lightGreen"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/quizLocalHighScoreCL" />-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/quizOnlineScoreCL"
@@ -120,7 +120,7 @@
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/quizLocalHighScoreCLSubTextTV"
+            app:layout_constraintTop_toTopOf="parent"
             >
 
             <TextView
@@ -129,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/nanum_square_round_r"
-                android:text="온라인 기록"
+                android:text="최고 기록"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -182,19 +182,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-            android:id="@+id/quizCompleteMyRankingBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/custom_show_more_btn"
-            android:fontFamily="@font/nanum_square_round_r"
-            android:text="개인 기록" />
+<!--        <Button-->
+<!--            android:id="@+id/quizCompleteMyRankingBtn"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="@drawable/custom_show_more_btn"-->
+<!--            android:fontFamily="@font/nanum_square_round_r"-->
+<!--            android:text="개인 기록" />-->
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"></Space>
+<!--        <Space-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="1dp"-->
+<!--            android:layout_weight="1"></Space>-->
 
         <Button
             android:id="@+id/quizCompleteOnlineRankBtn"
@@ -203,7 +203,7 @@
             android:layout_weight="1"
             android:background="@drawable/custom_show_more_btn"
             android:fontFamily="@font/nanum_square_round_r"
-            android:text="온라인 랭킹" />
+            android:text="순위 보기" />
 
         <Space
             android:layout_width="0dp"

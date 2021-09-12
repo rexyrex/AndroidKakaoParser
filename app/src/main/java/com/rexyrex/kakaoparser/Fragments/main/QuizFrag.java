@@ -193,7 +193,7 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
 
         Button quizInstructionsBtn = view.findViewById(R.id.quizInstructionsBtn);
         Button quizRankingBtn = view.findViewById(R.id.quizRankingBtn);
-        Button quizMyRankingBtn = view.findViewById(R.id.quizMyRankingBtn);
+//        Button quizMyRankingBtn = view.findViewById(R.id.quizMyRankingBtn);
 
         quizInstructionsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,14 +204,14 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             }
         });
 
-        quizMyRankingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(QuizFrag.this.getContext(), QuizHighscoreActivity.class);
-                intent.putExtra("my", true);
-                startActivity(intent);
-            }
-        });
+//        quizMyRankingBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(QuizFrag.this.getContext(), QuizHighscoreActivity.class);
+//                intent.putExtra("my", true);
+//                startActivity(intent);
+//            }
+//        });
 
         quizRankingBtn.setOnClickListener(new View.OnClickListener() {
             @Override

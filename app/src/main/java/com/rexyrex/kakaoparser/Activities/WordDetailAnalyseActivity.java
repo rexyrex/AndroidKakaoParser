@@ -80,10 +80,11 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
 //                DialogUtils du = new DialogUtils(WordDetailAnalyseActivity.this, chatLineDao.getSurroundingChatLines(popupChatLineList.get(position).getId()));
 //                du.setHighlightText(popupChatLineList.get(position));
 //                du.openDialog();
-                ChatSnippetData csd = ChatSnippetData.getInstance();
+                ChatSnippetData csd = new ChatSnippetData();
                 csd.setClm(chatLineDao.getSurroundingChatLines(popupChatLineList.get(position).getId()));
                 csd.setHighlightChatLine(popupChatLineList.get(position));
                 Intent statsIntent = new Intent(WordDetailAnalyseActivity.this, ChatPeekActivity.class);
+                statsIntent.putExtra("chatSnippetData", csd);
                 WordDetailAnalyseActivity.this.startActivity(statsIntent);
             }
         });

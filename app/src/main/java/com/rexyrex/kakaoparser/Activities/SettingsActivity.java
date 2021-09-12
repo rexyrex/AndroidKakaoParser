@@ -94,9 +94,9 @@ public class SettingsActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (!task.isSuccessful()) {
-                                        Toast.makeText(getActivity(), "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+                                        //Toast.makeText(getActivity(), "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
                                     } else {
-                                        Toast.makeText(getActivity(), "알림 구독 완료", Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(getActivity(), "알림 구독 완료", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
@@ -106,9 +106,9 @@ public class SettingsActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (!task.isSuccessful()) {
-                                        Toast.makeText(getActivity(), "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+                                        //Toast.makeText(getActivity(), "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
                                     } else {
-                                        Toast.makeText(getActivity(), "알림 구독 해제", Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(getActivity(), "알림 구독 해제", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });

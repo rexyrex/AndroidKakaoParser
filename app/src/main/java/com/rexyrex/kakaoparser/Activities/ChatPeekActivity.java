@@ -38,7 +38,7 @@ public class ChatPeekActivity extends AppCompatActivity {
 
         author = "회원님";
 
-        ChatSnippetData csd = ChatSnippetData.getInstance();
+        ChatSnippetData csd = (ChatSnippetData) getIntent().getSerializableExtra("chatSnippetData");
         clm = csd.getClm();
         highlightChatLine = csd.getHighlightChatLine();
 

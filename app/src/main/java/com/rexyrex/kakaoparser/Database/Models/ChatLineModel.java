@@ -11,11 +11,12 @@ import androidx.room.TypeConverters;
 import com.rexyrex.kakaoparser.Database.Converters.DateConverter;
 import com.rexyrex.kakaoparser.Utils.StringParseUtils;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity(tableName = "tb_chat_line", indices = {@Index("id")})
 @TypeConverters(DateConverter.class)
-public class ChatLineModel {
+public class ChatLineModel implements Serializable {
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name="id")
     @NonNull

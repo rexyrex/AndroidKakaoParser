@@ -169,10 +169,11 @@ public class ChatAnalyseFragment extends Fragment {
         chatLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View viewz, int position, long id) {
-                ChatSnippetData csd = ChatSnippetData.getInstance();
+                ChatSnippetData csd = new ChatSnippetData();
                 csd.setClm(chatLineDao.getSurroundingChatLines(chatList.get(position).getId()));
                 csd.setHighlightChatLine(chatList.get(position));
                 Intent statsIntent = new Intent(ChatAnalyseFragment.this.getActivity(), ChatPeekActivity.class);
+                statsIntent.putExtra("chatSnippetData", csd);
                 ChatAnalyseFragment.this.getActivity().startActivity(statsIntent);
             }
         });
