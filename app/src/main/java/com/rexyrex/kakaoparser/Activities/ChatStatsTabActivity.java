@@ -481,23 +481,35 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                             monthKey, yearKey, dayOfWeekKey,
                                             hourOfDayKey, person, chat, splitWords.length, chat.length()));
 
-                            for (int w = 0; w < splitWords.length; w++) {
-                                if (isCancelled()) {
-                                    return "";
-                                }
-                                String splitWord = splitWords[w];
-                                if (splitWord.length() > 0) {
-                                    Pattern urlP = Pattern.compile("(http|https):\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?");
-                                    Matcher urlMatcher = urlP.matcher(splitWord);
-                                    int letterCount = splitWord.length();
-                                    boolean isLink = urlMatcher.matches();
-                                    boolean isPic = splitWord.matches(".+(\\.jpg|\\.jpeg|\\.png)$");
-                                    boolean isVideo = splitWord.matches(".+(\\.avi|\\.mov|\\.mkv)$");
-                                    boolean isPowerpoint = splitWord.matches(".+(\\.ppt|\\.pptx)$");
-                                    wordCount++;
-                                    wordModelArrayList.add(new WordModel(lineId, date, person, splitWords[w], isLink, isPic, isVideo, isPowerpoint, letterCount));
+                            if(chat.equals("<사진 읽지 않음>")){
+                                wordCount++;
+                                wordModelArrayList.add(new WordModel(lineId, date, person, chat, false, true, false, false, 0));
+                            } else if(chat.equals("<동영상 읽지 않음>")){
+                                wordCount++;
+                                wordModelArrayList.add(new WordModel(lineId, date, person, chat, false, false, true, false, 0));
+                            } else if(chat.equals("삭제된 메시지입니다.")){
+                                wordCount++;
+                                wordModelArrayList.add(new WordModel(lineId, date, person, chat, false, false, false, false, 0));
+                            } else {
+                                for (int w = 0; w < splitWords.length; w++) {
+                                    if (isCancelled()) {
+                                        return "";
+                                    }
+                                    String splitWord = splitWords[w];
+                                    if (splitWord.length() > 0) {
+                                        Pattern urlP = Pattern.compile("(http|https):\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?");
+                                        Matcher urlMatcher = urlP.matcher(splitWord);
+                                        int letterCount = splitWord.length();
+                                        boolean isLink = urlMatcher.matches();
+                                        boolean isPic = splitWord.matches(".+(\\.jpg|\\.jpeg|\\.png)$");
+                                        boolean isVideo = splitWord.matches(".+(\\.avi|\\.mov|\\.mkv)$");
+                                        boolean isPowerpoint = splitWord.matches(".+(\\.ppt|\\.pptx)$");
+                                        wordCount++;
+                                        wordModelArrayList.add(new WordModel(lineId, date, person, splitWords[w], isLink, isPic, isVideo, isPowerpoint, letterCount));
+                                    }
                                 }
                             }
+
                             if (lineId % 127 == 0) {
                                 if (getRemainingHeapSize() < 42) {
                                     ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
@@ -558,6 +570,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     cd.setDayCount(chatLineDao.getDayCount());
                     cd.setChatLineCount(chatLineDao.getCount());
                     cd.setWordCount(wordDao.getDistinctCount());
+                    cd.setTotalWordCount(wordDao.getCount());
                     cd.setAvgWordCount(chatLineDao.getAverageWordCount());
                     cd.setAvgLetterCount(wordDao.getAverageLetterCount());
                     cd.setLinkCount(wordDao.getLinkCount());
@@ -568,11 +581,18 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                     cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
                     cd.setTop10Chatters(chatLineDao.getTop10Chatters());
+                    cd.setTop10ChattersByWord(wordDao.getTop10ChattersByWords());
+                    cd.setTop10ChattersByPic(wordDao.getTop10ChattersByPic());
+                    cd.setTop10ChattersByVideo(wordDao.getTop10ChattersByVideo());
+                    cd.setTop10ChattersByLink(wordDao.getTop10ChattersByLink());
+                    cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
+
                     cd.setWordFreqArrList(wordDao.getFreqWordList());
                     cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
                     cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
                     cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
                     cd.setAuthorsList(chatLineDao.getChatters());
+
 
                     //Check if already backed up
                     long minSaveSize = Long.parseLong(spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_MIN_SIZE, "0"));
@@ -698,6 +718,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 cd.setDayCount(chatLineDao.getDayCount());
                 cd.setChatLineCount(chatLineDao.getCount());
                 cd.setWordCount(wordDao.getDistinctCount());
+                cd.setTotalWordCount(wordDao.getCount());
                 cd.setAvgWordCount(chatLineDao.getAverageWordCount());
                 cd.setAvgLetterCount(wordDao.getAverageLetterCount());
                 cd.setLinkCount(wordDao.getLinkCount());
@@ -708,6 +729,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
                 cd.setTop10Chatters(chatLineDao.getTop10Chatters());
+                cd.setTop10ChattersByWord(wordDao.getTop10ChattersByWords());
+                cd.setTop10ChattersByPic(wordDao.getTop10ChattersByPic());
+                cd.setTop10ChattersByVideo(wordDao.getTop10ChattersByVideo());
+                cd.setTop10ChattersByLink(wordDao.getTop10ChattersByLink());
+                cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
                 cd.setWordFreqArrList(wordDao.getFreqWordList());
                 cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
                 cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());

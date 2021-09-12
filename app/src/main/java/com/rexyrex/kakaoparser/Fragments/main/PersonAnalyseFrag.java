@@ -13,9 +13,12 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.animation.Easing;
@@ -49,6 +52,9 @@ public class PersonAnalyseFrag extends Fragment {
 
     NumberFormat numberFormat;
 
+    String[] spinnerItems = {"대화 건", "단어", "사진", "동영상", "링크", "삭제 메세지"};
+    private Spinner typeSpinner;
+
     private FloatingActionButton fab;
 
     public PersonAnalyseFrag() {
@@ -76,13 +82,53 @@ public class PersonAnalyseFrag extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_person_analyse, container, false);
+        View mainView = inflater.inflate(R.layout.fragment_person_analyse, container, false);
 
+        typeSpinner = mainView.findViewById(R.id.personAnalyseTypeSpinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(mainView.getContext(), android.R.layout.simple_spinner_dropdown_item, spinnerItems);
+        typeSpinner.setAdapter(adapter);
+
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                loadGraph(position, mainView);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        typeSpinner.setSelection(0);
+
+        //LogUtils.e("Loading : " + typeSpinner.getSelectedItemPosition());
+        loadGraph(typeSpinner.getSelectedItemPosition(), mainView);
+
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                List<StringIntPair> pairs = cd.getTop10Chatters();
+                String shareString = "";
+                for(int i=0; i<pairs.size(); i++){
+                    //String p1 = (i+1) + ". "+ pairs.get(i).getword();
+                    //String p2 = numberFormat.format(pairs.get(i).getFrequency()) + " (" + String.format("%.1f", (double)pairs.get(i).getFrequency()/totalCount*100) + "%)";
+                    //shareString += p1 + " : " + p2 + "\n";
+                }
+                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "대화량 순위 (Top10)", shareString, R.string.SP_SHARE_PERSON_ANALZ_COUNT);
+            }
+        });
+
+        return mainView;
+    }
+
+    private void loadGraph(int pos, View view){
         PieChart chatAmountPieChart = view.findViewById(R.id.chatAmountPieChart);
 
         fab = view.findViewById(R.id.fabPerson);
 
-        chatAmountPieChart.setData(getChatAmountPieData());
+        chatAmountPieChart.setData(getChatAmountPieData(pos));
 
         Typeface tf = ResourcesCompat.getFont(getActivity(), R.font.nanum_square_round_r);
 
@@ -133,26 +179,38 @@ public class PersonAnalyseFrag extends Fragment {
 
         ListView freqLV = view.findViewById(R.id.pafPersonFreqLV);
 
-        final int totalCount = cd.getChatLineCount();
+        int totalCount = 0;
+        List<StringIntPair> pairs = null;
 
-        CustomAdapter customAdapter = new CustomAdapter(cd.getTop10Chatters(), totalCount);
+        switch(pos){
+            case 0:
+                totalCount = cd.getChatLineCount();
+                pairs = cd.getTop10Chatters();
+                break;
+            case 1:
+                totalCount = cd.getTotalWordCount();
+                pairs = cd.getTop10ChattersByWord();
+                break;
+            case 2:
+                totalCount = cd.getPicCount();
+                pairs = cd.getTop10ChattersByPic();
+                break;
+            case 3:
+                totalCount = cd.getVideoCount();
+                pairs = cd.getTop10ChattersByVideo();
+                break;
+            case 4:
+                totalCount = cd.getLinkCount();
+                pairs = cd.getTop10ChattersByLink();
+                break;
+            case 5:
+                totalCount = cd.getDeletedMsgCount();
+                pairs = cd.getTop10ChattersByDeletedMsg();
+                break;
+        }
+
+        CustomAdapter customAdapter = new CustomAdapter(pairs, totalCount);
         freqLV.setAdapter(customAdapter);
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                List<StringIntPair> pairs = cd.getTop10Chatters();
-                String shareString = "";
-                for(int i=0; i<pairs.size(); i++){
-                    String p1 = (i+1) + ". "+ pairs.get(i).getword();
-                    String p2 = numberFormat.format(pairs.get(i).getFrequency()) + " (" + String.format("%.1f", (double)pairs.get(i).getFrequency()/totalCount*100) + "%)";
-                    shareString += p1 + " : " + p2 + "\n";
-                }
-                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "대화량 순위 (Top10)", shareString, R.string.SP_SHARE_PERSON_ANALZ_COUNT);
-            }
-        });
-
-        return view;
     }
 
     private SpannableString generateCenterSpannableText(Typeface tf) {
@@ -161,12 +219,40 @@ public class PersonAnalyseFrag extends Fragment {
         return s;
     }
 
-    public PieData getChatAmountPieData(){
-        List<StringIntPair> chatters = cd.getTop10Chatters();
+    public PieData getChatAmountPieData(int pos){
+        List<StringIntPair> chatters = null;
+        int totalCount = 0;
+
+        switch(pos){
+            case 0:
+                totalCount = cd.getChatLineCount();
+                chatters = cd.getTop10Chatters();
+                break;
+            case 1:
+                totalCount = cd.getTotalWordCount();
+                chatters = cd.getTop10ChattersByWord();
+                break;
+            case 2:
+                totalCount = cd.getPicCount();
+                chatters = cd.getTop10ChattersByPic();
+                break;
+            case 3:
+                totalCount = cd.getVideoCount();
+                chatters = cd.getTop10ChattersByVideo();
+                break;
+            case 4:
+                totalCount = cd.getLinkCount();
+                chatters = cd.getTop10ChattersByLink();
+                break;
+            case 5:
+                totalCount = cd.getDeletedMsgCount();
+                chatters = cd.getTop10ChattersByDeletedMsg();
+                break;
+        }
 
         ArrayList chatAmountArrayList = new ArrayList();
         ArrayList chatNicknameArrayList = new ArrayList();
-        int totalCount = cd.getChatLineCount();
+
 
         for(StringIntPair chatter : chatters){
             chatAmountArrayList.add(new PieEntry(chatter.getFrequency(),chatter.getword() + "(" + String.format("%.1f", (double)chatter.getFrequency()/totalCount*100) + "%)"));

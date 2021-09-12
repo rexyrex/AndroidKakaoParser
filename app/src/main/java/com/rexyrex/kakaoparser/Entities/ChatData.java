@@ -25,6 +25,7 @@ public class ChatData {
     int dayCount;
     int chatLineCount;
     int wordCount;
+    int totalWordCount;
     double avgWordCount;
     double avgLetterCount;
     int linkCount;
@@ -39,6 +40,11 @@ public class ChatData {
 
     List<StringIntPair> chatterFreqArrList;
     List<StringIntPair> top10Chatters;
+    List<StringIntPair> top10ChattersByWord;
+    List<StringIntPair> top10ChattersByPic;
+    List<StringIntPair> top10ChattersByVideo;
+    List<StringIntPair> top10ChattersByLink;
+    List<StringIntPair> top10ChattersByDeletedMsg;
     List<StringIntPair> wordFreqArrList;
     List<StringIntPair> freqByDayOfWeek;
     int maxFreqByDayOfWeek;
@@ -207,6 +213,46 @@ public class ChatData {
         this.top10Chatters = top10Chatters;
     }
 
+    public List<StringIntPair> getTop10ChattersByWord() {
+        return (top10ChattersByWord==null) ? wordDao.getTop10ChattersByWords() : top10ChattersByWord;
+    }
+
+    public void setTop10ChattersByWord(List<StringIntPair> top10ChattersByWord) {
+        this.top10ChattersByWord = top10ChattersByWord;
+    }
+
+    public List<StringIntPair> getTop10ChattersByPic() {
+        return (top10ChattersByPic==null) ? wordDao.getTop10ChattersByPic() : top10ChattersByPic;
+    }
+
+    public void setTop10ChattersByPic(List<StringIntPair> top10ChattersByPic) {
+        this.top10ChattersByPic = top10ChattersByPic;
+    }
+
+    public List<StringIntPair> getTop10ChattersByVideo() {
+        return (top10ChattersByVideo==null) ? wordDao.getTop10ChattersByVideo() : top10ChattersByVideo;
+    }
+
+    public void setTop10ChattersByVideo(List<StringIntPair> top10ChattersByVideo) {
+        this.top10ChattersByVideo = top10ChattersByVideo;
+    }
+
+    public List<StringIntPair> getTop10ChattersByLink() {
+        return (top10ChattersByLink==null) ? wordDao.getTop10ChattersByLink() : top10ChattersByLink;
+    }
+
+    public void setTop10ChattersByLink(List<StringIntPair> top10ChattersByLink) {
+        this.top10ChattersByLink = top10ChattersByLink;
+    }
+
+    public List<StringIntPair> getTop10ChattersByDeletedMsg() {
+        return (top10ChattersByDeletedMsg==null) ? chatLineDao.getTop10ChattersByDeletedMsg() : top10ChattersByDeletedMsg;
+    }
+
+    public void setTop10ChattersByDeletedMsg(List<StringIntPair> top10ChattersByDeletedMsg) {
+        this.top10ChattersByDeletedMsg = top10ChattersByDeletedMsg;
+    }
+
     public List<StringIntPair> getChatterFreqArrList() {
         return (chatterFreqArrList==null) ? chatLineDao.getChatterFrequencyPairs() : chatterFreqArrList;
     }
@@ -254,6 +300,14 @@ public class ChatData {
 
     public void setWordCount(int wordCount) {
         this.wordCount = wordCount;
+    }
+
+    public int getTotalWordCount() {
+        return (totalWordCount==0) ? wordDao.getCount() : totalWordCount;
+    }
+
+    public void setTotalWordCount(int totalWordCount) {
+        this.totalWordCount = totalWordCount;
     }
 
     public double getAvgWordCount() {

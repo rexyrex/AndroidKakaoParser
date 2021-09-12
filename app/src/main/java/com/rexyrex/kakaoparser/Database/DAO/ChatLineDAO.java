@@ -118,6 +118,10 @@ public interface ChatLineDAO {
     @Query("SELECT COUNT(*) FROM tb_chat_line WHERE content = '삭제된 메시지입니다.'")
     public int getDeletedMsgCount();
 
+    //get top 10 most freq del chatters
+    @Query("SELECT author as word, count(author) as frequency FROM tb_chat_line WHERE content = '삭제된 메시지입니다.' GROUP BY author ORDER BY count(author) desc LIMIT 10")
+    public List<StringIntPair> getTop10ChattersByDeletedMsg();
+
     //get chats by date desc
     @Query("SELECT * FROM tb_chat_line ORDER BY date DESC LIMIT 10000")
     public List<ChatLineModel> getAllChatsByDateDesc();
