@@ -1,6 +1,7 @@
 package com.rexyrex.kakaoparser.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -27,6 +28,8 @@ public class PersonListActivity extends AppCompatActivity {
 
     EditText searchET;
     ListView searchLV;
+    
+    Toolbar tb;
 
     NumberFormat numberFormat;
 
@@ -48,6 +51,7 @@ public class PersonListActivity extends AppCompatActivity {
 
         searchET = findViewById(R.id.chatterFreqET);
         searchLV = findViewById(R.id.chatterFreqLV);
+        tb = findViewById(R.id.toolbar);
 
         numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
@@ -64,26 +68,32 @@ public class PersonListActivity extends AppCompatActivity {
 
         switch(pos){
             case 0:
+                tb.setTitle("사람별 채팅량 분석");
                 totalCount = cd.getChatLineCount();
                 chatterFreqArrList = cd.getChatterFreqArrList();
                 break;
             case 1:
+                tb.setTitle("사람별 단어 수 분석");
                 totalCount = cd.getTotalWordCount();
                 chatterFreqArrList = wordDao.getTopChattersByWords();
                 break;
             case 2:
+                tb.setTitle("사람별 사진 공유 횟수 분석");
                 totalCount = cd.getPicCount();
                 chatterFreqArrList = wordDao.getTopChattersByPic();
                 break;
             case 3:
+                tb.setTitle("사람별 동영상 공유 횟수 분석");
                 totalCount = cd.getVideoCount();
                 chatterFreqArrList = wordDao.getTopChattersByVideo();
                 break;
             case 4:
+                tb.setTitle("사람별 링크 공유 횟수 분석");
                 totalCount = cd.getLinkCount();
                 chatterFreqArrList = wordDao.getTopChattersByLink();
                 break;
             case 5:
+                tb.setTitle("사람별 메세지 삭제 횟수 분석");
                 totalCount = cd.getDeletedMsgCount();
                 chatterFreqArrList = chatLineDao.getTopChattersByDeletedMsg();
                 break;

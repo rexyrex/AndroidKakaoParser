@@ -30,7 +30,9 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.rexyrex.kakaoparser.Activities.DetailActivities.PersonDtlActivity;
 import com.rexyrex.kakaoparser.Activities.PersonListActivity;
+import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
@@ -55,6 +57,9 @@ public class PersonAnalyseFrag extends Fragment {
     String[] spinnerItems = {"대화 건", "단어", "사진", "동영상", "링크", "삭제 메세지"};
     int spinnerPos = 0;
     private Spinner typeSpinner;
+
+    List<StringIntPair> pairs;
+    int totalCount = 0;
 
     private FloatingActionButton fab;
 
@@ -106,21 +111,6 @@ public class PersonAnalyseFrag extends Fragment {
         //LogUtils.e("Loading : " + typeSpinner.getSelectedItemPosition());
         loadGraph(typeSpinner.getSelectedItemPosition(), mainView);
 
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                List<StringIntPair> pairs = cd.getTop10Chatters();
-                String shareString = "";
-                for(int i=0; i<pairs.size(); i++){
-                    //String p1 = (i+1) + ". "+ pairs.get(i).getword();
-                    //String p2 = numberFormat.format(pairs.get(i).getFrequency()) + " (" + String.format("%.1f", (double)pairs.get(i).getFrequency()/totalCount*100) + "%)";
-                    //shareString += p1 + " : " + p2 + "\n";
-                }
-                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), "대화량 순위 (Top10)", shareString, R.string.SP_SHARE_PERSON_ANALZ_COUNT);
-            }
-        });
-
         return mainView;
     }
 
@@ -134,7 +124,7 @@ public class PersonAnalyseFrag extends Fragment {
         Typeface tf = ResourcesCompat.getFont(getActivity(), R.font.nanum_square_round_r);
 
         chatAmountPieChart.setCenterTextTypeface(tf);
-        chatAmountPieChart.setCenterText(generateCenterSpannableText(tf));
+        chatAmountPieChart.setCenterText(generateCenterSpannableText(typeSpinner.getSelectedItem().toString(), tf));
         chatAmountPieChart.setCenterTextSize(20);
 
         chatAmountPieChart.setExtraOffsets(20.f, 20.f, 20.f, 20.f);
@@ -180,8 +170,8 @@ public class PersonAnalyseFrag extends Fragment {
 
         ListView freqLV = view.findViewById(R.id.pafPersonFreqLV);
 
-        int totalCount = 0;
-        List<StringIntPair> pairs = null;
+        totalCount = 0;
+        pairs = null;
 
         switch(pos){
             case 0:
@@ -210,12 +200,37 @@ public class PersonAnalyseFrag extends Fragment {
                 break;
         }
 
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String shareString = "";
+                for(int i=0; i<pairs.size(); i++){
+                    String p1 = (i+1) + ". "+ pairs.get(i).getword();
+                    String p2 = numberFormat.format(pairs.get(i).getFrequency()) + " (" + String.format("%.1f", (double)pairs.get(i).getFrequency()/totalCount*100) + "%)";
+                    shareString += p1 + " : " + p2 + "\n";
+                }
+                ShareUtils.shareAnalysisInfoWithPromo(getActivity(), cd.getChatFileTitle(), typeSpinner.getSelectedItem().toString() + " 순위 (Top10)", shareString, R.string.SP_SHARE_PERSON_ANALZ_COUNT);
+            }
+        });
+
         CustomAdapter customAdapter = new CustomAdapter(pairs, totalCount);
         freqLV.setAdapter(customAdapter);
+
+        freqLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent personDtlIntent = new Intent(PersonAnalyseFrag.this.getActivity(), PersonDtlActivity.class);
+                personDtlIntent.putExtra("word", pairs.get(position).getword());
+                PersonAnalyseFrag.this.getActivity().startActivity(personDtlIntent);
+            }
+        });
+
+
+
     }
 
-    private SpannableString generateCenterSpannableText(Typeface tf) {
-        SpannableString s = new SpannableString("대화량");
+    private SpannableString generateCenterSpannableText(String str, Typeface tf) {
+        SpannableString s = new SpannableString(str);
         s.setSpan(new StyleSpan(Typeface.BOLD), 0, s.length(), 0);
         return s;
     }
