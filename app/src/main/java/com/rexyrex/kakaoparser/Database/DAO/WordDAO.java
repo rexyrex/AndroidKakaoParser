@@ -44,6 +44,10 @@ public interface WordDAO {
     @Query("SELECT author as word, count(word) as frequency FROM tb_word GROUP BY author ORDER BY count(word) desc LIMIT 10")
     public List<StringIntPair> getTop10ChattersByWords();
 
+    //get top 10 most freq chatters
+    @Query("SELECT author as word, count(word) as frequency FROM tb_word GROUP BY author ORDER BY count(word) desc")
+    public List<StringIntPair> getTopChattersByWords();
+
     @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word WHERE author = :author AND LENGTH(word)>1 GROUP BY word ORDER BY RANDOM() LIMIT 5")
     public List<StringIntPair> getFreqWordListRandomSamplesByAuthor(String author);
 
@@ -82,17 +86,26 @@ public interface WordDAO {
     @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isPic = 1 GROUP BY author ORDER BY count(word) desc LIMIT 10")
     public List<StringIntPair> getTop10ChattersByPic();
 
+    @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isPic = 1 GROUP BY author ORDER BY count(word) desc")
+    public List<StringIntPair> getTopChattersByPic();
+
     @Query("SELECT COUNT(*) FROM tb_word WHERE isVideo = 1")
     public int getVideoCount();
 
     @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isVideo = 1 GROUP BY author ORDER BY count(word) desc LIMIT 10")
     public List<StringIntPair> getTop10ChattersByVideo();
 
+    @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isVideo = 1 GROUP BY author ORDER BY count(word) desc")
+    public List<StringIntPair> getTopChattersByVideo();
+
     @Query("SELECT COUNT(*) FROM tb_word WHERE isLink = 1")
     public int getLinkCount();
 
     @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isLink = 1 GROUP BY author ORDER BY count(word) desc LIMIT 10")
     public List<StringIntPair> getTop10ChattersByLink();
+
+    @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isLink = 1 GROUP BY author ORDER BY count(word) desc")
+    public List<StringIntPair> getTopChattersByLink();
 
     @Query("SELECT COUNT(*) FROM tb_word WHERE isPowerpoint = 1")
     public int getPowerpointCount();

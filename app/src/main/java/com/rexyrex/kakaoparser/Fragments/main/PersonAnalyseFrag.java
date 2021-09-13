@@ -53,6 +53,7 @@ public class PersonAnalyseFrag extends Fragment {
     NumberFormat numberFormat;
 
     String[] spinnerItems = {"대화 건", "단어", "사진", "동영상", "링크", "삭제 메세지"};
+    int spinnerPos = 0;
     private Spinner typeSpinner;
 
     private FloatingActionButton fab;
@@ -125,7 +126,7 @@ public class PersonAnalyseFrag extends Fragment {
 
     private void loadGraph(int pos, View view){
         PieChart chatAmountPieChart = view.findViewById(R.id.chatAmountPieChart);
-
+        spinnerPos = pos;
         fab = view.findViewById(R.id.fabPerson);
 
         chatAmountPieChart.setData(getChatAmountPieData(pos));
@@ -317,6 +318,7 @@ public class PersonAnalyseFrag extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent moreIntent = new Intent(PersonAnalyseFrag.this.getActivity(), PersonListActivity.class);
+                        moreIntent.putExtra("pos", spinnerPos);
                         PersonAnalyseFrag.this.getActivity().startActivity(moreIntent);
                     }
                 });

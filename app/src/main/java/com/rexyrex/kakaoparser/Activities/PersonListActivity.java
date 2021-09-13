@@ -12,6 +12,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
+import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
+import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
@@ -32,6 +35,9 @@ public class PersonListActivity extends AppCompatActivity {
     ArrayList<StringIntPair> freqList;
     private List<StringIntPair> chatterFreqArrList;
 
+    MainDatabase database;
+    ChatLineDAO chatLineDao;
+    WordDAO wordDao;
 
     CustomAdapter customAdapter;
 
@@ -46,12 +52,44 @@ public class PersonListActivity extends AppCompatActivity {
         numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
 
+        database = MainDatabase.getDatabase(this);
+        chatLineDao = database.getChatLineDAO();
+        wordDao = database.getWordDAO();
         cd = ChatData.getInstance(this);
-        int totalCount = cd.getChatLineCount();
 
+        int totalCount = cd.getChatLineCount();
         freqList = new ArrayList<>();
 
-        chatterFreqArrList = cd.getChatterFreqArrList();
+        int pos = getIntent().getIntExtra("pos", 0);
+
+        switch(pos){
+            case 0:
+                totalCount = cd.getChatLineCount();
+                chatterFreqArrList = cd.getChatterFreqArrList();
+                break;
+            case 1:
+                totalCount = cd.getTotalWordCount();
+                chatterFreqArrList = wordDao.getTopChattersByWords();
+                break;
+            case 2:
+                totalCount = cd.getPicCount();
+                chatterFreqArrList = wordDao.getTopChattersByPic();
+                break;
+            case 3:
+                totalCount = cd.getVideoCount();
+                chatterFreqArrList = wordDao.getTopChattersByVideo();
+                break;
+            case 4:
+                totalCount = cd.getLinkCount();
+                chatterFreqArrList = wordDao.getTopChattersByLink();
+                break;
+            case 5:
+                totalCount = cd.getDeletedMsgCount();
+                chatterFreqArrList = chatLineDao.getTopChattersByDeletedMsg();
+                break;
+        }
+
+
 
         for(StringIntPair element : chatterFreqArrList) freqList.add(element);
 
