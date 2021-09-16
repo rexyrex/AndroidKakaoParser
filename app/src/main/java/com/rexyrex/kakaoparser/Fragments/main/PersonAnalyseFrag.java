@@ -219,9 +219,9 @@ public class PersonAnalyseFrag extends Fragment {
         freqLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent personDtlIntent = new Intent(PersonAnalyseFrag.this.getActivity(), PersonDtlActivity.class);
-                personDtlIntent.putExtra("word", pairs.get(position).getword());
-                PersonAnalyseFrag.this.getActivity().startActivity(personDtlIntent);
+//                Intent personDtlIntent = new Intent(PersonAnalyseFrag.this.getActivity(), PersonDtlActivity.class);
+//                personDtlIntent.putExtra("word", pairs.get(position).getword());
+//                PersonAnalyseFrag.this.getActivity().startActivity(personDtlIntent);
             }
         });
 

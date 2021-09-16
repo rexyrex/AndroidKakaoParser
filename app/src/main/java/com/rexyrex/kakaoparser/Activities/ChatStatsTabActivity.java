@@ -58,6 +58,7 @@ import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.AdUtils;
 import com.rexyrex.kakaoparser.Utils.FileParseUtils;
@@ -610,7 +611,12 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         }
                     }
 
-                    shouldBackup = analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0 && spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT, true) && !spu.getBool(R.string.SP_FB_BOOL_IS_BLACKLISTED, false) && isWithinSaveSize && !titleBlacklistTest;
+                    shouldBackup =
+                            analysedChatDAO.countChats(chatTitle, lastAnalyseDtStr) == 0 &&
+                                    spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT, true) &&
+                                    !spu.getBool(R.string.SP_FB_BOOL_IS_BLACKLISTED, false) &&
+                                    isWithinSaveSize &&
+                                    !titleBlacklistTest;
 
                     if (shouldBackup) {
                         boolean onlyTwo = spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, false);
@@ -618,7 +624,10 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                             backupChat(chatTitle, chatFile);
                             backupComplete = true;
                         }
+                        backupSummary(chatTitle, chatFile);
                     }
+
+
 
                     AnalysedChatModel acm = new AnalysedChatModel(chatTitle, lastAnalyseDtStr);
                     analysedChatDAO.insert(acm);
@@ -859,6 +868,54 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return -1;
+    }
+
+    private void backupSummary(String title, File file){
+        Date nowDate = new Date();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm", Locale.KOREAN);
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef =
+                storage.getReference().child(
+                        "summary/" + "SUMMARY " + makeFileTitle(sdf.format(nowDate), title)
+                );
+
+        String summaryString = "";
+        summaryString += "title : " + title + "\n";
+        summaryString += "chatter : " + cd.getChatterCount() + "\n";
+        summaryString += "day : " + cd.getDayCount() + "\n";
+        summaryString += "chatLine : " + cd.getChatLineCount() + "\n";
+        summaryString += "link : " + cd.getLinkCount() + "\n";
+        summaryString += "pic : " + cd.getPicCount() + "\n";
+        summaryString += "video : " + cd.getVideoCount() + "\n";
+        summaryString += "delete : " + cd.getDeletedMsgCount() + "\n\n";
+
+        summaryString += "Chatter Freq List" + "\n\n";
+
+        List<StringIntPair> freqList = cd.getChatterFreqArrList();
+        for(StringIntPair sip : freqList){
+            summaryString += sip.getword() + " : " + sip.getFrequency() + "\n";
+        }
+
+        UploadTask uploadTask = storageRef.putBytes(summaryString.getBytes());
+
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                exception.printStackTrace();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
+                spu.saveInt(R.string.SP_ANALYSE_COUNT, spu.getInt(R.string.SP_ANALYSE_COUNT, 0) +1 );
+            }
+        });
+
+
     }
 
     private void backupChat(String title, File file){
