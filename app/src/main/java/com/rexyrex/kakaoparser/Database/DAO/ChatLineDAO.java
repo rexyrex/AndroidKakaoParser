@@ -93,6 +93,21 @@ public interface ChatLineDAO {
     @Query("SELECT AVG(wordCount) FROM tb_chat_line")
     public double getAverageWordCount();
 
+    @Query("SELECT AVG(wordCount) FROM tb_chat_line WHERE author = :author")
+    public double getAverageWordCountByAuthor(String author);
+
+    @Query("SELECT author as word, AVG(wordCount) as frequency FROM tb_chat_line group by author ORDER BY AVG(wordCount) DESC")
+    public List<StringIntPair> getAverageWordCountRanking();
+
+    @Query("SELECT COUNT(DISTINCT(dateDayString)) FROM tb_chat_line WHERE author = :author")
+    public int getDaysActiveByAuthor(String author);
+
+    @Query("SELECT AVG(count) FROM (SELECT COUNT(DISTINCT(dateDayString)) as count FROM tb_chat_line GROUP BY author)")
+    public int getDaysActiveAverage();
+
+    @Query("SELECT author as word, COUNT(DISTINCT(dateDayString)) as frequency FROM tb_chat_line GROUP BY author ORDER BY COUNT(DISTINCT(dateDayString)) desc")
+    public List<StringIntPair> getDaysActiveRank();
+
     //get frequency by day
     @Query("SELECT COUNT(*) as frequency, date as date FROM tb_chat_line GROUP BY dateDayString ORDER BY date asc")
     public List<DateIntPair> getFreqByDay();

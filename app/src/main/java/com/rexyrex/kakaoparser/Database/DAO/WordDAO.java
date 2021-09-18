@@ -142,4 +142,10 @@ public interface WordDAO {
 
     @Query("SELECT AVG(letterCount) FROM tb_word")
     public double getAverageLetterCount();
+
+    @Query("SELECT AVG(letterCount) FROM tb_word WHERE author = :author")
+    public double getAverageLetterCountByAuthor(String author);
+
+    @Query("SELECT author as word, AVG(letterCount) as frequency FROM tb_word GROUP BY author ORDER BY AVG(letterCount) desc")
+    public List<StringIntPair> getAverageLetterCountByRank();
 }

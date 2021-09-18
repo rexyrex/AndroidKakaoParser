@@ -173,6 +173,43 @@ public class PGeneralFrag extends Fragment {
                 getRanking(delRankingList),
                 cd.getChatterCount()));
 
+
+        double mySentWordCount = (double) NumberUtils.round(chatLineDao.getAverageWordCountByAuthor(author), 1);
+        //Average chat line count = totalChatLineCount / authorCount
+        double avgSentWordCount = NumberUtils.round(cd.getAvgWordCount(), 1);
+        List<StringIntPair> sentWordRankingList = chatLineDao.getAverageWordCountRanking();
+
+        statsList.add(new PersonGeneralInfoData(
+                "문장 평균 단어 수",
+                numberFormat.format(mySentWordCount),
+                NumberUtils.round((mySentWordCount - avgSentWordCount) * 100 / avgSentWordCount, 1),
+                getRanking(sentWordRankingList),
+                cd.getChatterCount()));
+
+        double myWordLengthCount = (double) NumberUtils.round(wordDao.getAverageLetterCountByAuthor(author), 1);
+        //Average chat line count = totalChatLineCount / authorCount
+        double avgWordLengthCount = NumberUtils.round(cd.getAvgLetterCount(), 1);
+        List<StringIntPair> wordLengthRankingList = wordDao.getAverageLetterCountByRank();
+
+        statsList.add(new PersonGeneralInfoData(
+                "평균 단어 길이",
+                numberFormat.format(myWordLengthCount),
+                NumberUtils.round((myWordLengthCount - avgWordLengthCount) * 100 / avgWordLengthCount, 1),
+                getRanking(wordLengthRankingList),
+                cd.getChatterCount()));
+
+        double myDayCount = (double) NumberUtils.round(chatLineDao.getDaysActiveByAuthor(author), 1);
+        //Average chat line count = totalChatLineCount / authorCount
+        double dayCount = NumberUtils.round(chatLineDao.getDaysActiveAverage(), 1);
+        List<StringIntPair> daysActiveRankingList = chatLineDao.getDaysActiveRank();
+
+        statsList.add(new PersonGeneralInfoData(
+                "활동 일 수",
+                numberFormat.format(myDayCount) + " / " + cd.getDayCount(),
+                NumberUtils.round((myDayCount - dayCount) * 100 / dayCount, 1),
+                getRanking(daysActiveRankingList),
+                cd.getChatterCount()));
+
         CustomAdapter customAdapter = new CustomAdapter(statsList);
         statsLV.setAdapter(customAdapter);
 
