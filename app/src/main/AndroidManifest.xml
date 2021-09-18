@@ -37,7 +37,7 @@
         <activity android:name=".Activities.DetailActivities.PersonDtlActivity" />
         <activity android:name=".Activities.ChatPeekActivity" />
         <activity android:name=".Activities.PersonListActivity" />
-        <activity android:name=".Activities.WordDetailAnalyseActivity" />
+        <activity android:name=".Activities.DetailActivities.WordDetailAnalyseActivity" />
         <activity
             android:name=".Activities.SplashActivity"
             android:launchMode="singleTop"

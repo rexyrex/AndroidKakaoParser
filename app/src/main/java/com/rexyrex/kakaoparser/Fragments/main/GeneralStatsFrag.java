@@ -90,7 +90,8 @@ public class GeneralStatsFrag extends Fragment {
         pairs.add(new StringStringPair("대화 참여 인원", ""+ cd.getChatterCount()));
         pairs.add(new StringStringPair("분석 일 수", "" + numberFormat.format(cd.getDayCount())));
         pairs.add(new StringStringPair("분석 대화 수", "" + numberFormat.format(cd.getChatLineCount())));
-        pairs.add(new StringStringPair("분석 단어 수", "" + numberFormat.format(cd.getWordCount())));
+        pairs.add(new StringStringPair("분석 총 단어 수", "" + numberFormat.format(cd.getTotalWordCount())));
+        pairs.add(new StringStringPair("분석 단어 종류", "" + numberFormat.format(cd.getWordCount())));
         pairs.add(new StringStringPair("분석 소요 시간 (초)", "" + String.format("%.1f", cd.getLoadElapsedSeconds())));
         pairs.add(new StringStringPair("문장 평균 단어 수", "" + String.format("%.1f", cd.getAvgWordCount())));
         pairs.add(new StringStringPair("평균 단어 길이", "" + String.format("%.1f", cd.getAvgLetterCount())));
@@ -166,8 +167,8 @@ public class GeneralStatsFrag extends Fragment {
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem_general_stat, null);
 
-            TextView titleTV = convertView.findViewById(R.id.generalStatsElemTitleTV);
-            TextView valueTV = convertView.findViewById(R.id.generalStatsElemValueTV);
+            TextView titleTV = convertView.findViewById(R.id.pGeneralStatsElemTitleTV);
+            TextView valueTV = convertView.findViewById(R.id.pGeneralStatsElemValueTV);
 
             titleTV.setText(pairs.get(position).getTitle());
             valueTV.setText(pairs.get(position).getValue());

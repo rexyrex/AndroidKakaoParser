@@ -138,6 +138,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     Runtime runtime;
 
+    SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,6 +214,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         mAdView.setAdSize(AdUtils.getAdSize(this));
         mAdView.loadAd(adRequest);
 
+        String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
+
         try {
             Calendar tmpCal = Calendar.getInstance();
             startDtStr = getIntent().getStringExtra("startDt");
@@ -232,6 +236,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
             LogUtils.e("startDt : " + getIntent().getStringExtra("startDt"));
             LogUtils.e("endDt : " + getIntent().getStringExtra("endDt"));
+
+            spu.saveString(R.string.SP_CHAT_DT_RANGE_STRING, "(" + titleDateFormat.format(startDt) + " ~ " + titleDateFormat.format(endDt) + ")");
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -287,7 +294,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
             @Override
             protected String doInBackground(String... params) {
-                final String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
+
                 try {
                     //Text to alert user loading not started yet (DB clear can take some time)
                     ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
@@ -641,7 +648,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     });
 
                     //Change Title to include date
-                    SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
                     dateRangeStr = "(" + titleDateFormat.format(startDt) + " ~ " + titleDateFormat.format(endDt) + ")";
                     final SpannableString newChatTitle = generateTitleSpannableText(chatTitle, dateRangeStr);
                     ChatStatsTabActivity.this.runOnUiThread(new Runnable() {

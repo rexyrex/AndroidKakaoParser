@@ -63,6 +63,9 @@ public interface ChatLineDAO {
     @Query("SELECT COUNT(content) FROM tb_chat_line WHERE author = :author")
     public int getChatterChatLineCount(String author);
 
+    @Query("SELECT author as word, COUNT(content) as frequency FROM tb_chat_line GROUP BY author ORDER BY COUNT(content) desc")
+    public List<StringIntPair> getChatterChatLineByRank();
+
     @Query("SELECT * FROM tb_chat_line WHERE author = :author AND LENGTH(content)>2 ORDER BY RANDOM() LIMIT 1")
     public ChatLineModel getChatterRandomChatlineSample(String author);
 
@@ -117,6 +120,14 @@ public interface ChatLineDAO {
     //get deleted msgs count
     @Query("SELECT COUNT(*) FROM tb_chat_line WHERE content = '삭제된 메시지입니다.'")
     public int getDeletedMsgCount();
+
+    //get deleted msgs count
+    @Query("SELECT COUNT(*) FROM tb_chat_line WHERE content = '삭제된 메시지입니다.' AND author = :author")
+    public int getDeletedMsgCountByAuthor(String author);
+
+    //get del chatters ranking
+    @Query("SELECT author as word, count(author) as frequency FROM tb_chat_line WHERE content = '삭제된 메시지입니다.' GROUP BY author ORDER BY count(author) desc")
+    public List<StringIntPair> getDeletedMsgRanking();
 
     //get top 10 most freq del chatters
     @Query("SELECT author as word, count(author) as frequency FROM tb_chat_line WHERE content = '삭제된 메시지입니다.' GROUP BY author ORDER BY count(author) desc LIMIT 10")

@@ -21,6 +21,9 @@
     <string name="SP_LAST_ANALYSE_END_DT">SP_LAST_ANALYSE_END_DT</string>
     <string name="SP_LAST_ANALYSE_DT">SP_LAST_ANALYSE_DT</string>
 
+    <string name="SP_PERSON_DTL_NAME">SP_PERSON_DTL_NAME</string>
+    <string name="SP_CHAT_DT_RANGE_STRING">SP_CHAT_DT_RANGE_STRING</string>
+
     <string name="SP_QUIZ_NICKNAME">SP_QUIZ_NICKNAME</string>
     <string name="SP_QUIZ_ALL_TIME_HIGH_SCORE">SP_QUIZ_ALL_TIME_HIGH_SCORE</string>\
 

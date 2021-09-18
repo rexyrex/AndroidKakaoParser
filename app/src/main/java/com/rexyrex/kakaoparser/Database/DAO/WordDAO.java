@@ -37,6 +37,18 @@ public interface WordDAO {
     @Query("SELECT COUNT(*) FROM tb_word")
     public int getCount();
 
+    @Query("SELECT COUNT(*) FROM tb_word WHERE author = :author")
+    public int getTotalWordCountByAuthor(String author);
+
+    @Query("SELECT author as word, COUNT(word) as frequency FROM tb_word GROUP BY author ORDER BY COUNT(word) desc")
+    public List<StringIntPair> getTotalWordCountByRank();
+
+    @Query("SELECT COUNT(DISTINCT(word)) FROM tb_word WHERE author = :author")
+    public int getDistinctWordCountByAuthor(String author);
+
+    @Query("SELECT author as word, COUNT(DISTINCT(word)) as frequency FROM tb_word GROUP BY author ORDER BY COUNT(DISTINCT(word)) desc")
+    public List<StringIntPair> getDistinctWordCountByRank();
+
     @Query("SELECT COUNT(DISTINCT(word)) FROM tb_word")
     public int getDistinctCount();
 
@@ -83,6 +95,12 @@ public interface WordDAO {
     @Query("SELECT COUNT(*) FROM tb_word WHERE isPic = 1")
     public int getPicCount();
 
+    @Query("SELECT COUNT(*) FROM tb_word WHERE isPic = 1 AND author = :author")
+    public int getPicCountByAuthor(String author);
+
+    @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isPic = 1 GROUP BY author ORDER BY count(word) desc")
+    public List<StringIntPair> getPicRanking();
+
     @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isPic = 1 GROUP BY author ORDER BY count(word) desc LIMIT 10")
     public List<StringIntPair> getTop10ChattersByPic();
 
@@ -92,6 +110,12 @@ public interface WordDAO {
     @Query("SELECT COUNT(*) FROM tb_word WHERE isVideo = 1")
     public int getVideoCount();
 
+    @Query("SELECT COUNT(*) FROM tb_word WHERE isVideo = 1 AND author = :author")
+    public int getVideoCountByAuthor(String author);
+
+    @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isVideo = 1 GROUP BY author ORDER BY count(word) desc")
+    public List<StringIntPair> getVideoRanking();
+
     @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isVideo = 1 GROUP BY author ORDER BY count(word) desc LIMIT 10")
     public List<StringIntPair> getTop10ChattersByVideo();
 
@@ -100,6 +124,12 @@ public interface WordDAO {
 
     @Query("SELECT COUNT(*) FROM tb_word WHERE isLink = 1")
     public int getLinkCount();
+
+    @Query("SELECT COUNT(*) FROM tb_word WHERE isLink = 1 AND author = :author")
+    public int getLinkCountByAuthor(String author);
+
+    @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isLink = 1 GROUP BY author ORDER BY count(word) desc")
+    public List<StringIntPair> getLinkRanking();
 
     @Query("SELECT author as word, count(word) as frequency FROM tb_word WHERE isLink = 1 GROUP BY author ORDER BY count(word) desc LIMIT 10")
     public List<StringIntPair> getTop10ChattersByLink();

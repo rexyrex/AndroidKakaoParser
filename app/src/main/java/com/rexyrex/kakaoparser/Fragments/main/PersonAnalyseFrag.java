@@ -32,11 +32,11 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rexyrex.kakaoparser.Activities.DetailActivities.PersonDtlActivity;
 import com.rexyrex.kakaoparser.Activities.PersonListActivity;
-import com.rexyrex.kakaoparser.Activities.WordDetailAnalyseActivity;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.ShareUtils;
+import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -63,6 +63,8 @@ public class PersonAnalyseFrag extends Fragment {
 
     private FloatingActionButton fab;
 
+    SharedPrefUtils spu;
+
     public PersonAnalyseFrag() {
         // Required empty public constructor
     }
@@ -82,6 +84,7 @@ public class PersonAnalyseFrag extends Fragment {
             numberFormat = NumberFormat.getInstance();
             numberFormat.setGroupingUsed(true);
             cd = ChatData.getInstance(getContext());
+            spu = new SharedPrefUtils(getContext());
         }
     }
 
@@ -219,9 +222,10 @@ public class PersonAnalyseFrag extends Fragment {
         freqLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Intent personDtlIntent = new Intent(PersonAnalyseFrag.this.getActivity(), PersonDtlActivity.class);
-//                personDtlIntent.putExtra("word", pairs.get(position).getword());
-//                PersonAnalyseFrag.this.getActivity().startActivity(personDtlIntent);
+                Intent personDtlIntent = new Intent(PersonAnalyseFrag.this.getActivity(), PersonDtlActivity.class);
+                personDtlIntent.putExtra("word", pairs.get(position).getword());
+                spu.saveString(R.string.SP_PERSON_DTL_NAME, pairs.get(position).getword());
+                PersonAnalyseFrag.this.getActivity().startActivity(personDtlIntent);
             }
         });
 

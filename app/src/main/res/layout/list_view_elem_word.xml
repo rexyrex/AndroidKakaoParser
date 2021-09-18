@@ -32,8 +32,8 @@
         android:textColor="@color/design_default_color_error"
         android:textSize="10sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/generalStatsElemTitleTV"
+        app:layout_constraintBottom_toBottomOf="@+id/pGeneralStatsElemTitleTV"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/generalStatsElemTitleTV" />
+        app:layout_constraintTop_toTopOf="@+id/pGeneralStatsElemTitleTV" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,7 +21,7 @@ import com.rexyrex.kakaoparser.Fragments.person.PGeneralFrag;
  */
 public class PersonDtlSpa extends FragmentPagerAdapter {
 
-    private static final String[] TAB_TITLES = new String[]{"개요", "사람"};
+    private static final String[] TAB_TITLES = new String[]{"개요", "단어", "시간"};
     private final Context mContext;
     private final ChatData cd;
 
@@ -40,9 +40,10 @@ public class PersonDtlSpa extends FragmentPagerAdapter {
         switch(TAB_TITLES[position]){
             case "개요" :
                 return PGeneralFrag.newInstance();
-            case "사람" :
+            case "단어" :
                 return PGeneralFrag.newInstance();
-
+            case "시간" :
+                return PGeneralFrag.newInstance();
             default : return null;
         }
     }

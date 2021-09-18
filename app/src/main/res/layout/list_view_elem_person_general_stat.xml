@@ -31,6 +31,32 @@
         app:layout_constraintStart_toStartOf="@+id/pGeneralStatsElemTitleTV"
         app:layout_constraintTop_toBottomOf="@+id/pGeneralStatsElemTitleTV" />
 
+    <TextView
+        android:id="@+id/pGeneralStatsDesc1TV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/nanum_square_round_b"
+        android:text="평균 대비 -18.7%"
+        android:textColor="@color/design_default_color_error"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pGeneralStatsElemValueTV" />
+
+    <TextView
+        android:id="@+id/pGeneralStatsDesc2TV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/nanum_square_round_b"
+        android:text="(5명 중 2등)"
+        android:textColor="@color/textColor1"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pGeneralStatsDesc1TV" />
+
     <View
         android:layout_width="0dp"
         android:layout_height="1dp"
@@ -40,5 +66,5 @@
         android:background="@android:color/darker_gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pGeneralStatsElemValueTV" />
+        app:layout_constraintTop_toBottomOf="@+id/pGeneralStatsDesc2TV" />
 </androidx.constraintlayout.widget.ConstraintLayout>

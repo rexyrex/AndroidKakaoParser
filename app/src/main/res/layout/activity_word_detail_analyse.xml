@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightBrown"
-    tools:context=".Activities.WordDetailAnalyseActivity">
+    tools:context=".Activities.DetailActivities.WordDetailAnalyseActivity">
 
     <ListView
         android:id="@+id/wordChatSentencesLV"
