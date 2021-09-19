@@ -1,7 +1,4 @@
-package com.rexyrex.kakaoparser.Activities;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+package com.rexyrex.kakaoparser.Activities.DetailActivities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,12 +12,15 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.rexyrex.kakaoparser.Activities.DetailActivities.PersonDtlActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
+import com.rexyrex.kakaoparser.Fragments.person.PWordFrag;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
@@ -28,7 +28,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PersonListActivity extends AppCompatActivity {
+public class PersonWordListActivity extends AppCompatActivity {
 
     EditText searchET;
     ListView searchLV;
@@ -47,16 +47,15 @@ public class PersonListActivity extends AppCompatActivity {
     WordDAO wordDao;
 
     CustomAdapter customAdapter;
-
     SharedPrefUtils spu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_person_list);
+        setContentView(R.layout.activity_person_word_list);
 
-        searchET = findViewById(R.id.chatterFreqET);
-        searchLV = findViewById(R.id.chatterFreqLV);
+        searchET = findViewById(R.id.personWordET);
+        searchLV = findViewById(R.id.personWordLV);
         tb = findViewById(R.id.toolbar);
 
         spu = new SharedPrefUtils(this);
@@ -69,45 +68,13 @@ public class PersonListActivity extends AppCompatActivity {
         wordDao = database.getWordDAO();
         cd = ChatData.getInstance(this);
 
-        int totalCount = cd.getChatLineCount();
+
         freqList = new ArrayList<>();
 
-        int pos = getIntent().getIntExtra("pos", 0);
+        String author = spu.getString(R.string.SP_PERSON_DTL_NAME, "");
 
-        switch(pos){
-            case 0:
-                tb.setTitle("사람별 채팅량 분석");
-                totalCount = cd.getChatLineCount();
-                chatterFreqArrList = cd.getChatterFreqArrList();
-                break;
-            case 1:
-                tb.setTitle("사람별 단어 수 분석");
-                totalCount = cd.getTotalWordCount();
-                chatterFreqArrList = wordDao.getTopChattersByWords();
-                break;
-            case 2:
-                tb.setTitle("사람별 사진 공유 횟수 분석");
-                totalCount = cd.getPicCount();
-                chatterFreqArrList = wordDao.getTopChattersByPic();
-                break;
-            case 3:
-                tb.setTitle("사람별 동영상 공유 횟수 분석");
-                totalCount = cd.getVideoCount();
-                chatterFreqArrList = wordDao.getTopChattersByVideo();
-                break;
-            case 4:
-                tb.setTitle("사람별 링크 공유 횟수 분석");
-                totalCount = cd.getLinkCount();
-                chatterFreqArrList = wordDao.getTopChattersByLink();
-                break;
-            case 5:
-                tb.setTitle("사람별 메세지 삭제 횟수 분석");
-                totalCount = cd.getDeletedMsgCount();
-                chatterFreqArrList = chatLineDao.getTopChattersByDeletedMsg();
-                break;
-        }
-
-
+        chatterFreqArrList = wordDao.getWordsByAuthor(author);
+        int totalCount = wordDao.getDistinctWordCountByAuthor(author);
 
         for(StringIntPair element : chatterFreqArrList) freqList.add(element);
 
@@ -117,10 +84,9 @@ public class PersonListActivity extends AppCompatActivity {
         searchLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent personDtlIntent = new Intent(PersonListActivity.this, PersonDtlActivity.class);
-                personDtlIntent.putExtra("word", freqList.get(i).getword());
-                spu.saveString(R.string.SP_PERSON_DTL_NAME, freqList.get(i).getword());
-                PersonListActivity.this.startActivity(personDtlIntent);
+                Intent wordDtlIntent = new Intent(PersonWordListActivity.this, WordDetailAnalyseActivity.class);
+                wordDtlIntent.putExtra("word", freqList.get(i).getword());
+                PersonWordListActivity.this.startActivity(wordDtlIntent);
             }
         });
 

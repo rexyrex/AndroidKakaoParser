@@ -1,17 +1,22 @@
 package com.rexyrex.kakaoparser.Fragments.person;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import com.rexyrex.kakaoparser.Activities.PersonListActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -20,6 +25,7 @@ import com.rexyrex.kakaoparser.Entities.PersonGeneralInfoData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.Entities.StringStringPair;
 import com.rexyrex.kakaoparser.Fragments.main.GeneralStatsFrag;
+import com.rexyrex.kakaoparser.Fragments.main.PersonAnalyseFrag;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
 import com.rexyrex.kakaoparser.Utils.NumberUtils;
@@ -27,6 +33,7 @@ import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -50,6 +57,7 @@ public class PGeneralFrag extends Fragment {
     String author;
 
     ArrayList<PersonGeneralInfoData> statsList;
+    HashMap<String, List<StringStringPair>> statsDtlMap;
 
     NumberFormat numberFormat;
 
@@ -75,6 +83,7 @@ public class PGeneralFrag extends Fragment {
             chatLineDao = database.getChatLineDAO();
             wordDao = database.getWordDAO();
             statsList = new ArrayList<>();
+            statsDtlMap = new HashMap<>();
             spu = new SharedPrefUtils(getActivity());
             author = spu.getString(R.string.SP_PERSON_DTL_NAME, "");
             numberFormat = NumberFormat.getInstance();
@@ -87,91 +96,133 @@ public class PGeneralFrag extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_p_general, container, false);
         //Title, raw stat, diff from avg, rank, total
-        ListView statsLV = view.findViewById(R.id.pGeneralLV);
+        ExpandableListView statsLV = view.findViewById(R.id.pGeneralLV);
 
         double myChatLineCount = (double) chatLineDao.getChatterChatLineCount(author);
         //Average chat line count = totalChatLineCount / authorCount
-        double avgChatLineCount = NumberUtils.round(cd.getChatLineCount() / cd.getChatterCount(), 1);
+        double avgChatLineCount = NumberUtils.round((double)  cd.getChatLineCount() / cd.getChatterCount(), 1);
         List<StringIntPair> chatLineRankingList = chatLineDao.getChatterChatLineByRank();
 
         statsList.add(new PersonGeneralInfoData(
-                "대화 수",
-                numberFormat.format(myChatLineCount),
-                NumberUtils.round((myChatLineCount - avgChatLineCount) * 100 / avgChatLineCount, 1),
-                getRanking(chatLineRankingList),
-                cd.getChatterCount()));
+                "대화 순위",
+                String.valueOf(getRanking(chatLineRankingList)) + "등"));
+
+        List<StringStringPair> chatLineDtlList = new ArrayList<>();
+        chatLineDtlList.add(new StringStringPair("대화 횟수", numberFormat.format(myChatLineCount)));
+        chatLineDtlList.add(new StringStringPair("대화방 평균", String.valueOf(avgChatLineCount)));
+        chatLineDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((myChatLineCount - avgChatLineCount) * 100 / avgChatLineCount) + "%"));
+        chatLineDtlList.add(new StringStringPair("순위", getRanking(chatLineRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        chatLineDtlList.add(new StringStringPair("점유율", Double.toString(NumberUtils.round(myChatLineCount * 100 / cd.getChatLineCount(),1)) + "% (" + numberFormat.format(myChatLineCount) + " / " + numberFormat.format(cd.getChatLineCount()) + ")"));
+        chatLineDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("대화 순위", chatLineDtlList);
 
         double myTotalWordCount = (double) wordDao.getTotalWordCountByAuthor(author);
         //Average chat line count = totalChatLineCount / authorCount
-        double avgTotalWordCount = NumberUtils.round(cd.getTotalWordCount() / cd.getChatterCount(), 1);
+        double avgTotalWordCount = NumberUtils.round((double)  cd.getTotalWordCount() / cd.getChatterCount(), 1);
         List<StringIntPair> totalWordRankingList = wordDao.getTotalWordCountByRank();
 
         statsList.add(new PersonGeneralInfoData(
-                "총 단어 수",
-                numberFormat.format(myTotalWordCount),
-                NumberUtils.round((myTotalWordCount - avgTotalWordCount) * 100 / avgTotalWordCount, 1),
-                getRanking(totalWordRankingList),
-                cd.getChatterCount()));
+                "총 단어 순위",
+                String.valueOf(getRanking(totalWordRankingList)) + "등"));
+
+        List<StringStringPair> totalWordDtlList = new ArrayList<>();
+        totalWordDtlList.add(new StringStringPair("총 단어 갯수", numberFormat.format(myTotalWordCount)));
+        totalWordDtlList.add(new StringStringPair("대화방 평균", String.valueOf(avgTotalWordCount)));
+        totalWordDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((myTotalWordCount - avgTotalWordCount) * 100 / avgTotalWordCount) + "%"));
+        totalWordDtlList.add(new StringStringPair("순위", getRanking(totalWordRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        totalWordDtlList.add(new StringStringPair("점유율", Double.toString(NumberUtils.round(myTotalWordCount * 100 / cd.getTotalWordCount(),1)) + "% (" + numberFormat.format(myTotalWordCount) + " / " + numberFormat.format(cd.getTotalWordCount()) + ")"));
+        totalWordDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("총 단어 순위", totalWordDtlList);
 
         double myDistinctWordCount = (double) wordDao.getDistinctWordCountByAuthor(author);
         //Average chat line count = totalChatLineCount / authorCount
-        double avgDistinctWordCount = NumberUtils.round(cd.getWordCount() / cd.getChatterCount(), 1);
+        double avgDistinctWordCount = NumberUtils.round((double) cd.getWordCount() / cd.getChatterCount(), 1);
         List<StringIntPair> distinctWordRankingList = wordDao.getDistinctWordCountByRank();
 
         statsList.add(new PersonGeneralInfoData(
-                "단어 종류",
-                numberFormat.format(myDistinctWordCount),
-                NumberUtils.round((myDistinctWordCount - avgDistinctWordCount) * 100 / avgDistinctWordCount, 1),
-                getRanking(distinctWordRankingList),
-                cd.getChatterCount()));
+                "단어 종류 순위",
+                ""+getRanking(distinctWordRankingList)+"등"));
+
+        List<StringStringPair> distinctWordDtlList = new ArrayList<>();
+        distinctWordDtlList.add(new StringStringPair("단어 종류", numberFormat.format(myDistinctWordCount)));
+        distinctWordDtlList.add(new StringStringPair("대화방 평균", String.valueOf(avgDistinctWordCount)));
+        distinctWordDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((myDistinctWordCount - avgDistinctWordCount) * 100 / avgDistinctWordCount) + "%"));
+        distinctWordDtlList.add(new StringStringPair("순위", getRanking(distinctWordRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        distinctWordDtlList.add(new StringStringPair("점유율", Double.toString(NumberUtils.round(myDistinctWordCount * 100 / cd.getWordCount(),1)) + "% (" + numberFormat.format(myDistinctWordCount) + " / " + numberFormat.format(cd.getWordCount()) + ")"));
+        distinctWordDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("단어 종류 순위", distinctWordDtlList);
 
         double myPicCount = (double) wordDao.getPicCountByAuthor(author);
         //Average chat line count = totalChatLineCount / authorCount
-        double avgPicCount = NumberUtils.round(cd.getPicCount() / cd.getChatterCount(), 1);
+        double avgPicCount = NumberUtils.round((double)  cd.getPicCount() / cd.getChatterCount(), 1);
         List<StringIntPair> picRankingList = wordDao.getPicRanking();
 
         statsList.add(new PersonGeneralInfoData(
-                "사진 수",
-                numberFormat.format(myPicCount),
-                NumberUtils.round((myPicCount - avgPicCount) * 100 / avgPicCount, 1),
-                getRanking(picRankingList),
-                cd.getChatterCount()));
+                "사진 순위",
+                ""+getRanking(picRankingList)+"등"));
+
+        List<StringStringPair> picDtlList = new ArrayList<>();
+        picDtlList.add(new StringStringPair("사진 갯수", numberFormat.format(myPicCount)));
+        picDtlList.add(new StringStringPair("대화방 평균", String.valueOf(avgPicCount)));
+        picDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((myPicCount - avgPicCount) * 100 / avgPicCount) + "%"));
+        picDtlList.add(new StringStringPair("순위", getRanking(picRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        picDtlList.add(new StringStringPair("점유율", Double.toString(NumberUtils.round(myPicCount * 100 / cd.getPicCount(),1)) + "% (" + numberFormat.format(myPicCount) + " / " + numberFormat.format(cd.getPicCount()) + ")"));
+        picDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("사진 순위", picDtlList);
 
         double myVideoCount = (double) wordDao.getVideoCountByAuthor(author);
         //Average chat line count = totalChatLineCount / authorCount
-        double avgVideoCount = NumberUtils.round(cd.getVideoCount() / cd.getChatterCount(), 1);
+        double avgVideoCount = NumberUtils.round((double) cd.getVideoCount() / cd.getChatterCount(), 1);
         List<StringIntPair> videoRankingList = wordDao.getVideoRanking();
 
         statsList.add(new PersonGeneralInfoData(
-                "동영상 수",
-                numberFormat.format(myVideoCount),
-                NumberUtils.round((myVideoCount - avgVideoCount) * 100 / avgVideoCount, 1),
-                getRanking(videoRankingList),
-                cd.getChatterCount()));
+                "동영상 순위",
+                ""+getRanking(videoRankingList)+"등"));
+
+        List<StringStringPair> videoDtlList = new ArrayList<>();
+        videoDtlList.add(new StringStringPair("동영상 갯수", numberFormat.format(myVideoCount)));
+        videoDtlList.add(new StringStringPair("대화방 평균", String.valueOf(avgVideoCount)));
+        videoDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((myVideoCount - avgVideoCount) * 100 / avgVideoCount) + "%"));
+        videoDtlList.add(new StringStringPair("순위", getRanking(videoRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        videoDtlList.add(new StringStringPair("점유율", Double.toString(NumberUtils.round(myVideoCount * 100 / cd.getVideoCount(),1)) + "% (" + numberFormat.format(myVideoCount) + " / " + numberFormat.format(cd.getVideoCount()) + ")"));
+        videoDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("동영상 순위", videoDtlList);
 
         double myLinkCount = (double) wordDao.getLinkCountByAuthor(author);
         //Average chat line count = totalChatLineCount / authorCount
-        double avgLinkCount = NumberUtils.round(cd.getLinkCount() / cd.getChatterCount(), 1);
+        double avgLinkCount = NumberUtils.round((double) cd.getLinkCount() / cd.getChatterCount(), 1);
         List<StringIntPair> linkRankingList = wordDao.getLinkRanking();
 
         statsList.add(new PersonGeneralInfoData(
-                "링크 수",
-                numberFormat.format(myLinkCount),
-                NumberUtils.round((myLinkCount - avgLinkCount) * 100 / avgLinkCount, 1),
-                getRanking(linkRankingList),
-                cd.getChatterCount()));
+                "링크 순위",
+                ""+getRanking(linkRankingList)+"등"));
+
+        List<StringStringPair> linkDtlList = new ArrayList<>();
+        linkDtlList.add(new StringStringPair("링크 갯수", numberFormat.format(myLinkCount)));
+        linkDtlList.add(new StringStringPair("대화방 평균", String.valueOf(avgLinkCount)));
+        linkDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((myLinkCount - avgLinkCount) * 100 / avgLinkCount) + "%"));
+        linkDtlList.add(new StringStringPair("순위", getRanking(linkRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        linkDtlList.add(new StringStringPair("점유율", Double.toString(NumberUtils.round(myLinkCount * 100 / cd.getLinkCount(),1)) + "% (" + numberFormat.format(myLinkCount) + " / " + numberFormat.format(cd.getLinkCount()) + ")"));
+        linkDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("링크 순위", linkDtlList);
 
         double myDelCount = (double) chatLineDao.getDeletedMsgCountByAuthor(author);
         //Average chat line count = totalChatLineCount / authorCount
-        double avgDelCount = NumberUtils.round(cd.getDeletedMsgCount() / cd.getChatterCount(), 1);
+        double avgDelCount = NumberUtils.round((double) cd.getDeletedMsgCount() / cd.getChatterCount(), 1);
         List<StringIntPair> delRankingList = chatLineDao.getDeletedMsgRanking();
 
         statsList.add(new PersonGeneralInfoData(
-                "삭제 메세지 수",
-                numberFormat.format(myDelCount),
-                NumberUtils.round((myDelCount - avgDelCount) * 100 / avgDelCount, 1),
-                getRanking(delRankingList),
-                cd.getChatterCount()));
+                "삭제 메세지 순위",
+                getRanking(delRankingList) + "등"));
+
+        List<StringStringPair> delMsgDtlList = new ArrayList<>();
+        delMsgDtlList.add(new StringStringPair("삭제 메세지 갯수", numberFormat.format(myDelCount)));
+        delMsgDtlList.add(new StringStringPair("대화방 평균", String.valueOf(avgDelCount)));
+        delMsgDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((myDelCount - avgDelCount) * 100 / avgDelCount) + "%"));
+        delMsgDtlList.add(new StringStringPair("순위", getRanking(delRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        delMsgDtlList.add(new StringStringPair("점유율", Double.toString(NumberUtils.round(myDelCount * 100 / cd.getDeletedMsgCount(),1)) + "% (" + numberFormat.format(myDelCount) + " / " + numberFormat.format(cd.getDeletedMsgCount()) + ")"));
+        delMsgDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("삭제 메세지 순위", delMsgDtlList);
 
 
         double mySentWordCount = (double) NumberUtils.round(chatLineDao.getAverageWordCountByAuthor(author), 1);
@@ -180,11 +231,16 @@ public class PGeneralFrag extends Fragment {
         List<StringIntPair> sentWordRankingList = chatLineDao.getAverageWordCountRanking();
 
         statsList.add(new PersonGeneralInfoData(
-                "문장 평균 단어 수",
-                numberFormat.format(mySentWordCount),
-                NumberUtils.round((mySentWordCount - avgSentWordCount) * 100 / avgSentWordCount, 1),
-                getRanking(sentWordRankingList),
-                cd.getChatterCount()));
+                "문장 평균 단어 순위",
+                getRanking(sentWordRankingList) + "등"));
+
+        List<StringStringPair> avgSentWordDtlList = new ArrayList<>();
+        avgSentWordDtlList.add(new StringStringPair("문장 평균 단어 갯수", numberFormat.format(mySentWordCount)));
+        avgSentWordDtlList.add(new StringStringPair("대화방 평균", String.valueOf(avgSentWordCount)));
+        avgSentWordDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((mySentWordCount - avgSentWordCount) * 100 / avgSentWordCount) + "%"));
+        avgSentWordDtlList.add(new StringStringPair("순위", getRanking(sentWordRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        avgSentWordDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("문장 평균 단어 순위", avgSentWordDtlList);
 
         double myWordLengthCount = (double) NumberUtils.round(wordDao.getAverageLetterCountByAuthor(author), 1);
         //Average chat line count = totalChatLineCount / authorCount
@@ -192,11 +248,16 @@ public class PGeneralFrag extends Fragment {
         List<StringIntPair> wordLengthRankingList = wordDao.getAverageLetterCountByRank();
 
         statsList.add(new PersonGeneralInfoData(
-                "평균 단어 길이",
-                numberFormat.format(myWordLengthCount),
-                NumberUtils.round((myWordLengthCount - avgWordLengthCount) * 100 / avgWordLengthCount, 1),
-                getRanking(wordLengthRankingList),
-                cd.getChatterCount()));
+                "평균 단어 길이 순위",
+                getRanking(wordLengthRankingList)+"등"));
+
+        List<StringStringPair> avgWordLengthDtlList = new ArrayList<>();
+        avgWordLengthDtlList.add(new StringStringPair("평균 단어 길이", numberFormat.format(myWordLengthCount)));
+        avgWordLengthDtlList.add(new StringStringPair("대화방 평균", String.valueOf(avgWordLengthCount)));
+        avgWordLengthDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((myWordLengthCount - avgWordLengthCount) * 100 / avgWordLengthCount) + "%"));
+        avgWordLengthDtlList.add(new StringStringPair("순위", getRanking(wordLengthRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        avgWordLengthDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("평균 단어 길이 순위", avgWordLengthDtlList);
 
         double myDayCount = (double) NumberUtils.round(chatLineDao.getDaysActiveByAuthor(author), 1);
         //Average chat line count = totalChatLineCount / authorCount
@@ -204,14 +265,19 @@ public class PGeneralFrag extends Fragment {
         List<StringIntPair> daysActiveRankingList = chatLineDao.getDaysActiveRank();
 
         statsList.add(new PersonGeneralInfoData(
-                "활동 일 수",
-                numberFormat.format(myDayCount) + " / " + cd.getDayCount(),
-                NumberUtils.round((myDayCount - dayCount) * 100 / dayCount, 1),
-                getRanking(daysActiveRankingList),
-                cd.getChatterCount()));
+                "활동량 순위",
+                getRanking(daysActiveRankingList)+"등"));
 
-        CustomAdapter customAdapter = new CustomAdapter(statsList);
-        statsLV.setAdapter(customAdapter);
+        List<StringStringPair> dayCountDtlList = new ArrayList<>();
+        dayCountDtlList.add(new StringStringPair("활동 일 수", numberFormat.format(myDayCount)));
+        dayCountDtlList.add(new StringStringPair("대화방 평균", String.valueOf(dayCount)));
+        dayCountDtlList.add(new StringStringPair("평균 대비 차이", getDiffStr((myDayCount - dayCount) * 100 / dayCount) + "%"));
+        dayCountDtlList.add(new StringStringPair("순위", getRanking(daysActiveRankingList) + "등 / " + cd.getChatterCount() + "명"));
+        dayCountDtlList.add(new StringStringPair("btn", "대화"));
+        statsDtlMap.put("활동량 순위", dayCountDtlList);
+
+        CustomExpandableAdapter customExpandableAdapter = new CustomExpandableAdapter(statsList, statsDtlMap);
+        statsLV.setAdapter(customExpandableAdapter);
 
         return view;
     }
@@ -230,62 +296,149 @@ public class PGeneralFrag extends Fragment {
         return ranking;
     }
 
-    class CustomAdapter extends BaseAdapter {
+    public String getDiffStr(double val){
+        return (NumberUtils.round(val, 1) > 0 ? "+" : "") + NumberUtils.round(val, 1);
+    }
+
+    class CustomExpandableAdapter extends BaseExpandableListAdapter{
 
         ArrayList<PersonGeneralInfoData> statsList;
+        private HashMap<String, List<StringStringPair>> infoMap;
 
-        CustomAdapter(ArrayList<PersonGeneralInfoData> pairs){
-            this.statsList = pairs;
+        public CustomExpandableAdapter(ArrayList<PersonGeneralInfoData> statsList,HashMap<String, List<StringStringPair>> infoMap) {
+            this.statsList = statsList;
+            this.infoMap = infoMap;
         }
 
         @Override
-        public int getCount() {
+        public int getGroupCount() {
             return statsList.size();
         }
 
         @Override
-        public Object getItem(int position) {
-            return null;
+        public int getChildrenCount(int i) {
+            if(infoMap.get(statsList.get(i).getCategoryTitle()) != null) {
+                return infoMap.get(statsList.get(i).getCategoryTitle()).size();
+            } else {
+                return 0;
+            }
         }
 
         @Override
-        public long getItemId(int position) {
-            return 0;
+        public Object getGroup(int i) {
+            return statsList.get(i);
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public Object getChild(int groupPosition, int childPosition) {
+            if(infoMap.get(statsList.get(groupPosition).getCategoryTitle()) != null){
+                return infoMap.get(statsList.get(groupPosition).getCategoryTitle()).get(childPosition);
+            } else {
+                return null;
+            }
+
+        }
+
+        @Override
+        public long getGroupId(int i) {
+            return i;
+        }
+
+        @Override
+        public long getChildId(int i, int i1) {
+            return i1;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return false;
+        }
+
+        @Override
+        public View getGroupView(int position, boolean b, View convertView, ViewGroup viewGroup) {
             convertView = getLayoutInflater().inflate(R.layout.list_view_elem_person_general_stat, null);
 
             TextView titleTV = convertView.findViewById(R.id.pGeneralStatsElemTitleTV);
             TextView valueTV = convertView.findViewById(R.id.pGeneralStatsElemValueTV);
-            TextView diffFromAvgTV = convertView.findViewById(R.id.pGeneralStatsDesc1TV);
-            TextView rankingTV = convertView.findViewById(R.id.pGeneralStatsDesc2TV);
 
-            titleTV.setText(statsList.get(position).getCategoryTitle());
-            valueTV.setText(statsList.get(position).getRawData());
+            PersonGeneralInfoData pgid = statsList.get(position);
 
-            String addOrSub = "";
+            titleTV.setText(pgid.getCategoryTitle());
 
-            if(statsList.get(position).getDiffFromAvg() > 0){
-                LogUtils.e("green");
-                addOrSub = "+";
-                diffFromAvgTV.setTextColor(getActivity().getColor(R.color.darkGreen));
-            } else if(statsList.get(position).getDiffFromAvg() < 0){
-                LogUtils.e("red");
-                //addOrSub = "-";
-                diffFromAvgTV.setTextColor(getActivity().getColor(R.color.design_default_color_error));
-            } else {
-                LogUtils.e("black");
-                diffFromAvgTV.setTextColor(getActivity().getColor(R.color.black));
+            String medalStr = "";
+
+            if(pgid.getRawData().contains("등")){
+                int place = Integer.parseInt(pgid.getRawData().split("등")[0]);
+                switch(place){
+                    case 1:
+                        valueTV.setText("\uD83E\uDD47");
+                        medalStr = "\uD83E\uDD47";
+                        break;
+                    case 2:
+                        valueTV.setText("\uD83E\uDD48");
+                        medalStr = "\uD83E\uDD48";
+                        break;
+                    case 3:
+                        valueTV.setText("\uD83E\uDD49");
+                        medalStr = "\uD83E\uDD49";
+                        break;
+                    default:
+                        valueTV.setText(pgid.getRawData());
+                        break;
+                }
             }
-            diffFromAvgTV.setText("평균 대비 " + addOrSub + statsList.get(position).getDiffFromAvg() + "%");
 
-            rankingTV.setText(statsList.get(position).getRanking() + "등 " + "/ " + statsList.get(position).getTotal() + "명");
 
 
 
             return convertView;
+        }
+
+        @Override
+        public View getChildView(int i, int i1, boolean b, View convertView, ViewGroup viewGroup) {
+            StringStringPair ssp = (StringStringPair) getChild(i, i1);
+
+            if(i1 == getChildrenCount(i)-1 && ssp.getTitle().equals("btn")){
+                convertView = getLayoutInflater().inflate(R.layout.list_view_elem_show_more_btn, null);
+                Button seeMoreBtn = convertView.findViewById(R.id.showMoreBtn);
+                seeMoreBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+                return convertView;
+            }
+
+
+            convertView = getLayoutInflater().inflate(R.layout.list_view_elem_person_general_stat_sub, null);
+            TextView titleTV = convertView.findViewById(R.id.pGeneralStatsElemSubTitleTV);
+            TextView valueTV = convertView.findViewById(R.id.pGeneralStatsElemSubValueTV);
+
+            if(getChild(i, i1) != null){
+
+                titleTV.setText(ssp.getTitle());
+                valueTV.setText(ssp.getValue());
+
+                if(ssp.getValue().contains("%")){
+                    if(ssp.getValue().contains("+")){
+                        valueTV.setTextColor(getActivity().getColor(R.color.darkGreen));
+                    } else if(ssp.getValue().contains("-")){
+                        valueTV.setTextColor(getActivity().getColor(R.color.design_default_color_error));
+                    }
+
+                }
+
+                return convertView;
+            } else {
+                return null;
+            }
+
+        }
+
+        @Override
+        public boolean isChildSelectable(int i, int i1) {
+            return false;
         }
     }
 

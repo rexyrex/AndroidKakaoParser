@@ -499,12 +499,31 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                 wordCount++;
                                 wordModelArrayList.add(new WordModel(lineId, date, person, chat, false, false, false, false, 0));
                             } else {
+                                String bufferStr = "";
                                 for (int w = 0; w < splitWords.length; w++) {
                                     if (isCancelled()) {
                                         return "";
                                     }
                                     String splitWord = splitWords[w];
                                     if (splitWord.length() > 0) {
+                                        if(splitWord.equals("<사진") || splitWord.equals("<동영상")){
+                                            bufferStr += splitWord;
+                                            continue;
+                                        } else if(splitWord.equals("읽지")){
+                                            bufferStr += " " + splitWord;
+                                            continue;
+                                        } else if(splitWord.equals("않음>")){
+                                            bufferStr += " " + splitWord;
+                                            wordCount++;
+                                            if(bufferStr.contains("사진")){
+                                                wordModelArrayList.add(new WordModel(lineId, date, person, bufferStr, false, true, false, false, 0));
+                                            } else if(bufferStr.contains("동영상")){
+                                                wordModelArrayList.add(new WordModel(lineId, date, person, bufferStr, false, false, true, false, 0));
+                                            }
+                                            
+                                            bufferStr = "";
+                                            continue;
+                                        }
                                         Pattern urlP = Pattern.compile("(http|https):\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?");
                                         Matcher urlMatcher = urlP.matcher(splitWord);
                                         int letterCount = splitWord.length();
@@ -513,7 +532,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                         boolean isVideo = splitWord.matches(".+(\\.avi|\\.mov|\\.mkv)$");
                                         boolean isPowerpoint = splitWord.matches(".+(\\.ppt|\\.pptx)$");
                                         wordCount++;
-                                        wordModelArrayList.add(new WordModel(lineId, date, person, splitWords[w], isLink, isPic, isVideo, isPowerpoint, letterCount));
+                                        wordModelArrayList.add(new WordModel(lineId, date, person, splitWord, isLink, isPic, isVideo, isPowerpoint, letterCount));
                                     }
                                 }
                             }

@@ -7,28 +7,34 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/pGeneralStatsElemTitleTV"
+        android:id="@+id/pGeneralStatsElemSubTitleTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/custom_show_more_btn_highlighted"
         android:fontFamily="@font/nanum_square_round_b"
         android:text="통계 내려는 것"
         android:textColor="@color/textColor1"
-        android:textSize="14sp"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/pGeneralStatsElemValueTV"
-        android:layout_width="wrap_content"
+        android:id="@+id/pGeneralStatsElemSubValueTV"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
         android:fontFamily="@font/nanum_square_round_b"
-        android:text="15,003"
+        android:text="(5명 중 2등)"
+        android:textAlignment="textStart"
         android:textColor="@color/textColor1"
-        android:textSize="42sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/pGeneralStatsElemTitleTV"
-        app:layout_constraintTop_toBottomOf="@+id/pGeneralStatsElemTitleTV" />
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/pGeneralStatsElemSubTitleTV"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/pGeneralStatsElemSubTitleTV"
+        app:layout_constraintTop_toTopOf="@+id/pGeneralStatsElemSubTitleTV" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

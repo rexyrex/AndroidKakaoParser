@@ -14,6 +14,7 @@ import com.rexyrex.kakaoparser.Fragments.main.PersonAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.main.TimeAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.main.WordAnalyseFrag;
 import com.rexyrex.kakaoparser.Fragments.person.PGeneralFrag;
+import com.rexyrex.kakaoparser.Fragments.person.PWordFrag;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -41,7 +42,7 @@ public class PersonDtlSpa extends FragmentPagerAdapter {
             case "개요" :
                 return PGeneralFrag.newInstance();
             case "단어" :
-                return PGeneralFrag.newInstance();
+                return PWordFrag.newInstance();
             case "시간" :
                 return PGeneralFrag.newInstance();
             default : return null;

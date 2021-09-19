@@ -66,6 +66,12 @@ public interface WordDAO {
     @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word GROUP BY word ORDER BY frequency desc LIMIT 10000")
     public List<StringIntPair> getFreqWordList();
 
+    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word WHERE author = :author GROUP BY word ORDER BY frequency desc LIMIT 10000")
+    public List<StringIntPair> getWordsByAuthor(String author);
+
+    @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency FROM tb_word WHERE author = :author GROUP BY word ORDER BY frequency desc LIMIT 10")
+    public List<StringIntPair> getTop10WordsByAuthor(String author);
+
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT DISTINCT(word) AS word, COUNT(*) AS frequency, COUNT(DISTINCT(author)) AS authcount FROM tb_word tw WHERE LENGTH(word) > 1 " +
             "GROUP BY word " +

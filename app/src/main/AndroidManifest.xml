@@ -35,6 +35,7 @@
             android:label="@string/title_activity_settings" />
         <activity android:name=".Activities.InstructionsActivity" />
         <activity android:name=".Activities.DetailActivities.PersonDtlActivity" />
+        <activity android:name=".Activities.DetailActivities.PersonWordListActivity" />
         <activity android:name=".Activities.ChatPeekActivity" />
         <activity android:name=".Activities.PersonListActivity" />
         <activity android:name=".Activities.DetailActivities.WordDetailAnalyseActivity" />
