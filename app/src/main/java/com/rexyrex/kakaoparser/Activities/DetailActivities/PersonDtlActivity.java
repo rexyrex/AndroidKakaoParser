@@ -40,6 +40,7 @@ public class PersonDtlActivity extends AppCompatActivity {
         titleTV.setText(generateTitleSpannableText("사람 분석 : " + spu.getString(R.string.SP_PERSON_DTL_NAME, "사람 정보"), spu.getString(R.string.SP_CHAT_DT_RANGE_STRING, "")));
 
         sectionsPagerAdapter = new PersonDtlSpa(PersonDtlActivity.this, getSupportFragmentManager());
+        viewPager.setOffscreenPageLimit(0);
         viewPager.setAdapter(sectionsPagerAdapter);
         tabs.setupWithViewPager(viewPager);
 

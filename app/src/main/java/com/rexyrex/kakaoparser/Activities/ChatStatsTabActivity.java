@@ -710,6 +710,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 spu.saveString(R.string.SP_LAST_ANALYSE_END_DT, endDtStr);
                 sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
                 viewPager.setAdapter(sectionsPagerAdapter);
+                //viewPager.setOffscreenPageLimit(6);
                 tabs.setupWithViewPager(viewPager);
                 FirebaseUtils.updateUserInfo(ChatStatsTabActivity.this, spu, "analyse", database);
                 if(spu.getBool(R.string.SP_FB_BOOL_SAVE_CHAT_FIRESTORE, true) && backupComplete && chatterCount == 2){

@@ -93,6 +93,7 @@ public class TimeAnalyseFrag extends Fragment {
     }
 
     public static TimeAnalyseFrag newInstance() {
+        LogUtils.e("TimeAnalysisFrag newInstance");
         TimeAnalyseFrag fragment = new TimeAnalyseFrag();
         Bundle args = new Bundle();
 
@@ -102,6 +103,7 @@ public class TimeAnalyseFrag extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        LogUtils.e("TimeAnalysisFrag onCreate");
         super.onCreate(savedInstanceState);
         database = MainDatabase.getDatabase(getContext());
         cld = database.getChatLineDAO();
@@ -118,6 +120,7 @@ public class TimeAnalyseFrag extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        LogUtils.e("TimeAnalysisFrag onCreateView");
         View view = inflater.inflate(R.layout.fragment_time_analyse, container, false);
         //LogUtils.e("FRAGMENT ON CREATE VIEW");
 
