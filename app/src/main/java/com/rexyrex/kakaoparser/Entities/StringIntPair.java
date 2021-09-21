@@ -1,6 +1,8 @@
 package com.rexyrex.kakaoparser.Entities;
 
-public class StringIntPair {
+import java.io.Serializable;
+
+public class StringIntPair implements Serializable {
     private String word;
     private int frequency;
 

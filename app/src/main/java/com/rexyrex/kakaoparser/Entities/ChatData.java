@@ -49,6 +49,19 @@ public class ChatData {
     List<StringIntPair> freqByDayOfWeek;
     int maxFreqByDayOfWeek;
 
+    double avgDaysActive;
+    List<StringIntPair> daysActiveRankingList;
+    List<StringIntPair> distinctWordRankingList;
+    List<StringIntPair> chatLineRankingList;
+    List<StringIntPair> totalWordRankingList;
+    List<StringIntPair> picRankingList;
+    List<StringIntPair> videoRankingList;
+    List<StringIntPair> linkRankingList;
+    List<StringIntPair> delRankingList;
+    List<StringIntPair> sentWordRankingList;
+    List<StringIntPair> wordLengthRankingList;
+
+
     List<ChatLineModel> allChatInit;
 
     List<String> authorsList;
@@ -364,5 +377,103 @@ public class ChatData {
 
     public void setDeletedMsgCount(int deletedMsgCount) {
         this.deletedMsgCount = deletedMsgCount;
+    }
+
+    public List<StringIntPair> getDaysActiveRankingList() {
+        return (daysActiveRankingList==null) ? chatLineDao.getDaysActiveRank() : daysActiveRankingList;
+    }
+
+    public void setDaysActiveRankingList(List<StringIntPair> daysActiveRankingList) {
+        this.daysActiveRankingList = daysActiveRankingList;
+    }
+
+    public List<StringIntPair> getDistinctWordRankingList() {
+        return (daysActiveRankingList==null) ? wordDao.getDistinctWordCountByRank() : daysActiveRankingList;
+    }
+
+    public void setDistinctWordRankingList(List<StringIntPair> distinctWordRankingList) {
+        this.distinctWordRankingList = distinctWordRankingList;
+    }
+
+    public List<StringIntPair> getChatLineRankingList() {
+        return (chatLineRankingList==null) ? chatLineDao.getChatterChatLineByRank() : chatLineRankingList;
+    }
+
+    public void setChatLineRankingList(List<StringIntPair> chatLineRankingList) {
+        this.chatLineRankingList = chatLineRankingList;
+    }
+
+    public List<StringIntPair> getTotalWordRankingList() {
+        return (totalWordRankingList==null) ? wordDao.getTotalWordCountByRank() : totalWordRankingList;
+    }
+
+    public void setTotalWordRankingList(List<StringIntPair> totalWordRankingList) {
+        this.totalWordRankingList = totalWordRankingList;
+    }
+
+    public List<StringIntPair> getPicRankingList() {
+        return (picRankingList==null) ? wordDao.getPicRanking() : picRankingList;
+    }
+
+    public void setPicRankingList(List<StringIntPair> picRankingList) {
+        this.picRankingList = picRankingList;
+    }
+
+    public List<StringIntPair> getVideoRankingList() {
+        return (videoRankingList==null) ? wordDao.getVideoRanking() : videoRankingList;
+    }
+
+    public void setVideoRankingList(List<StringIntPair> videoRankingList) {
+        this.videoRankingList = videoRankingList;
+    }
+
+    public List<StringIntPair> getLinkRankingList() {
+        return (linkRankingList==null) ? wordDao.getLinkRanking() : linkRankingList;
+    }
+
+    public void setLinkRankingList(List<StringIntPair> linkRankingList) {
+        this.linkRankingList = linkRankingList;
+    }
+
+    public List<StringIntPair> getDelRankingList() {
+        return (delRankingList==null) ? chatLineDao.getDeletedMsgRanking() : delRankingList;
+    }
+
+    public void setDelRankingList(List<StringIntPair> delRankingList) {
+        this.delRankingList = delRankingList;
+    }
+
+    public List<StringIntPair> getSentWordRankingList() {
+        return (sentWordRankingList==null) ? chatLineDao.getAverageWordCountRanking() : sentWordRankingList;
+    }
+
+    public void setSentWordRankingList(List<StringIntPair> sentWordRankingList) {
+        this.sentWordRankingList = sentWordRankingList;
+    }
+
+    public List<StringIntPair> getWordLengthRankingList() {
+        return (wordLengthRankingList==null) ? wordDao.getAverageLetterCountByRank() : wordLengthRankingList;
+    }
+
+    public void setWordLengthRankingList(List<StringIntPair> wordLengthRankingList) {
+        this.wordLengthRankingList = wordLengthRankingList;
+    }
+
+    public double getAvgDaysActive() {
+        if(avgDaysActive==0){
+            int count = 0;
+            double aggregate = 0;
+            for(StringIntPair sip : getDaysActiveRankingList()){
+                count++;
+                aggregate += sip.getFrequency();
+            }
+            return aggregate / count;
+        } else {
+            return avgDaysActive;
+        }
+    }
+
+    public void setAvgDaysActive(double avgDaysActive) {
+        this.avgDaysActive = avgDaysActive;
     }
 }

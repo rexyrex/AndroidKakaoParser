@@ -112,21 +112,41 @@ public interface ChatLineDAO {
     @Query("SELECT COUNT(*) as frequency, date as date FROM tb_chat_line GROUP BY dateDayString ORDER BY date asc")
     public List<DateIntPair> getFreqByDay();
 
+    //get frequency by day filter by author
+    @Query("SELECT COUNT(*) as frequency, date as date FROM tb_chat_line WHERE author = :author GROUP BY dateDayString ORDER BY date asc")
+    public List<DateIntPair> getFreqByDayByAuthor(String author);
+
     //get frequency by month
     @Query("SELECT COUNT(*) as frequency, dateMonthString as word FROM tb_chat_line GROUP BY dateMonthString ORDER BY date asc")
     public List<StringIntPair> getFreqByMonth();
+
+    //get frequency by month filter by author
+    @Query("SELECT COUNT(*) as frequency, dateMonthString as word FROM tb_chat_line WHERE author = :author GROUP BY dateMonthString ORDER BY date asc")
+    public List<StringIntPair> getFreqByMonthByAuthor(String author);
 
     //get frequency by year
     @Query("SELECT COUNT(*) as frequency, dateYearString as word FROM tb_chat_line GROUP BY dateYearString ORDER BY date asc")
     public List<StringIntPair> getFreqByYear();
 
+    //get frequency by year  filter by author
+    @Query("SELECT COUNT(*) as frequency, dateYearString as word FROM tb_chat_line WHERE author = :author GROUP BY dateYearString ORDER BY date asc")
+    public List<StringIntPair> getFreqByYearByAuthor(String author);
+
     //get frequency by time of day
     @Query("SELECT COUNT(*) as frequency, dateHourOfDayString as word FROM tb_chat_line GROUP BY dateHourOfDayString ORDER BY dateHourOfDayString")
     public List<StringIntPair> getFreqByTimeOfDay();
 
+    //get frequency by time of day filter by author
+    @Query("SELECT COUNT(*) as frequency, dateHourOfDayString as word FROM tb_chat_line WHERE author = :author GROUP BY dateHourOfDayString ORDER BY dateHourOfDayString")
+    public List<StringIntPair> getFreqByTimeOfDayByAuthor(String author);
+
     //get frequency by day of week
     @Query("SELECT COUNT(*) as frequency, dateDayOfWeekString as word FROM tb_chat_line GROUP BY dateDayOfWeekString")
     public List<StringIntPair> getFreqByDayOfWeek();
+
+    //get frequency by day of week filter by author
+    @Query("SELECT COUNT(*) as frequency, dateDayOfWeekString as word FROM tb_chat_line WHERE author = :author GROUP BY dateDayOfWeekString")
+    public List<StringIntPair> getFreqByDayOfWeekByAuthor(String author);
 
     //get max frequency by dayOfWeek
     @Query("SELECT COUNT(*) as frequency FROM tb_chat_line GROUP BY dateDayOfWeekString ORDER BY frequency desc LIMIT 1")

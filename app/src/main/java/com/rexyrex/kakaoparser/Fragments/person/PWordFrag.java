@@ -165,8 +165,10 @@ public class PWordFrag extends Fragment {
         totalCount = 0;
         pairs = null;
 
-        pairs = wordDao.getTop10WordsByAuthor(author);
-        totalCount = wordDao.getDistinctWordCountByAuthor(author);
+        PersonDtlActivity activity = (PersonDtlActivity) getActivity();
+
+        pairs = activity.top10Words;
+        totalCount = activity.distinctWordCount;
 
         CustomAdapter customAdapter = new CustomAdapter(pairs, totalCount);
         freqLV.setAdapter(customAdapter);
@@ -193,8 +195,10 @@ public class PWordFrag extends Fragment {
     public PieData getChatAmountPieData(){
         List<StringIntPair> chatters = null;
 
-        chatters = wordDao.getTop10WordsByAuthor(author);
-        int totalCount = wordDao.getDistinctWordCountByAuthor(author);
+        PersonDtlActivity activity = (PersonDtlActivity) getActivity();
+
+        chatters = activity.top10Words;
+        int totalCount = activity.distinctWordCount;
 
         ArrayList chatAmountArrayList = new ArrayList();
         ArrayList chatNicknameArrayList = new ArrayList();

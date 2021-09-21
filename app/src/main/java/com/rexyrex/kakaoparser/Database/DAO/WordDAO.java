@@ -94,6 +94,10 @@ public interface WordDAO {
     @Query("SELECT DISTINCT(author) AS word, COUNT(*) AS frequency FROM tb_word WHERE word = :searchTerm GROUP BY author ORDER BY frequency desc")
     public List<StringIntPair> getFreqWordListSearchByAuthor(String searchTerm);
 
+    //get user-frequency mapping of given word
+    @Query("SELECT DISTINCT(author) AS word, COUNT(*) AS frequency FROM tb_word WHERE word = :searchTerm GROUP BY author ORDER BY frequency desc LIMIT 10")
+    public List<StringIntPair> getFreqWordListSearchByAuthorTop10(String searchTerm);
+
     //get lines containing word
     @Query("SELECT * FROM tb_chat_line WHERE id IN (SELECT line_id FROM tb_word WHERE word = :word)")
     public List<ChatLineModel> getChatLinesContainingWord(String word);

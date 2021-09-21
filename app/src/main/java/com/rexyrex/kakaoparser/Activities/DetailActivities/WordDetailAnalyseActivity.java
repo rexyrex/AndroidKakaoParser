@@ -188,7 +188,7 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
     public PieData getWordUserFreqPieData(String word){
         ArrayList chatAmountArrayList = new ArrayList();
 
-        List<StringIntPair> authorFrequencyList = wordDao.getFreqWordListSearchByAuthor(word);
+        List<StringIntPair> authorFrequencyList = wordDao.getFreqWordListSearchByAuthorTop10(word);
 
         //calculate total
         int totalCount = 0;
@@ -200,7 +200,7 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
             chatAmountArrayList.add(new PieEntry(sip.getFrequency(),sip.getword() + "(" + String.format("%.1f", (double)sip.getFrequency()/totalCount*100) + "%)"));
         }
 
-        PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "단어 사용 비율");
+        PieDataSet dataSet = new PieDataSet(chatAmountArrayList, "단어 사용 비율 (Top 10)");
         dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         dataSet.setValueTextSize(12);
         dataSet.setValueTextColor(Color.BLACK);

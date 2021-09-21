@@ -2,14 +2,11 @@ package com.rexyrex.kakaoparser.Activities;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -17,8 +14,6 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.ResponseInfo;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
-import com.google.android.gms.ads.nativead.NativeAd;
-import com.google.android.gms.ads.nativead.NativeAdOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
@@ -58,6 +53,7 @@ import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 import com.rexyrex.kakaoparser.Database.Models.WordModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.Entities.DateIntPair;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.AdUtils;
@@ -78,7 +74,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -136,6 +131,12 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     private InterstitialAd mInterstitialAd;
     private AdRequest adRequest;
 
+    public List<DateIntPair> timePreloadDayList;
+    public List timePreloadMonthList;
+    public List timePreloadYearList;
+    public List timePreloadTimeOfDayList;
+    public List timePreloadDayOFWeekList;
+
     Runtime runtime;
 
     SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
@@ -145,6 +146,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        timePreloadDayList = new ArrayList<>();
+        timePreloadTimeOfDayList = new ArrayList<>();
 
         cd = ChatData.getInstance(this);
         final File chatFile = cd.getChatFile();
@@ -594,31 +598,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                     chatterCount = chatLineDao.getChatterCount();
                     cd.setChatterCount(chatterCount);
-                    cd.setDayCount(chatLineDao.getDayCount());
-                    cd.setChatLineCount(chatLineDao.getCount());
-                    cd.setWordCount(wordDao.getDistinctCount());
-                    cd.setTotalWordCount(wordDao.getCount());
-                    cd.setAvgWordCount(chatLineDao.getAverageWordCount());
-                    cd.setAvgLetterCount(wordDao.getAverageLetterCount());
-                    cd.setLinkCount(wordDao.getLinkCount());
-                    cd.setPicCount(wordDao.getPicCount());
-                    cd.setVideoCount(wordDao.getVideoCount());
-                    cd.setPptCount(wordDao.getPowerpointCount());
-                    cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
 
-                    cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
-                    cd.setTop10Chatters(chatLineDao.getTop10Chatters());
-                    cd.setTop10ChattersByWord(wordDao.getTop10ChattersByWords());
-                    cd.setTop10ChattersByPic(wordDao.getTop10ChattersByPic());
-                    cd.setTop10ChattersByVideo(wordDao.getTop10ChattersByVideo());
-                    cd.setTop10ChattersByLink(wordDao.getTop10ChattersByLink());
-                    cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
-
-                    cd.setWordFreqArrList(wordDao.getFreqWordList());
-                    cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
-                    cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
-                    cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
-                    cd.setAuthorsList(chatLineDao.getChatters());
+                    dbToVars();
 
 
                     //Check if already backed up
@@ -747,33 +728,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 });
 
                 cd.setChatFileTitle(tmpTitleStr);
-                cd.setChatAnalyseDbModel(FileParseUtils.parseFileForTitle(chatFile), lastAnalyseDtStr);
+                cd.setChatAnalyseDbModel(tmpTitleStr, lastAnalyseDtStr);
 
                 cd.setChatterCount(chatLineDao.getChatterCount());
-                cd.setDayCount(chatLineDao.getDayCount());
-                cd.setChatLineCount(chatLineDao.getCount());
-                cd.setWordCount(wordDao.getDistinctCount());
-                cd.setTotalWordCount(wordDao.getCount());
-                cd.setAvgWordCount(chatLineDao.getAverageWordCount());
-                cd.setAvgLetterCount(wordDao.getAverageLetterCount());
-                cd.setLinkCount(wordDao.getLinkCount());
-                cd.setPicCount(wordDao.getPicCount());
-                cd.setVideoCount(wordDao.getVideoCount());
-                cd.setPptCount(wordDao.getPowerpointCount());
-                cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
 
-                cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
-                cd.setTop10Chatters(chatLineDao.getTop10Chatters());
-                cd.setTop10ChattersByWord(wordDao.getTop10ChattersByWords());
-                cd.setTop10ChattersByPic(wordDao.getTop10ChattersByPic());
-                cd.setTop10ChattersByVideo(wordDao.getTop10ChattersByVideo());
-                cd.setTop10ChattersByLink(wordDao.getTop10ChattersByLink());
-                cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
-                cd.setWordFreqArrList(wordDao.getFreqWordList());
-                cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
-                cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
-                cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
-                cd.setAuthorsList(chatLineDao.getChatters());
+                dbToVars();
 
                 return null;
             }
@@ -817,6 +776,54 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         } else {
             statsTask.execute();
         }
+    }
+
+    public void dbToVars(){
+        cd.setDayCount(chatLineDao.getDayCount());
+        cd.setChatLineCount(chatLineDao.getCount());
+        cd.setWordCount(wordDao.getDistinctCount());
+        cd.setTotalWordCount(wordDao.getCount());
+        cd.setAvgWordCount(chatLineDao.getAverageWordCount());
+        cd.setAvgLetterCount(wordDao.getAverageLetterCount());
+        cd.setLinkCount(wordDao.getLinkCount());
+        cd.setPicCount(wordDao.getPicCount());
+        cd.setVideoCount(wordDao.getVideoCount());
+        cd.setPptCount(wordDao.getPowerpointCount());
+        cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
+
+        cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
+        cd.setTop10Chatters(chatLineDao.getTop10Chatters());
+        cd.setTop10ChattersByWord(wordDao.getTop10ChattersByWords());
+        cd.setTop10ChattersByPic(wordDao.getTop10ChattersByPic());
+        cd.setTop10ChattersByVideo(wordDao.getTop10ChattersByVideo());
+        cd.setTop10ChattersByLink(wordDao.getTop10ChattersByLink());
+        cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
+
+        cd.setWordFreqArrList(wordDao.getFreqWordList());
+        cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
+        cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
+        cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
+        cd.setAuthorsList(chatLineDao.getChatters());
+
+        timePreloadDayList = chatLineDao.getFreqByDay();
+        timePreloadMonthList = chatLineDao.getFreqByMonth();
+        timePreloadYearList = chatLineDao.getFreqByYear();
+        timePreloadTimeOfDayList = chatLineDao.getFreqByTimeOfDay();
+        timePreloadDayOFWeekList = chatLineDao.getFreqByDayOfWeek();
+
+        cd.setDaysActiveRankingList(chatLineDao.getDaysActiveRank());
+        cd.setDistinctWordRankingList(wordDao.getDistinctWordCountByRank());
+        cd.setChatLineRankingList(chatLineDao.getChatterChatLineByRank());
+        cd.setTotalWordRankingList(wordDao.getTotalWordCountByRank());
+        cd.setPicRankingList(wordDao.getPicRanking());
+        cd.setVideoRankingList(wordDao.getVideoRanking());
+        cd.setLinkRankingList(wordDao.getLinkRanking());
+        cd.setDelRankingList(chatLineDao.getDeletedMsgRanking());
+        cd.setSentWordRankingList(chatLineDao.getAverageWordCountRanking());
+        cd.setWordLengthRankingList(wordDao.getAverageLetterCountByRank());
+
+
+
     }
 
     public long getRemainingHeapSize(){

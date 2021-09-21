@@ -1,10 +1,7 @@
-package com.rexyrex.kakaoparser.Fragments.main;
+package com.rexyrex.kakaoparser.Fragments.person;
 
 import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +11,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.RadarChart;
@@ -31,6 +30,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IRadarDataSet;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
+import com.rexyrex.kakaoparser.Activities.DetailActivities.PersonDtlActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
@@ -56,7 +56,7 @@ import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class TimeAnalyseFrag extends Fragment {
+public class PTimeFrag extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
 
@@ -80,13 +80,13 @@ public class TimeAnalyseFrag extends Fragment {
     String[] items = {"시간 분석", "요일 분석", "일 분석", "월 분석", "연 분석"};
     String[] timeOfDayStrs = {"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23"};
 
-    public TimeAnalyseFrag() {
+    public PTimeFrag() {
         // Required empty public constructor
     }
 
-    public static TimeAnalyseFrag newInstance() {
+    public static PTimeFrag newInstance() {
         LogUtils.e("TimeAnalysisFrag newInstance");
-        TimeAnalyseFrag fragment = new TimeAnalyseFrag();
+        PTimeFrag fragment = new PTimeFrag();
         Bundle args = new Bundle();
 
         fragment.setArguments(args);
@@ -181,7 +181,7 @@ public class TimeAnalyseFrag extends Fragment {
         List listData = new ArrayList<>();
         List tmpList = new ArrayList();
 
-        ChatStatsTabActivity activity = (ChatStatsTabActivity) getActivity();
+        PersonDtlActivity activity = (PersonDtlActivity) getActivity();
 
         switch(items[position]){
             case "일 분석":
@@ -530,9 +530,9 @@ public class TimeAnalyseFrag extends Fragment {
 
 
 
-        for(StringIntPair sip : res){
-            LogUtils.e("Key: " + sip.getword() + ", Freq: " + sip.getFrequency() );
-        }
+//        for(StringIntPair sip : res){
+//            LogUtils.e("Key: " + sip.getword() + ", Freq: " + sip.getFrequency() );
+//        }
 
 //        for(String tString : timeOfDayStrs){
 //            //LogUtils.e("searching for " + tString);
