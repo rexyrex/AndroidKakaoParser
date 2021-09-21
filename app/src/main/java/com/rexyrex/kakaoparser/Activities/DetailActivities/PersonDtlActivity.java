@@ -73,6 +73,8 @@ public class PersonDtlActivity extends AppCompatActivity {
 
     List<StringIntPair> daysActiveRankingList;
 
+    TextView loadingTV;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +106,7 @@ public class PersonDtlActivity extends AppCompatActivity {
         loadingDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
         loadingDialog.setCancelable(false);
         ImageView loadingIV = loadingDialog.findViewById(R.id.loadingPopupIV);
-        TextView loadingTV = loadingDialog.findViewById(R.id.loadingPopupTV);
+        loadingTV = loadingDialog.findViewById(R.id.loadingPopupTV);
         Glide.with(this).asGif().load(R.drawable.loading1).into(loadingIV);
         loadingTV.setText("불러오는중...");
 
@@ -121,9 +123,10 @@ public class PersonDtlActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         loadingDialog.show();
-                        loadingTV.setText("불러오는중... [대화 순위]");
                     }
                 });
+
+                changeStatusText("대화 순위");
 
 
                 double myChatLineCount = (double) chatLineDao.getChatterChatLineCount(author);
@@ -144,12 +147,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                 chatLineDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("대화 순위", chatLineDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [총 단어 순위]");
-                    }
-                });
+                changeStatusText("총 단어 순위");
 
                 double myTotalWordCount = (double) wordDao.getTotalWordCountByAuthor(author);
                 //Average chat line count = totalChatLineCount / authorCount
@@ -169,12 +167,8 @@ public class PersonDtlActivity extends AppCompatActivity {
                 totalWordDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("총 단어 순위", totalWordDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [단어 종류 순위]");
-                    }
-                });
+
+                changeStatusText("단어 종류 순위");
 
                 double myDistinctWordCount = (double) wordDao.getDistinctWordCountByAuthor(author);
                 //Average chat line count = totalChatLineCount / authorCount
@@ -194,12 +188,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                 distinctWordDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("단어 종류 순위", distinctWordDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [사진 순위]");
-                    }
-                });
+                changeStatusText("사진 순위");
 
                 double myPicCount = (double) wordDao.getPicCountByAuthor(author);
                 //Average chat line count = totalChatLineCount / authorCount
@@ -219,12 +208,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                 picDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("사진 순위", picDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [동영상 순위]");
-                    }
-                });
+                changeStatusText("동영상 순위");
 
                 double myVideoCount = (double) wordDao.getVideoCountByAuthor(author);
                 //Average chat line count = totalChatLineCount / authorCount
@@ -244,12 +228,8 @@ public class PersonDtlActivity extends AppCompatActivity {
                 videoDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("동영상 순위", videoDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [링크 순위]");
-                    }
-                });
+
+                changeStatusText("링크 순위");
 
                 double myLinkCount = (double) wordDao.getLinkCountByAuthor(author);
                 //Average chat line count = totalChatLineCount / authorCount
@@ -269,12 +249,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                 linkDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("링크 순위", linkDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [삭제 메세지 순위]");
-                    }
-                });
+                changeStatusText("삭제 메세지 순위");
 
                 double myDelCount = (double) chatLineDao.getDeletedMsgCountByAuthor(author);
                 //Average chat line count = totalChatLineCount / authorCount
@@ -294,12 +269,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                 delMsgDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("삭제 메세지 순위", delMsgDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [문장 평균 단어 순위]");
-                    }
-                });
+                changeStatusText("문장 평균 단어 순위");
 
                 double mySentWordCount = (double) NumberUtils.round(chatLineDao.getAverageWordCountByAuthor(author), 1);
                 //Average chat line count = totalChatLineCount / authorCount
@@ -318,12 +288,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                 avgSentWordDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("문장 평균 단어 순위", avgSentWordDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [평균 단어 길이 순위]");
-                    }
-                });
+                changeStatusText("평균 단어 길이 순위");
 
                 double myWordLengthCount = (double) NumberUtils.round(wordDao.getAverageLetterCountByAuthor(author), 1);
                 //Average chat line count = totalChatLineCount / authorCount
@@ -342,12 +307,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                 avgWordLengthDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("평균 단어 길이 순위", avgWordLengthDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [활동량 순위]");
-                    }
-                });
+                changeStatusText("활동량 순위");
 
                 double myDayCount = (double) NumberUtils.round(chatLineDao.getDaysActiveByAuthor(author), 1);
                 //Average chat line count = totalChatLineCount / authorCount
@@ -366,12 +326,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                 dayCountDtlList.add(new StringStringPair("btn", "대화"));
                 statsDtlMap.put("활동량 순위", dayCountDtlList);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("불러오는중... [개인 시간 분석]");
-                    }
-                });
+                changeStatusText("시간 분석");
 
                 timePreloadDayList = chatLineDao.getFreqByDayByAuthor(author);
                 timePreloadMonthList = chatLineDao.getFreqByMonthByAuthor(author);
@@ -379,12 +334,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                 timePreloadTimeOfDayList = chatLineDao.getFreqByTimeOfDayByAuthor(author);
                 timePreloadDayOFWeekList = chatLineDao.getFreqByDayOfWeekByAuthor(author);
 
-                PersonDtlActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadingTV.setText("마무리...");
-                    }
-                });
+                changeStatusText("마무리...");
 
                 top10Words = wordDao.getTop10WordsByAuthor(author);
                 distinctWordCount = wordDao.getDistinctWordCountByAuthor(author);
@@ -416,12 +366,15 @@ public class PersonDtlActivity extends AppCompatActivity {
 
         loadTask.execute(new Integer[] {0});
 
+    }
 
-
-
-
-
-
+    public void changeStatusText(String s){
+        PersonDtlActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loadingTV.setText("사람 정밀 분석중...\n - " + s);
+            }
+        });
     }
 
     public int getRanking(List<StringIntPair> rankingList){
@@ -432,8 +385,8 @@ public class PersonDtlActivity extends AppCompatActivity {
             } else {
                 ranking++;
             }
-            LogUtils.e("Key: " + rankingList.get(i).getword());
-            LogUtils.e("Val: " + rankingList.get(i).getFrequency());
+            //LogUtils.e("Key: " + rankingList.get(i).getword());
+            //LogUtils.e("Val: " + rankingList.get(i).getFrequency());
         }
         return ranking;
     }

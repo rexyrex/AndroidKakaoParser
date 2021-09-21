@@ -141,7 +141,7 @@ public class WordDetailAnalyseActivity extends AppCompatActivity {
     }
 
     private SpannableString generateCenterSpannableText(Typeface tf) {
-        SpannableString s = new SpannableString("사용 빈도");
+        SpannableString s = new SpannableString("단어 사용 비율 (Top 10)");
         s.setSpan(new StyleSpan(Typeface.BOLD), 0, s.length(), 0);
         return s;
     }

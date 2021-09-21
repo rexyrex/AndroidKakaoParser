@@ -110,7 +110,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     NumberFormat numberFormat;
 
+    //final progress text indicator
     String finalStatusText = "";
+    //final progress sub text index
+    int finalStatusSubIndex = 0;
+    int finalStatusSubCount = 13;
 
     SharedPrefUtils spu;
 
@@ -718,7 +722,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         titleTV.setText( tmpTitle);
-                        loadingTextTV.setText("이미 분석된 대화를 불러오는 중...");
+
+                        loadingTextTV.setText(getLoadStatusText("이미 분석된 대화를 불러오는 중...",false));
                         popupPB.setVisibility(View.GONE);
                         popupPBCancelBtn.setVisibility(View.GONE);
                         popupPBProgressDtlTV.setVisibility(View.GONE);
@@ -779,6 +784,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     }
 
     public void dbToVars(){
+        updateLoadStatusSubtext("기본 통계 정리", false);
         cd.setDayCount(chatLineDao.getDayCount());
         cd.setChatLineCount(chatLineDao.getCount());
         cd.setWordCount(wordDao.getDistinctCount());
@@ -791,6 +797,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         cd.setPptCount(wordDao.getPowerpointCount());
         cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
 
+        updateLoadStatusSubtext("랭킹 정리", false);
         cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
         cd.setTop10Chatters(chatLineDao.getTop10Chatters());
         cd.setTop10ChattersByWord(wordDao.getTop10ChattersByWords());
@@ -799,6 +806,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         cd.setTop10ChattersByLink(wordDao.getTop10ChattersByLink());
         cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
 
+        updateLoadStatusSubtext("시간 정리", false);
         cd.setWordFreqArrList(wordDao.getFreqWordList());
         cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
         cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
@@ -811,19 +819,49 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         timePreloadTimeOfDayList = chatLineDao.getFreqByTimeOfDay();
         timePreloadDayOFWeekList = chatLineDao.getFreqByDayOfWeek();
 
+        updateLoadStatusSubtext("평균 사용량 계산", false);
         cd.setDaysActiveRankingList(chatLineDao.getDaysActiveRank());
+
+        updateLoadStatusSubtext("단어 종류 분류", false);
         cd.setDistinctWordRankingList(wordDao.getDistinctWordCountByRank());
+        updateLoadStatusSubtext("채팅 랭킹 계산", false);
         cd.setChatLineRankingList(chatLineDao.getChatterChatLineByRank());
+        updateLoadStatusSubtext("단어 랭킹 계산", false);
         cd.setTotalWordRankingList(wordDao.getTotalWordCountByRank());
+        updateLoadStatusSubtext("사진 랭킹 계산", false);
         cd.setPicRankingList(wordDao.getPicRanking());
+        updateLoadStatusSubtext("동영상 랭킹 계산", false);
         cd.setVideoRankingList(wordDao.getVideoRanking());
+        updateLoadStatusSubtext("링크 랭킹 계산", false);
         cd.setLinkRankingList(wordDao.getLinkRanking());
+        updateLoadStatusSubtext("삭제 메세지 랭킹 계산", false);
         cd.setDelRankingList(chatLineDao.getDeletedMsgRanking());
+        updateLoadStatusSubtext("평균 단어 랭킹 계산", false);
         cd.setSentWordRankingList(chatLineDao.getAverageWordCountRanking());
+        updateLoadStatusSubtext("평균 단어 길이 랭킹 계산", false);
         cd.setWordLengthRankingList(wordDao.getAverageLetterCountByRank());
 
 
 
+    }
+
+    public void updateLoadStatusText(String s, boolean finished){
+        ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loadingTextTV.setText(getLoadStatusText(s, finished));
+            }
+        });
+    }
+
+    public void updateLoadStatusSubtext(String s, boolean finished){
+        ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                finalStatusSubIndex++;
+                loadingTextTV.setText(finalStatusText + "\n  - " + s + " (" + finalStatusSubIndex + " / " + finalStatusSubCount + ")");
+            }
+        });
     }
 
     public long getRemainingHeapSize(){
