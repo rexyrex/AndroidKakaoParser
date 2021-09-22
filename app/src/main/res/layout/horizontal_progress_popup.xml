@@ -11,14 +11,13 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="270dp"
         android:layout_height="50dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="8dp"
         android:layout_marginEnd="10dp"
         android:progressTint="@color/colorAccent"
         android:scaleY="4"
-        app:layout_constraintBottom_toBottomOf="@+id/loadingGifIV"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/loadingGifIV" />
+        app:layout_constraintTop_toBottomOf="@+id/loadingTextTV" />
 
     <TextView
         android:id="@+id/loadingTextTV"
@@ -29,20 +28,39 @@
         android:layout_marginEnd="16dp"
         android:fontFamily="@font/nanum_square_round_r"
         android:text="대화 내용 분석중..."
+        android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/loadingSubtextTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="subtext..\nwoo.."
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loadingTextTV" />
+
     <ImageView
         android:id="@+id/loadingGifIV"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loadingTextTV"
+        app:layout_constraintTop_toBottomOf="@+id/loadingSubtextTV"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -62,14 +80,12 @@
         android:id="@+id/popupPBProgressDetailTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/nanum_square_round_r"
         android:text="자세히 보기"
         android:textAlignment="textStart"
         android:textColor="@color/colorAccent"
         android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/popupPB"
         app:layout_constraintStart_toStartOf="@+id/popupPB"
         app:layout_constraintTop_toBottomOf="@+id/popupPBProgressTV" />

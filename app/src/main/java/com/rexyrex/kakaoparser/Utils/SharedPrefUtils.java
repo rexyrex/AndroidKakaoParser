@@ -67,4 +67,5 @@ public class SharedPrefUtils {
         return Double.longBitsToDouble(sharedPref.getLong(c.getResources().getString(keyID), Double.doubleToRawLongBits(defaultVal)));
     }
 
+
 }

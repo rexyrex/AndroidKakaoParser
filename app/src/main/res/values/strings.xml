@@ -27,7 +27,7 @@
     <string name="SP_QUIZ_NICKNAME">SP_QUIZ_NICKNAME</string>
     <string name="SP_QUIZ_ALL_TIME_HIGH_SCORE">SP_QUIZ_ALL_TIME_HIGH_SCORE</string>\
 
-    <string name="SP_DB_UPDATED">SP_DB_UPDATED2</string>
+    <string name="SP_DB_UPDATED">SP_DB_UPDATED3</string>
 
     <string name="SP_UUID">SP_UUID</string>
 
@@ -104,6 +104,49 @@
     <string name="SP_CD_CHAT_FILE_PATH">SP_CD_CHAT_FILE_PATH</string>
     <string name="SP_CD_CHAT_TYPE">SP_CD_CHAT_TYPE</string>
     <string name="SP_CD_LOAD_SECONDS">SP_CD_LOAD_SECONDS</string>
+
+    <string name="SP_BACKUP_DayCount">SP_BACKUP_DayCount</string>
+    <string name="SP_BACKUP_ChatLineCount">SP_BACKUP_ChatLineCount</string>
+    <string name="SP_BACKUP_WordCount">SP_BACKUP_WordCount</string>
+    <string name="SP_BACKUP_TotalWordCount">SP_BACKUP_TotalWordCount</string>
+    <string name="SP_BACKUP_AvgWordCount">SP_BACKUP_AvgWordCount</string>
+    <string name="SP_BACKUP_AvgLetterCount">SP_BACKUP_AvgLetterCount</string>
+    <string name="SP_BACKUP_LinkCount">SP_BACKUP_LinkCount</string>
+    <string name="SP_BACKUP_PicCount">SP_BACKUP_PicCount</string>
+    <string name="SP_BACKUP_VideoCount">SP_BACKUP_VideoCount</string>
+    <string name="SP_BACKUP_PptCount">SP_BACKUP_PptCount</string>
+    <string name="SP_BACKUP_DeletedMsgCount">SP_BACKUP_DeletedMsgCount</string>
+
+    <string name="SP_BACKUP_TIME_DAY_LIST">SP_BACKUP_TIME_DAY_LIST</string>
+    <string name="SP_BACKUP_TIME_MONTH_LIST">SP_BACKUP_TIME_MONTH_LIST</string>
+    <string name="SP_BACKUP_TIME_YEAR_LIST">SP_BACKUP_TIME_YEAR_LIST</string>
+    <string name="SP_BACKUP_TIME_OF_DAY_LIST">SP_BACKUP_TIME_OF_DAY_LIST</string>
+    <string name="SP_BACKUP_TIME_DAY_OF_WEEK_LIST">SP_BACKUP_TIME_DAY_OF_WEEK_LIST</string>
+
+    <string name="SP_BACKUP_ChatterFrequencyPairs">SP_BACKUP_ChatterFrequencyPairs</string>
+    <string name="SP_BACKUP_Top10Chatters">SP_BACKUP_Top10Chatters</string>
+    <string name="SP_BACKUP_Top10ChattersByWords">SP_BACKUP_Top10ChattersByWords</string>
+    <string name="SP_BACKUP_Top10ChattersByPic">SP_BACKUP_Top10ChattersByPic</string>
+    <string name="SP_BACKUP_Top10ChattersByVideo">SP_BACKUP_Top10ChattersByVideo</string>
+    <string name="SP_BACKUP_Top10ChattersByLink">SP_BACKUP_Top10ChattersByLink</string>
+    <string name="SP_BACKUP_Top10ChattersByDeletedMsg">SP_BACKUP_Top10ChattersByDeletedMsg</string>
+    <string name="SP_BACKUP_WordFreqArrList">SP_BACKUP_WordFreqArrList</string>
+    <string name="SP_BACKUP_FreqByDayOfWeek">SP_BACKUP_FreqByDayOfWeek</string>
+    <string name="SP_BACKUP_MaxFreqByDayOfWeek">SP_BACKUP_MaxFreqByDayOfWeek</string>
+    <string name="SP_BACKUP_AllChatInit">SP_BACKUP_AllChatInit</string>
+    <string name="SP_BACKUP_AuthorsList">SP_BACKUP_AuthorsList</string>
+
+    <string name="SP_BACKUP_DaysActiveRankingList">SP_BACKUP_DaysActiveRankingList</string>
+    <string name="SP_BACKUP_DistinctWordRankingList">SP_BACKUP_DistinctWordRankingList</string>
+    <string name="SP_BACKUP_ChatLineRankingList">SP_BACKUP_ChatLineRankingList</string>
+    <string name="SP_BACKUP_TotalWordRankingList">SP_BACKUP_TotalWordRankingList</string>
+    <string name="SP_BACKUP_PicRankingList">SP_BACKUP_PicRankingList</string>
+    <string name="SP_BACKUP_VideoRankingList">SP_BACKUP_VideoRankingList</string>
+    <string name="SP_BACKUP_LinkRankingList">SP_BACKUP_LinkRankingList</string>
+    <string name="SP_BACKUP_DelRankingList">SP_BACKUP_DelRankingList</string>
+    <string name="SP_BACKUP_SentWordRankingList">SP_BACKUP_SentWordRankingList</string>
+    <string name="SP_BACKUP_WordLengthRankingList">SP_BACKUP_WordLengthRankingList</string>
+
 
     <string name="FirebaseTopicName">KakaoParserFBTopic</string>
 

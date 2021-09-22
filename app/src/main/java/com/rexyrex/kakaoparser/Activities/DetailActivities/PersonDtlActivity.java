@@ -9,6 +9,7 @@ import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -73,7 +74,7 @@ public class PersonDtlActivity extends AppCompatActivity {
 
     List<StringIntPair> daysActiveRankingList;
 
-    TextView loadingTV;
+    TextView loadingTV, loadingSubTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,12 +108,9 @@ public class PersonDtlActivity extends AppCompatActivity {
         loadingDialog.setCancelable(false);
         ImageView loadingIV = loadingDialog.findViewById(R.id.loadingPopupIV);
         loadingTV = loadingDialog.findViewById(R.id.loadingPopupTV);
+        loadingSubTV = loadingDialog.findViewById(R.id.loadingPopupSubTV);
         Glide.with(this).asGif().load(R.drawable.loading1).into(loadingIV);
-        loadingTV.setText("불러오는중...");
-
-
-
-
+        loadingTV.setText("사람 정밀 분석중...");
 
         loadTask = new AsyncTask<Integer, Void, String>() {
             @Override
@@ -126,6 +124,7 @@ public class PersonDtlActivity extends AppCompatActivity {
                     }
                 });
 
+                loadingSubTV.setVisibility(View.VISIBLE);
                 changeStatusText("대화 순위");
 
 
@@ -339,8 +338,6 @@ public class PersonDtlActivity extends AppCompatActivity {
                 top10Words = wordDao.getTop10WordsByAuthor(author);
                 distinctWordCount = wordDao.getDistinctWordCountByAuthor(author);
 
-
-
                 return null;
             }
 
@@ -372,7 +369,8 @@ public class PersonDtlActivity extends AppCompatActivity {
         PersonDtlActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                loadingTV.setText("사람 정밀 분석중...\n - " + s);
+                loadingSubTV.setText(s);
+
             }
         });
     }

@@ -43,6 +43,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Constants.TextPatterns;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
@@ -70,6 +72,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -87,6 +90,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     ProgressBar popupPB;
     TextView popupPBProgressTV;
     TextView loadingTextTV;
+    TextView loadingSubtextTV;
     ImageView loadingGifIV;
     TextView popupPBProgressDtlTV;
     Button popupPBCancelBtn;
@@ -256,6 +260,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         popupPB = view.findViewById(R.id.popupPB);
         popupPBProgressTV = view.findViewById(R.id.popupPBProgressTV);
         loadingTextTV = view.findViewById(R.id.loadingTextTV);
+        loadingSubtextTV = view.findViewById(R.id.loadingSubtextTV);
         loadingGifIV = view.findViewById(R.id.loadingGifIV);
         popupPBProgressDtlTV = view.findViewById(R.id.popupPBProgressDetailTV);
         popupPBCancelBtn = view.findViewById(R.id.popupPBCancelBtn);
@@ -603,8 +608,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     chatterCount = chatLineDao.getChatterCount();
                     cd.setChatterCount(chatterCount);
 
-                    dbToVars();
-
+                    dbToVars(false);
 
                     //Check if already backed up
                     long minSaveSize = Long.parseLong(spu.getString(R.string.SP_FB_BOOL_SAVE_CHAT_MIN_SIZE, "0"));
@@ -737,7 +741,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                 cd.setChatterCount(chatLineDao.getChatterCount());
 
-                dbToVars();
+                dbToVars(true);
 
                 return null;
             }
@@ -783,65 +787,229 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         }
     }
 
-    public void dbToVars(){
-        updateLoadStatusSubtext("기본 통계 정리", false);
-        cd.setDayCount(chatLineDao.getDayCount());
-        cd.setChatLineCount(chatLineDao.getCount());
-        cd.setWordCount(wordDao.getDistinctCount());
-        cd.setTotalWordCount(wordDao.getCount());
-        cd.setAvgWordCount(chatLineDao.getAverageWordCount());
-        cd.setAvgLetterCount(wordDao.getAverageLetterCount());
-        cd.setLinkCount(wordDao.getLinkCount());
-        cd.setPicCount(wordDao.getPicCount());
-        cd.setVideoCount(wordDao.getVideoCount());
-        cd.setPptCount(wordDao.getPowerpointCount());
-        cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
+    public void dbToVars(boolean isLoad){
+        if(isLoad){
+            loadFromLocal();
+        } else {
+            toggleLoadStatusSubtext(true);
+            updateLoadStatusSubtext("기본 통계 정리", false);
+            cd.setDayCount(chatLineDao.getDayCount());
+            cd.setChatLineCount(chatLineDao.getCount());
+            cd.setWordCount(wordDao.getDistinctCount());
+            cd.setTotalWordCount(wordDao.getCount());
+            cd.setAvgWordCount(chatLineDao.getAverageWordCount());
+            cd.setAvgLetterCount(wordDao.getAverageLetterCount());
+            cd.setLinkCount(wordDao.getLinkCount());
+            cd.setPicCount(wordDao.getPicCount());
+            cd.setVideoCount(wordDao.getVideoCount());
+            cd.setPptCount(wordDao.getPowerpointCount());
+            cd.setDeletedMsgCount(chatLineDao.getDeletedMsgCount());
 
-        updateLoadStatusSubtext("랭킹 정리", false);
-        cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
-        cd.setTop10Chatters(chatLineDao.getTop10Chatters());
-        cd.setTop10ChattersByWord(wordDao.getTop10ChattersByWords());
-        cd.setTop10ChattersByPic(wordDao.getTop10ChattersByPic());
-        cd.setTop10ChattersByVideo(wordDao.getTop10ChattersByVideo());
-        cd.setTop10ChattersByLink(wordDao.getTop10ChattersByLink());
-        cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
+            updateLoadStatusSubtext("랭킹 정리", false);
+            cd.setChatterFreqArrList(chatLineDao.getChatterFrequencyPairs());
+            cd.setTop10Chatters(chatLineDao.getTop10Chatters());
+            cd.setTop10ChattersByWord(wordDao.getTop10ChattersByWords());
+            cd.setTop10ChattersByPic(wordDao.getTop10ChattersByPic());
+            cd.setTop10ChattersByVideo(wordDao.getTop10ChattersByVideo());
+            cd.setTop10ChattersByLink(wordDao.getTop10ChattersByLink());
+            cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
 
-        updateLoadStatusSubtext("시간 정리", false);
-        cd.setWordFreqArrList(wordDao.getFreqWordList());
-        cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
-        cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
-        cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
-        cd.setAuthorsList(chatLineDao.getChatters());
+            cd.setWordFreqArrList(wordDao.getFreqWordList());
+            cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
+            cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
+            cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
+            cd.setAuthorsList(chatLineDao.getChatters());
 
-        timePreloadDayList = chatLineDao.getFreqByDay();
-        timePreloadMonthList = chatLineDao.getFreqByMonth();
-        timePreloadYearList = chatLineDao.getFreqByYear();
-        timePreloadTimeOfDayList = chatLineDao.getFreqByTimeOfDay();
-        timePreloadDayOFWeekList = chatLineDao.getFreqByDayOfWeek();
+            updateLoadStatusSubtext("시간 정리", false);
+            timePreloadDayList = chatLineDao.getFreqByDay();
+            timePreloadMonthList = chatLineDao.getFreqByMonth();
+            timePreloadYearList = chatLineDao.getFreqByYear();
+            timePreloadTimeOfDayList = chatLineDao.getFreqByTimeOfDay();
+            timePreloadDayOFWeekList = chatLineDao.getFreqByDayOfWeek();
 
-        updateLoadStatusSubtext("평균 사용량 계산", false);
-        cd.setDaysActiveRankingList(chatLineDao.getDaysActiveRank());
+            updateLoadStatusSubtext("평균 사용량 계산", false);
+            cd.setDaysActiveRankingList(chatLineDao.getDaysActiveRank());
 
-        updateLoadStatusSubtext("단어 종류 분류", false);
-        cd.setDistinctWordRankingList(wordDao.getDistinctWordCountByRank());
-        updateLoadStatusSubtext("채팅 랭킹 계산", false);
-        cd.setChatLineRankingList(chatLineDao.getChatterChatLineByRank());
-        updateLoadStatusSubtext("단어 랭킹 계산", false);
-        cd.setTotalWordRankingList(wordDao.getTotalWordCountByRank());
-        updateLoadStatusSubtext("사진 랭킹 계산", false);
-        cd.setPicRankingList(wordDao.getPicRanking());
-        updateLoadStatusSubtext("동영상 랭킹 계산", false);
-        cd.setVideoRankingList(wordDao.getVideoRanking());
-        updateLoadStatusSubtext("링크 랭킹 계산", false);
-        cd.setLinkRankingList(wordDao.getLinkRanking());
-        updateLoadStatusSubtext("삭제 메세지 랭킹 계산", false);
-        cd.setDelRankingList(chatLineDao.getDeletedMsgRanking());
-        updateLoadStatusSubtext("평균 단어 랭킹 계산", false);
-        cd.setSentWordRankingList(chatLineDao.getAverageWordCountRanking());
-        updateLoadStatusSubtext("평균 단어 길이 랭킹 계산", false);
-        cd.setWordLengthRankingList(wordDao.getAverageLetterCountByRank());
+            updateLoadStatusSubtext("단어 종류 분류", false);
+            cd.setDistinctWordRankingList(wordDao.getDistinctWordCountByRank());
+            updateLoadStatusSubtext("채팅 랭킹 계산", false);
+            cd.setChatLineRankingList(chatLineDao.getChatterChatLineByRank());
+            updateLoadStatusSubtext("단어 랭킹 계산", false);
+            cd.setTotalWordRankingList(wordDao.getTotalWordCountByRank());
+            updateLoadStatusSubtext("사진 랭킹 계산", false);
+            cd.setPicRankingList(wordDao.getPicRanking());
+            updateLoadStatusSubtext("동영상 랭킹 계산", false);
+            cd.setVideoRankingList(wordDao.getVideoRanking());
+            updateLoadStatusSubtext("링크 랭킹 계산", false);
+            cd.setLinkRankingList(wordDao.getLinkRanking());
+            updateLoadStatusSubtext("삭제 메세지 랭킹 계산", false);
+            cd.setDelRankingList(chatLineDao.getDeletedMsgRanking());
+            updateLoadStatusSubtext("평균 단어 랭킹 계산", false);
+            cd.setSentWordRankingList(chatLineDao.getAverageWordCountRanking());
+            updateLoadStatusSubtext("평균 단어 길이 랭킹 계산", false);
+            cd.setWordLengthRankingList(wordDao.getAverageLetterCountByRank());
+
+            saveToLocal();
+            toggleLoadStatusSubtext(false);
+        }
+    }
+
+    public void saveToLocal(){
+        String jsonTmp = "";
+
+        spu.saveInt(R.string.SP_BACKUP_DayCount, cd.getDayCount());
+        spu.saveInt(R.string.SP_BACKUP_ChatLineCount, cd.getChatLineCount());
+        spu.saveInt(R.string.SP_BACKUP_WordCount, cd.getWordCount());
+        spu.saveInt(R.string.SP_BACKUP_TotalWordCount, cd.getTotalWordCount());
+        spu.saveDouble(R.string.SP_BACKUP_AvgWordCount, cd.getAvgWordCount());
+        spu.saveDouble(R.string.SP_BACKUP_AvgLetterCount, cd.getAvgLetterCount());
+        spu.saveInt(R.string.SP_BACKUP_LinkCount, cd.getLinkCount());
+        spu.saveInt(R.string.SP_BACKUP_PicCount, cd.getPicCount());
+        spu.saveInt(R.string.SP_BACKUP_VideoCount, cd.getVideoCount());
+        spu.saveInt(R.string.SP_BACKUP_PptCount, cd.getPptCount());
+        spu.saveInt(R.string.SP_BACKUP_DeletedMsgCount, cd.getDeletedMsgCount());
+
+        //-- Time start
+
+        jsonTmp = new Gson().toJson(timePreloadDayList);
+        spu.saveString(R.string.SP_BACKUP_TIME_DAY_LIST, jsonTmp);
+
+        jsonTmp = new Gson().toJson(timePreloadMonthList);
+        spu.saveString(R.string.SP_BACKUP_TIME_MONTH_LIST, jsonTmp);
+
+        jsonTmp = new Gson().toJson(timePreloadYearList);
+        spu.saveString(R.string.SP_BACKUP_TIME_YEAR_LIST, jsonTmp);
+
+        jsonTmp = new Gson().toJson(timePreloadTimeOfDayList);
+        spu.saveString(R.string.SP_BACKUP_TIME_OF_DAY_LIST, jsonTmp);
+
+        jsonTmp = new Gson().toJson(timePreloadDayOFWeekList);
+        spu.saveString(R.string.SP_BACKUP_TIME_DAY_OF_WEEK_LIST, jsonTmp);
+
+        //-- Time End
+
+        jsonTmp = new Gson().toJson(cd.getChatterFreqArrList());
+        spu.saveString(R.string.SP_BACKUP_ChatterFrequencyPairs, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getTop10Chatters());
+        spu.saveString(R.string.SP_BACKUP_Top10Chatters, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getTop10ChattersByWord());
+        spu.saveString(R.string.SP_BACKUP_Top10ChattersByWords, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getTop10ChattersByPic());
+        spu.saveString(R.string.SP_BACKUP_Top10ChattersByPic, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getTop10ChattersByVideo());
+        spu.saveString(R.string.SP_BACKUP_Top10ChattersByVideo, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getTop10ChattersByLink());
+        spu.saveString(R.string.SP_BACKUP_Top10ChattersByLink, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getTop10ChattersByDeletedMsg());
+        spu.saveString(R.string.SP_BACKUP_Top10ChattersByDeletedMsg, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getWordFreqArrList());
+        spu.saveString(R.string.SP_BACKUP_WordFreqArrList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getFreqByDayOfWeek());
+        spu.saveString(R.string.SP_BACKUP_FreqByDayOfWeek, jsonTmp);
+
+        spu.saveInt(R.string.SP_BACKUP_MaxFreqByDayOfWeek, cd.getMaxFreqByDayOfWeek());
+
+        jsonTmp = new Gson().toJson(cd.getAllChatInit());
+        spu.saveString(R.string.SP_BACKUP_AllChatInit, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getAuthorsList());
+        spu.saveString(R.string.SP_BACKUP_AuthorsList, jsonTmp);
+
+        //-- Ranking lists start
+
+        jsonTmp = new Gson().toJson(cd.getDaysActiveRankingList());
+        spu.saveString(R.string.SP_BACKUP_DaysActiveRankingList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getDistinctWordRankingList());
+        spu.saveString(R.string.SP_BACKUP_DistinctWordRankingList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getChatLineRankingList());
+        spu.saveString(R.string.SP_BACKUP_ChatLineRankingList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getTotalWordRankingList());
+        spu.saveString(R.string.SP_BACKUP_TotalWordRankingList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getPicRankingList());
+        spu.saveString(R.string.SP_BACKUP_PicRankingList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getVideoRankingList());
+        spu.saveString(R.string.SP_BACKUP_VideoRankingList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getLinkRankingList());
+        spu.saveString(R.string.SP_BACKUP_LinkRankingList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getDelRankingList());
+        spu.saveString(R.string.SP_BACKUP_DelRankingList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getSentWordRankingList());
+        spu.saveString(R.string.SP_BACKUP_SentWordRankingList, jsonTmp);
+
+        jsonTmp = new Gson().toJson(cd.getWordLengthRankingList());
+        spu.saveString(R.string.SP_BACKUP_WordLengthRankingList, jsonTmp);
+
+    }
+
+    public void loadFromLocal(){
+        cd.setDayCount(spu.getInt(R.string.SP_BACKUP_DayCount, 0));
+        cd.setChatLineCount(spu.getInt(R.string.SP_BACKUP_ChatLineCount, 0));
+        cd.setWordCount(spu.getInt(R.string.SP_BACKUP_WordCount, 0));
+        cd.setTotalWordCount(spu.getInt(R.string.SP_BACKUP_TotalWordCount, 0));
+        cd.setAvgWordCount(spu.getDouble(R.string.SP_BACKUP_AvgWordCount, 0));
+        cd.setAvgLetterCount(spu.getDouble(R.string.SP_BACKUP_AvgLetterCount, 0));
+        cd.setLinkCount(spu.getInt(R.string.SP_BACKUP_LinkCount, 0));
+        cd.setPicCount(spu.getInt(R.string.SP_BACKUP_PicCount, 0));
+        cd.setVideoCount(spu.getInt(R.string.SP_BACKUP_VideoCount, 0));
+        cd.setPptCount(spu.getInt(R.string.SP_BACKUP_PptCount, 0));
+        cd.setDeletedMsgCount(spu.getInt(R.string.SP_BACKUP_DeletedMsgCount, 0));
 
 
+        //List<DateIntPair> timePreloadDayList
+        Type type = new TypeToken< List <DateIntPair> >() {}.getType();
+        timePreloadDayList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_DAY_LIST, ""), type);
+
+        type = new TypeToken< List <StringIntPair> >() {}.getType();
+        timePreloadMonthList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_MONTH_LIST, ""), type);
+        timePreloadYearList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_YEAR_LIST, ""), type);
+        timePreloadTimeOfDayList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_OF_DAY_LIST, ""), type);
+        timePreloadDayOFWeekList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_DAY_OF_WEEK_LIST, ""), type);
+
+        cd.setChatterFreqArrList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_ChatterFrequencyPairs, ""), type));
+        cd.setTop10Chatters(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10Chatters, ""), type));
+        cd.setTop10ChattersByWord(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByWords, ""), type));
+        cd.setTop10ChattersByPic(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByPic, ""), type));
+        cd.setTop10ChattersByVideo(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByVideo, ""), type));
+        cd.setTop10ChattersByLink(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByLink, ""), type));
+        cd.setTop10ChattersByDeletedMsg(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByDeletedMsg, ""), type));
+
+        cd.setWordFreqArrList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_WordFreqArrList, ""), type));
+        cd.setFreqByDayOfWeek(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_FreqByDayOfWeek, ""), type));
+        cd.setMaxFreqByDayOfWeek(spu.getInt(R.string.SP_BACKUP_MaxFreqByDayOfWeek, 0));
+
+        //Ranking lists
+        cd.setDaysActiveRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_DaysActiveRankingList, ""), type));
+        cd.setDistinctWordRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_DistinctWordRankingList, ""), type));
+        cd.setChatLineRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_ChatLineRankingList, ""), type));
+        cd.setTotalWordRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TotalWordRankingList, ""), type));
+        cd.setPicRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_PicRankingList, ""), type));
+        cd.setVideoRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_VideoRankingList, ""), type));
+        cd.setLinkRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_LinkRankingList, ""), type));
+        cd.setDelRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_DelRankingList, ""), type));
+        cd.setSentWordRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_SentWordRankingList, ""), type));
+        cd.setWordLengthRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_WordLengthRankingList, ""), type));
+
+        type = new TypeToken< List <String> >() {}.getType();
+        cd.setAuthorsList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_AuthorsList, ""), type));
+
+        type = new TypeToken< List <ChatLineModel> >() {}.getType();
+        cd.setAllChatInit(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_AllChatInit, ""), type));
 
     }
 
@@ -854,12 +1022,26 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         });
     }
 
+    public void toggleLoadStatusSubtext(boolean toggle){
+
+        ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(toggle){
+                    loadingSubtextTV.setVisibility(View.VISIBLE);
+                } else {
+                    loadingSubtextTV.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+    }
+
     public void updateLoadStatusSubtext(String s, boolean finished){
         ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 finalStatusSubIndex++;
-                loadingTextTV.setText(finalStatusText + "\n  - " + s + " (" + finalStatusSubIndex + " / " + finalStatusSubCount + ")");
+                loadingSubtextTV.setText(s + "\n(" + finalStatusSubIndex + " / " + finalStatusSubCount + ")");
             }
         });
     }
