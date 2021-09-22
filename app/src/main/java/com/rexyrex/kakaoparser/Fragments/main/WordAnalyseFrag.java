@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
 import com.rexyrex.kakaoparser.Activities.DetailActivities.WordDetailAnalyseActivity;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -84,9 +85,13 @@ public class WordAnalyseFrag extends Fragment {
 
         freqList = new ArrayList<>();
 
-        wordFreqArrList = cd.getWordFreqArrList();
+//        wordFreqArrList = cd.getWordFreqArrList();
+//
+//        for(StringIntPair element : wordFreqArrList) freqList.add(element);
 
-        for(StringIntPair element : wordFreqArrList) freqList.add(element);
+        ChatStatsTabActivity activity = (ChatStatsTabActivity) getActivity();
+        //freqList = new ArrayList(cd.getWordFreqArrList());
+        freqList = activity.wordPreloadFreqList;
 
         ca = new WordListAdapter(freqList);
         wordLV.setAdapter(ca);
@@ -169,7 +174,7 @@ public class WordAnalyseFrag extends Fragment {
 //            }
 //        }
         if(charText.length() == 0){
-            freqList.addAll(cd.getWordFreqArrList());
+            freqList.addAll(wordDao.getFreqWordList());
         } else {
             freqList.addAll(wordDao.searchFreqWordList(charText));
         }

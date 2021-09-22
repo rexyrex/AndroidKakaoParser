@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rexyrex.kakaoparser.Activities.ChatPeekActivity;
+import com.rexyrex.kakaoparser.Activities.ChatStatsTabActivity;
 import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
@@ -133,8 +134,12 @@ public class ChatAnalyseFragment extends Fragment {
         chatList = new ArrayList<>();
 
         //<ChatLineModel> initChatList = chatLineDao.getAllChatsByDateDesc();
-        List<ChatLineModel> initChatList = cd.getAllChatInit();
-        for(ChatLineModel element : initChatList) chatList.add(element);
+//        List<ChatLineModel> initChatList = cd.getAllChatInit();
+//        for(ChatLineModel element : initChatList) chatList.add(element);
+
+        ChatStatsTabActivity activity = (ChatStatsTabActivity) getActivity();
+
+        chatList = activity.chatPreloadChatList; //new ArrayList(cd.getAllChatInit());
 
         cla = new ChatListAdapter(chatList);
         chatLV.setAdapter(cla);

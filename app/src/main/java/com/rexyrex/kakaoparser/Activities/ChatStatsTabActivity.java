@@ -145,6 +145,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     public List timePreloadTimeOfDayList;
     public List timePreloadDayOFWeekList;
 
+    public ArrayList<StringIntPair> wordPreloadFreqList;
+    public ArrayList<ChatLineModel> chatPreloadChatList;
+
     Runtime runtime;
 
     SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
@@ -398,7 +401,10 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                     double eta = elapsedSeconds / progressD - elapsedSeconds + 1;
                                     popupPBProgressTV.setText(progress + "%");
                                     if (showPopupPBDtl) {
-                                        popupPBProgressDtlTV.setText("분석 대화 : " + numberFormat.format(tmpInd) + " / " + numberFormat.format(chatLines.length) + "\n분석 단어 : " + numberFormat.format(tmpWordCount) + "\n예상 소요 시간 : " + TimeUtils.getTimeLeftKorean((long) eta));
+                                        popupPBProgressDtlTV.setText(
+                                                "분석 대화 : " + numberFormat.format(tmpInd) + " / " + numberFormat.format(chatLines.length) +
+                                                "\n분석 단어 : " + numberFormat.format(tmpWordCount) +
+                                                "\n예상 소요 시간 : " + TimeUtils.getTimeLeftKorean((long) eta));
                                     }
                                     popupPB.setProgress(progress, false);
                                 }
@@ -815,9 +821,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
 
             cd.setWordFreqArrList(wordDao.getFreqWordList());
+            wordPreloadFreqList = new ArrayList(cd.getWordFreqArrList());
             cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
             cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
             cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
+            chatPreloadChatList = new ArrayList(cd.getAllChatInit());
             cd.setAuthorsList(chatLineDao.getChatters());
 
             updateLoadStatusSubtext("시간 정리", false);
@@ -988,11 +996,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         cd.setTop10ChattersByVideo(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByVideo, ""), type));
         cd.setTop10ChattersByLink(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByLink, ""), type));
         cd.setTop10ChattersByDeletedMsg(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByDeletedMsg, ""), type));
-
         cd.setWordFreqArrList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_WordFreqArrList, ""), type));
+        wordPreloadFreqList = new ArrayList(cd.getWordFreqArrList());
+
         cd.setFreqByDayOfWeek(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_FreqByDayOfWeek, ""), type));
         cd.setMaxFreqByDayOfWeek(spu.getInt(R.string.SP_BACKUP_MaxFreqByDayOfWeek, 0));
-
         //Ranking lists
         cd.setDaysActiveRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_DaysActiveRankingList, ""), type));
         cd.setDistinctWordRankingList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_DistinctWordRankingList, ""), type));
@@ -1010,7 +1018,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         type = new TypeToken< List <ChatLineModel> >() {}.getType();
         cd.setAllChatInit(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_AllChatInit, ""), type));
-
+        chatPreloadChatList = new ArrayList(cd.getAllChatInit());
     }
 
     public void updateLoadStatusText(String s, boolean finished){
