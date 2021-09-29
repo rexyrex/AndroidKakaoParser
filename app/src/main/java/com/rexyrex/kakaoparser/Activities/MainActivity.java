@@ -450,11 +450,15 @@ public class MainActivity extends AppCompatActivity {
         String folderPath2 = Environment.getExternalStorageDirectory()
                 + File.separator + "Documents/Chats/";
 
+        String folderPath3 = Environment.getExternalStorageDirectory()
+                + File.separator + "DualApp/KakaoTalk/Chats/";
+
 
         File dir1 = new File(folderPath);
         File dir2 = new File(folderPath2);
+        File dir3 = new File(folderPath3);
         int totalFileCount = 0;
-        boolean dir1Exists = false, dir2Exists = false;
+        boolean dir1Exists = false, dir2Exists = false, dir3Exists = false;
 
         if(dir1.isDirectory() && dir1.listFiles()!=null){
             totalFileCount += dir1.listFiles().length;
@@ -464,6 +468,11 @@ public class MainActivity extends AppCompatActivity {
         if(dir2.isDirectory() && dir2.listFiles()!=null){
             totalFileCount += dir2.listFiles().length;
             dir2Exists = true;
+        }
+
+        if(dir3.isDirectory() && dir3.listFiles()!=null){
+            totalFileCount += dir3.listFiles().length;
+            dir3Exists = true;
         }
 
         if (totalFileCount>0) {
@@ -481,6 +490,13 @@ public class MainActivity extends AppCompatActivity {
             if(dir2Exists){
                 for(int i=0; i<dir2.listFiles().length; i++){
                     files[tmpFileIndex] = dir2.listFiles()[i];
+                    tmpFileIndex++;
+                }
+            }
+
+            if(dir3Exists){
+                for(int i=0; i<dir3.listFiles().length; i++){
+                    files[tmpFileIndex] = dir3.listFiles()[i];
                     tmpFileIndex++;
                 }
             }

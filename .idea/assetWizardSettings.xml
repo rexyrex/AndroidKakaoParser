@@ -91,7 +91,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="R:\AndroidProjects\AndroidKakaoParser\app\src\main\res\drawable\kakaotalk_analyser_icon.png" />
+                                                <entry key="imagePath" value="C:\Users\D175\Pictures\kakao_analyse_2021_09_29.png" />
                                                 <entry key="scalingPercent" value="48" />
                                               </map>
                                             </option>
@@ -125,9 +125,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="dcd700" />
-                                      <entry key="foregroundAssetType" value="CLIP_ART" />
-                                      <entry key="outputName" value="ic_stat_ic_notification" />
+                                      <entry key="backgroundColor" value="ffe812" />
+                                      <entry key="outputName" value="icon_2021_09_29" />
                                     </map>
                                   </option>
                                 </PersistentState>

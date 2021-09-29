@@ -46,7 +46,7 @@
         app:layout_constraintBottom_toTopOf="@+id/appTitleTV"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@mipmap/kakao_ic_launcher_analyze_round"
+        app:srcCompat="@mipmap/icon_2021_09_29_round"
         android:contentDescription="Splash Img"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,12 +9,12 @@
         android:hardwareAccelerated="true"
         android:allowBackup="false"
         android:alwaysRetainTaskState="true"
-        android:icon="@mipmap/kakao_ic_launcher_analyze"
+        android:icon="@mipmap/icon_2021_09_29"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:launchMode="singleTop"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/kakao_ic_launcher_analyze_round"
+        android:roundIcon="@mipmap/icon_2021_09_29_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
