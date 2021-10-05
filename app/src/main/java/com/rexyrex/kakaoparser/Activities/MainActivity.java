@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
     Dialog updateDialog, dateRangeDialog;
     Dialog loadingDialog;
+    Dialog reviewSuggestDialog;
     //AlertDialog loadingAlertDialog;
     TextView updateTitleTV, updateContentsTV;
     CheckBox updateShowCheckBox;
@@ -126,34 +128,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        ReviewManager manager;
-        if(EnvConstants.isPrd){
-           manager = ReviewManagerFactory.create(this);
-        } else {
-            manager = new FakeReviewManager(this);
-        }
-        Task<ReviewInfo> request = manager.requestReviewFlow();
-        request.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // We can get the ReviewInfo object
-                ReviewInfo reviewInfo = task.getResult();
-                LogUtils.e("Review Task is Successful : " + reviewInfo.toString());
-
-                Task<Void> flow = manager.launchReviewFlow(MainActivity.this, reviewInfo);
-                flow.addOnCompleteListener(task2 -> {
-                    LogUtils.e("review task on complete : " + task2.isSuccessful());
-                    // The flow has finished. The API does not indicate whether the user
-                    // reviewed or not, or even whether the review dialog was shown. Thus, no
-                    // matter the result, we continue our app flow.
-                });
-            } else {
-                LogUtils.e("review task exception : " + task.getException().toString());
-                // There was some problem, log or handle the error code.
-                task.getException().printStackTrace();
-                //@ReviewErrorCode int reviewErrorCode = ((Exception) task.getException()).getErrorCode();
-            }
-        });
 
         cd = ChatData.getInstance(this);
 
@@ -181,6 +155,92 @@ public class MainActivity extends AppCompatActivity {
         minCalendar = Calendar.getInstance();
         maxCalendar = Calendar.getInstance();
         calendarType = "";
+
+        String lastLoginDtStr = spu.getString(R.string.SP_LAST_LOGIN_DT, "");
+        int daysSinceLastLogin = 0;
+
+
+
+        if(!lastLoginDtStr.equals("")){
+            daysSinceLastLogin = (int)( ((new Date()).getTime() - DateUtils.strToDate(lastLoginDtStr).getTime()) / (1000 * 60 * 60 * 24));
+        }
+
+        LogUtils.e("Last Login Str : " + lastLoginDtStr);
+        LogUtils.e("Days since last login : " + daysSinceLastLogin);
+
+        if(daysSinceLastLogin > 30){
+            spu.saveBool(R.string.SP_REVIEW_REQUESTED, false);
+        }
+
+        if(spu.getInt(R.string.SP_LOGIN_COUNT, 0) > 3 &&
+                !spu.getBool(R.string.SP_REVIEW_REQUESTED, false) &&
+                !spu.getBool(R.string.SP_REVIEW_COMPLETED, false) &&
+                spu.getInt(R.string.SP_ANALYSE_COMPLETE_COUNT, 0) >= 1
+        ){
+            spu.saveBool(R.string.SP_REVIEW_REQUESTED, true);
+            ReviewManager manager;
+            if(EnvConstants.isPrd){
+                manager = ReviewManagerFactory.create(this);
+            } else {
+                manager = new FakeReviewManager(this);
+            }
+
+            reviewSuggestDialog = new Dialog(this);
+            reviewSuggestDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            reviewSuggestDialog.setContentView(R.layout.basic_popup);
+            reviewSuggestDialog.getWindow().getAttributes().windowAnimations = R.style.FadeInAndFadeOut;
+            reviewSuggestDialog.setCancelable(false);
+
+            Button reviewPopupCancelBtn = reviewSuggestDialog.findViewById(R.id.basicPopupCancelBtn);
+            TextView reviewPopupTitleTV = reviewSuggestDialog.findViewById(R.id.basicPopupTitle);
+            TextView reviewPopupContentsTV = reviewSuggestDialog.findViewById(R.id.basicPopupContents);
+            Button reviewPopupGoReviewBtn = reviewSuggestDialog.findViewById(R.id.basicPopupBtn);
+
+            reviewPopupTitleTV.setText("카톡 정밀 분석기를 잘 이용하고 계신가요?");
+            reviewPopupContentsTV.setText("소중한 리뷰를 남겨주세요\n리뷰 하나 하나가 큰 도움이 됩니다 ^^");
+            reviewPopupGoReviewBtn.setText("리뷰 하기");
+            reviewPopupGoReviewBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    spu.saveBool(R.string.SP_REVIEW_COMPLETED, true);
+                    reviewSuggestDialog.cancel();
+                    Task<ReviewInfo> request = manager.requestReviewFlow();
+                    request.addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            // We can get the ReviewInfo object
+                            ReviewInfo reviewInfo = task.getResult();
+                            LogUtils.e("Review Task is Successful : " + reviewInfo.toString());
+
+                            Task<Void> flow = manager.launchReviewFlow(MainActivity.this, reviewInfo);
+                            flow.addOnCompleteListener(task2 -> {
+                                LogUtils.e("review task on complete : " + task2.isSuccessful());
+                                // The flow has finished. The API does not indicate whether the user
+                                // reviewed or not, or even whether the review dialog was shown. Thus, no
+                                // matter the result, we continue our app flow.
+                            });
+                        } else {
+                            LogUtils.e("review task exception : " + task.getException().toString());
+                            // There was some problem, log or handle the error code.
+                            task.getException().printStackTrace();
+                            //@ReviewErrorCode int reviewErrorCode = ((Exception) task.getException()).getErrorCode();
+                            String appPackageName = "com.rexyrex.kakaoparser";
+                            try {
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                            } catch (android.content.ActivityNotFoundException anfe) {
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                            }
+                        }
+                    });
+                }
+            });
+            reviewPopupCancelBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    reviewSuggestDialog.cancel();
+                }
+            });
+        }
+
 
         //View view = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.loading_popup, null);
 

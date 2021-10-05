@@ -64,10 +64,10 @@ public class PersonDtlActivity extends AppCompatActivity {
     Dialog loadingDialog;
 
     public List<DateIntPair> timePreloadDayList;
-    public List timePreloadMonthList;
-    public List timePreloadYearList;
-    public List timePreloadTimeOfDayList;
-    public List timePreloadDayOFWeekList;
+    public List<StringIntPair> timePreloadMonthList;
+    public List<StringIntPair> timePreloadYearList;
+    public List<StringIntPair> timePreloadTimeOfDayList;
+    public List<StringIntPair> timePreloadDayOFWeekList;
 
     public List<StringIntPair> top10Words;
     public int distinctWordCount;

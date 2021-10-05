@@ -688,6 +688,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                 spu.saveString(R.string.SP_LAST_ANALYSE_TITLE, FileParseUtils.parseFileForTitle(chatFile));
                 spu.saveString(R.string.SP_LAST_ANALYSE_DT, lastAnalyseDtStr);
                 dialog.cancel();
+                spu.incInt(R.string.SP_ANALYSE_COMPLETE_COUNT);
                 //save dates
                 spu.saveString(R.string.SP_LAST_ANALYSE_START_DT, startDtStr);
                 spu.saveString(R.string.SP_LAST_ANALYSE_END_DT, endDtStr);
@@ -744,6 +745,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 dialog.cancel();
+                spu.incInt(R.string.SP_LOAD_COMPLETE_COUNT);
                 sectionsPagerAdapter = new SectionsPagerAdapter(ChatStatsTabActivity.this, getSupportFragmentManager());
                 viewPager.setAdapter(sectionsPagerAdapter);
                 tabs.setupWithViewPager(viewPager);

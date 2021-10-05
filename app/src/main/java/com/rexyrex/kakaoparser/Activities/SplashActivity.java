@@ -102,9 +102,6 @@ public class SplashActivity extends AppCompatActivity {
 
         //LogUtils("splashIV isnull? : " + (splashIV == null));
 
-        //increment loginCount
-        spu.saveInt(R.string.SP_LOGIN_COUNT, spu.getInt(R.string.SP_LOGIN_COUNT, 0) + 1);
-
         //요청할 권한들
         permissions = new String[] {
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -299,9 +296,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void startLogic(){
-        spu.saveString(R.string.SP_LOGIN_DT, DateUtils.getCurrentTimeStr());
-        FirebaseUtils.updateUserInfo(this, spu, "Login", db);
-        FirebaseUtils.logFirebaseEventOpenApp(this);
         //허용되지 않은 권한 있으면 권한 요청
         //deniedPermsArr length를 나중에도 확인해서 scheduleSplashScreen이 나중에 호출되도록 구현돼있음
         if(deniedPermsArr.length>0){
@@ -324,6 +318,15 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if(!backBtnPressed){
+                    //increment loginCount
+                    spu.saveInt(R.string.SP_LOGIN_COUNT, spu.getInt(R.string.SP_LOGIN_COUNT, 0) + 1);
+                    if(!spu.getString(R.string.SP_LOGIN_DT, "").equals("")){
+                        spu.saveString(R.string.SP_LAST_LOGIN_DT, spu.getString(R.string.SP_LOGIN_DT, ""));
+                    }
+                    spu.saveString(R.string.SP_LOGIN_DT, DateUtils.getCurrentTimeStr());
+                    FirebaseUtils.updateUserInfo(SplashActivity.this, spu, "Login", db);
+                    FirebaseUtils.logFirebaseEventOpenApp(SplashActivity.this);
+
                     Intent statsIntent = new Intent(SplashActivity.this, MainActivity.class);
                     SplashActivity.this.startActivity(statsIntent);
                 }

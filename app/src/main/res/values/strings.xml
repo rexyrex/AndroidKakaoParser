@@ -33,11 +33,17 @@
 
     <string name="SP_FB_TOKEN">SP_FB_TOKEN</string>
     <string name="SP_LOAD_COUNT">SP_LOAD_COUNT</string>
+    <string name="SP_LOAD_COMPLETE_COUNT">SP_LOAD_COMPLETE_COUNT</string>
     <string name="SP_ANALYSE_COUNT">SP_ANALYSE_COUNT</string>
+    <string name="SP_ANALYSE_COMPLETE_COUNT">SP_ANALYSE_COMPLETE_COUNT</string>
     <string name="SP_LOGIN_COUNT">SP_LOGIN_COUNT</string>
     <string name="SP_LOGOUT_COUNT">SP_LOGOUT_COUNT</string>
 
+    <string name="SP_REVIEW_REQUESTED">SP_REVIEW_REQUESTED</string>
+    <string name="SP_REVIEW_COMPLETED">SP_REVIEW_COMPLETED</string>
+
     <string name="SP_LOGIN_DT">SP_LOGIN_DT</string>
+    <string name="SP_LAST_LOGIN_DT">SP_LAST_LOGIN_DT</string>
     <string name="SP_REGIST_DT">SP_REGIST_DT</string>
     <string name="SP_LOGOUT_DT">SP_LOGOUT_DT</string>
 
