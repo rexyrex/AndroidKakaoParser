@@ -137,9 +137,7 @@ public class ChatAnalyseFragment extends Fragment {
 //        List<ChatLineModel> initChatList = cd.getAllChatInit();
 //        for(ChatLineModel element : initChatList) chatList.add(element);
 
-        ChatStatsTabActivity activity = (ChatStatsTabActivity) getActivity();
-
-        chatList = activity.chatPreloadChatList; //new ArrayList(cd.getAllChatInit());
+        chatList = new ArrayList(cd.getAllChatInit());
 
         cla = new ChatListAdapter(chatList);
         chatLV.setAdapter(cla);

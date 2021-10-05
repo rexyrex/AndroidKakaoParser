@@ -2,11 +2,11 @@ package com.rexyrex.kakaoparser.Entities;
 
 import android.content.Context;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Constants.TextPatterns;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
-import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
-import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
@@ -15,6 +15,7 @@ import com.rexyrex.kakaoparser.Utils.FileParseUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -61,14 +62,21 @@ public class ChatData {
     List<StringIntPair> sentWordRankingList;
     List<StringIntPair> wordLengthRankingList;
 
+    public List<DateIntPair> timePreloadDayList;
+    public List<StringIntPair> timePreloadMonthList;
+    public List<StringIntPair> timePreloadYearList;
+    public List<StringIntPair> timePreloadTimeOfDayList;
 
     List<ChatLineModel> allChatInit;
 
     List<String> authorsList;
 
+    Type listStringType = new TypeToken< List <String> >() {}.getType();
+    Type listChatLineModelType = new TypeToken< List <ChatLineModel> >() {}.getType();
+    Type listStringIntPairType = new TypeToken< List <StringIntPair> >() {}.getType();
+    Type listDateIntPairType = new TypeToken< List <DateIntPair> >() {}.getType();
+
     MainDatabase database;
-    ChatLineDAO chatLineDao;
-    WordDAO wordDao;
     AnalysedChatDAO analysedChatDAO;
     SharedPrefUtils spu;
 
@@ -78,8 +86,6 @@ public class ChatData {
         spu = new SharedPrefUtils(c);
 
         database = MainDatabase.getDatabase(c);
-        chatLineDao = database.getChatLineDAO();
-        wordDao = database.getWordDAO();
         analysedChatDAO = database.getAnalysedChatDAO();
 
         setChatType(spu.getString(R.string.SP_CD_CHAT_TYPE, ""));
@@ -162,7 +168,7 @@ public class ChatData {
     }
 
     public List<String> getAuthorsList() {
-        return (authorsList == null || authorsList.size() == 0) ? chatLineDao.getChatters() : authorsList;
+        return (authorsList == null || authorsList.size() == 0) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_AuthorsList, ""), listStringType) : authorsList;
     }
 
     public void setAuthorsList(List<String> authorsList) {
@@ -170,7 +176,7 @@ public class ChatData {
     }
 
     public List<ChatLineModel> getAllChatInit() {
-        return (allChatInit == null || allChatInit.size()==0 ) ? chatLineDao.getAllChatsByDateDesc() : allChatInit;
+        return (allChatInit == null || allChatInit.size()==0 ) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_AllChatInit, ""), listChatLineModelType) : allChatInit;
     }
 
     public void setAllChatInit(List<ChatLineModel> allChatInit) {
@@ -195,7 +201,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getFreqByDayOfWeek() {
-        return (freqByDayOfWeek == null) ? chatLineDao.getFreqByDayOfWeek() : freqByDayOfWeek;
+        return (freqByDayOfWeek == null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_DAY_OF_WEEK_LIST, ""), listStringIntPairType) : freqByDayOfWeek;
     }
 
     public void setFreqByDayOfWeek(List<StringIntPair> freqByDayOfWeek) {
@@ -203,7 +209,7 @@ public class ChatData {
     }
 
     public int getMaxFreqByDayOfWeek() {
-        return (maxFreqByDayOfWeek == 0) ? chatLineDao.getMaxFreqDayOfWeek() : maxFreqByDayOfWeek;
+        return (maxFreqByDayOfWeek == 0) ? spu.getInt(R.string.SP_BACKUP_MaxFreqByDayOfWeek, 0) : maxFreqByDayOfWeek;
     }
 
     public void setMaxFreqByDayOfWeek(int maxFreqByDayOfWeek) {
@@ -211,7 +217,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getWordFreqArrList() {
-        return (wordFreqArrList == null) ? wordDao.getFreqWordList() : wordFreqArrList;
+        return (wordFreqArrList == null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_WordFreqArrList, ""), listDateIntPairType) : wordFreqArrList;
     }
 
     public void setWordFreqArrList(List<StringIntPair> wordFreqArrList) {
@@ -219,7 +225,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getTop10Chatters() {
-        return (top10Chatters==null) ? chatLineDao.getTop10Chatters() : top10Chatters;
+        return (top10Chatters==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10Chatters, ""), listStringIntPairType) : top10Chatters;
     }
 
     public void setTop10Chatters(List<StringIntPair> top10Chatters) {
@@ -227,7 +233,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getTop10ChattersByWord() {
-        return (top10ChattersByWord==null) ? wordDao.getTop10ChattersByWords() : top10ChattersByWord;
+        return (top10ChattersByWord==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByWords, ""), listStringIntPairType) : top10ChattersByWord;
     }
 
     public void setTop10ChattersByWord(List<StringIntPair> top10ChattersByWord) {
@@ -235,7 +241,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getTop10ChattersByPic() {
-        return (top10ChattersByPic==null) ? wordDao.getTop10ChattersByPic() : top10ChattersByPic;
+        return (top10ChattersByPic==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByPic, ""), listStringIntPairType) : top10ChattersByPic;
     }
 
     public void setTop10ChattersByPic(List<StringIntPair> top10ChattersByPic) {
@@ -243,7 +249,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getTop10ChattersByVideo() {
-        return (top10ChattersByVideo==null) ? wordDao.getTop10ChattersByVideo() : top10ChattersByVideo;
+        return (top10ChattersByVideo==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByVideo, ""), listStringIntPairType) : top10ChattersByVideo;
     }
 
     public void setTop10ChattersByVideo(List<StringIntPair> top10ChattersByVideo) {
@@ -251,7 +257,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getTop10ChattersByLink() {
-        return (top10ChattersByLink==null) ? wordDao.getTop10ChattersByLink() : top10ChattersByLink;
+        return (top10ChattersByLink==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByLink, ""), listStringIntPairType) : top10ChattersByLink;
     }
 
     public void setTop10ChattersByLink(List<StringIntPair> top10ChattersByLink) {
@@ -259,7 +265,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getTop10ChattersByDeletedMsg() {
-        return (top10ChattersByDeletedMsg==null) ? chatLineDao.getTop10ChattersByDeletedMsg() : top10ChattersByDeletedMsg;
+        return (top10ChattersByDeletedMsg==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByDeletedMsg, ""), listStringIntPairType) : top10ChattersByDeletedMsg;
     }
 
     public void setTop10ChattersByDeletedMsg(List<StringIntPair> top10ChattersByDeletedMsg) {
@@ -267,7 +273,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getChatterFreqArrList() {
-        return (chatterFreqArrList==null) ? chatLineDao.getChatterFrequencyPairs() : chatterFreqArrList;
+        return (chatterFreqArrList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_ChatterFrequencyPairs, ""), listStringIntPairType) : chatterFreqArrList;
     }
 
     public void setChatterFreqArrList(List<StringIntPair> chatterFreqArrList) {
@@ -275,17 +281,16 @@ public class ChatData {
     }
 
     public int getDayCount() {
-        return (dayCount==0) ? chatLineDao.getDayCount() : dayCount;
+        return (dayCount==0) ? spu.getInt(R.string.SP_BACKUP_DayCount, 0) : dayCount;
     }
 
     public void setDayCount(int dayCount) {
-
         this.dayCount = dayCount;
     }
 
     public int getChatterCount() {
         if(chatterCount == 0){
-            return chatLineDao.getChatterCount();
+            return spu.getInt(R.string.SP_BACKUP_ChatterCount, 0);
         } else {
             return chatterCount;
         }
@@ -293,11 +298,12 @@ public class ChatData {
 
     public void setChatterCount(int chatterCount) {
         this.chatterCount = chatterCount;
+        spu.saveInt(R.string.SP_BACKUP_ChatterCount, chatterCount);
     }
 
     public int getChatLineCount() {
         if(chatLineCount == 0){
-            return chatLineDao.getCount();
+            return spu.getInt(R.string.SP_BACKUP_ChatLineCount, 0);
         } else {
             return chatLineCount;
         }
@@ -308,7 +314,7 @@ public class ChatData {
     }
 
     public int getWordCount() {
-        return (wordCount==0) ? wordDao.getDistinctCount() : wordCount;
+        return (wordCount==0) ? spu.getInt(R.string.SP_BACKUP_WordCount, 0) : wordCount;
     }
 
     public void setWordCount(int wordCount) {
@@ -316,7 +322,7 @@ public class ChatData {
     }
 
     public int getTotalWordCount() {
-        return (totalWordCount==0) ? wordDao.getCount() : totalWordCount;
+        return (totalWordCount==0) ? spu.getInt(R.string.SP_BACKUP_TotalWordCount, 0) : totalWordCount;
     }
 
     public void setTotalWordCount(int totalWordCount) {
@@ -324,7 +330,7 @@ public class ChatData {
     }
 
     public double getAvgWordCount() {
-        return (avgWordCount==0) ? chatLineDao.getAverageWordCount() : avgWordCount;
+        return (avgWordCount==0) ? spu.getDouble(R.string.SP_BACKUP_AvgWordCount, 0) : avgWordCount;
     }
 
     public void setAvgWordCount(double avgWordCount) {
@@ -332,7 +338,7 @@ public class ChatData {
     }
 
     public double getAvgLetterCount() {
-        return (avgLetterCount==0) ? wordDao.getAverageLetterCount() : avgLetterCount;
+        return (avgLetterCount==0) ? spu.getDouble(R.string.SP_BACKUP_AvgLetterCount, 0) : avgLetterCount;
     }
 
     public void setAvgLetterCount(double avgLetterCount) {
@@ -340,7 +346,7 @@ public class ChatData {
     }
 
     public int getLinkCount() {
-        return (linkCount==0) ? wordDao.getLinkCount() : linkCount;
+        return (linkCount==0) ? spu.getInt(R.string.SP_BACKUP_LinkCount, 0) : linkCount;
     }
 
     public void setLinkCount(int linkCount) {
@@ -348,7 +354,7 @@ public class ChatData {
     }
 
     public int getPicCount() {
-        return (picCount==0) ? wordDao.getPicCount() : picCount;
+        return (picCount==0) ? spu.getInt(R.string.SP_BACKUP_PicCount, 0) : picCount;
     }
 
     public void setPicCount(int picCount) {
@@ -356,7 +362,7 @@ public class ChatData {
     }
 
     public int getVideoCount() {
-        return (videoCount==0) ? wordDao.getVideoCount() : videoCount;
+        return (videoCount==0) ? spu.getInt(R.string.SP_BACKUP_VideoCount, 0) : videoCount;
     }
 
     public void setVideoCount(int videoCount) {
@@ -364,7 +370,7 @@ public class ChatData {
     }
 
     public int getPptCount() {
-        return (pptCount==0) ? wordDao.getPowerpointCount() : pptCount;
+        return (pptCount==0) ? spu.getInt(R.string.SP_BACKUP_PptCount, 0) : pptCount;
     }
 
     public void setPptCount(int pptCount) {
@@ -372,7 +378,7 @@ public class ChatData {
     }
 
     public int getDeletedMsgCount() {
-        return deletedMsgCount==0 ? chatLineDao.getDeletedMsgCount() : deletedMsgCount;
+        return deletedMsgCount==0 ? spu.getInt(R.string.SP_BACKUP_DeletedMsgCount, 0) : deletedMsgCount;
     }
 
     public void setDeletedMsgCount(int deletedMsgCount) {
@@ -380,7 +386,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getDaysActiveRankingList() {
-        return (daysActiveRankingList==null) ? chatLineDao.getDaysActiveRank() : daysActiveRankingList;
+        return (daysActiveRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_DaysActiveRankingList, ""), listStringIntPairType) : daysActiveRankingList;
     }
 
     public void setDaysActiveRankingList(List<StringIntPair> daysActiveRankingList) {
@@ -388,7 +394,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getDistinctWordRankingList() {
-        return (daysActiveRankingList==null) ? wordDao.getDistinctWordCountByRank() : daysActiveRankingList;
+        return (daysActiveRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_DistinctWordRankingList, ""), listStringIntPairType) : daysActiveRankingList;
     }
 
     public void setDistinctWordRankingList(List<StringIntPair> distinctWordRankingList) {
@@ -396,7 +402,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getChatLineRankingList() {
-        return (chatLineRankingList==null) ? chatLineDao.getChatterChatLineByRank() : chatLineRankingList;
+        return (chatLineRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_ChatLineRankingList, ""), listStringIntPairType) : chatLineRankingList;
     }
 
     public void setChatLineRankingList(List<StringIntPair> chatLineRankingList) {
@@ -404,7 +410,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getTotalWordRankingList() {
-        return (totalWordRankingList==null) ? wordDao.getTotalWordCountByRank() : totalWordRankingList;
+        return (totalWordRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TotalWordRankingList, ""), listStringIntPairType) : totalWordRankingList;
     }
 
     public void setTotalWordRankingList(List<StringIntPair> totalWordRankingList) {
@@ -412,7 +418,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getPicRankingList() {
-        return (picRankingList==null) ? wordDao.getPicRanking() : picRankingList;
+        return (picRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_PicRankingList, ""), listStringIntPairType) : picRankingList;
     }
 
     public void setPicRankingList(List<StringIntPair> picRankingList) {
@@ -420,7 +426,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getVideoRankingList() {
-        return (videoRankingList==null) ? wordDao.getVideoRanking() : videoRankingList;
+        return (videoRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_VideoRankingList, ""), listStringIntPairType) : videoRankingList;
     }
 
     public void setVideoRankingList(List<StringIntPair> videoRankingList) {
@@ -428,7 +434,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getLinkRankingList() {
-        return (linkRankingList==null) ? wordDao.getLinkRanking() : linkRankingList;
+        return (linkRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_LinkRankingList, ""), listStringIntPairType) : linkRankingList;
     }
 
     public void setLinkRankingList(List<StringIntPair> linkRankingList) {
@@ -436,7 +442,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getDelRankingList() {
-        return (delRankingList==null) ? chatLineDao.getDeletedMsgRanking() : delRankingList;
+        return (delRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_DelRankingList, ""), listStringIntPairType) : delRankingList;
     }
 
     public void setDelRankingList(List<StringIntPair> delRankingList) {
@@ -444,7 +450,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getSentWordRankingList() {
-        return (sentWordRankingList==null) ? chatLineDao.getAverageWordCountRanking() : sentWordRankingList;
+        return (sentWordRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_SentWordRankingList, ""), listStringIntPairType) : sentWordRankingList;
     }
 
     public void setSentWordRankingList(List<StringIntPair> sentWordRankingList) {
@@ -452,7 +458,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getWordLengthRankingList() {
-        return (wordLengthRankingList==null) ? wordDao.getAverageLetterCountByRank() : wordLengthRankingList;
+        return (wordLengthRankingList==null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_WordLengthRankingList, ""), listStringIntPairType) : wordLengthRankingList;
     }
 
     public void setWordLengthRankingList(List<StringIntPair> wordLengthRankingList) {
@@ -475,5 +481,37 @@ public class ChatData {
 
     public void setAvgDaysActive(double avgDaysActive) {
         this.avgDaysActive = avgDaysActive;
+    }
+
+    public List<DateIntPair> getTimePreloadDayList() {
+        return (timePreloadDayList == null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_DAY_LIST, ""), listDateIntPairType) : timePreloadDayList;
+    }
+
+    public void setTimePreloadDayList(List<DateIntPair> timePreloadDayList) {
+        this.timePreloadDayList = timePreloadDayList;
+    }
+
+    public List<StringIntPair> getTimePreloadMonthList() {
+        return (timePreloadMonthList == null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_MONTH_LIST, ""), listStringIntPairType) : timePreloadMonthList;
+    }
+
+    public void setTimePreloadMonthList(List<StringIntPair> timePreloadMonthList) {
+        this.timePreloadMonthList = timePreloadMonthList;
+    }
+
+    public List<StringIntPair> getTimePreloadYearList() {
+        return (timePreloadYearList == null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_YEAR_LIST, ""), listStringIntPairType) : timePreloadYearList;
+    }
+
+    public void setTimePreloadYearList(List<StringIntPair> timePreloadYearList) {
+        this.timePreloadYearList = timePreloadYearList;
+    }
+
+    public List<StringIntPair> getTimePreloadTimeOfDayList() {
+        return (timePreloadTimeOfDayList==null)?new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_OF_DAY_LIST, ""), listStringIntPairType) : timePreloadTimeOfDayList;
+    }
+
+    public void setTimePreloadTimeOfDayList(List<StringIntPair> timePreloadTimeOfDayList) {
+        this.timePreloadTimeOfDayList = timePreloadTimeOfDayList;
     }
 }

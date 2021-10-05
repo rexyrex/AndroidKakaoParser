@@ -181,11 +181,9 @@ public class TimeAnalyseFrag extends Fragment {
         List listData = new ArrayList<>();
         List tmpList = new ArrayList();
 
-        ChatStatsTabActivity activity = (ChatStatsTabActivity) getActivity();
-
         switch(items[position]){
             case "일 분석":
-                List<DateIntPair> tmp = activity.timePreloadDayList; //cld.getFreqByDay();
+                List<DateIntPair> tmp = cd.getTimePreloadDayList(); //cld.getFreqByDay();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일", Locale.KOREAN);
                 LogUtils.e("START ADDING1");
                 for(int i=0; i<tmp.size(); i++){
@@ -197,17 +195,17 @@ public class TimeAnalyseFrag extends Fragment {
                 barChart.invalidate();
                 break;
             case "월 분석":
-                listData = activity.timePreloadMonthList;
+                listData = cd.getTimePreloadMonthList();
                 makeBarChart(listData, "month");
                 barChart.invalidate();
                 break;
             case "연 분석":
-                listData = activity.timePreloadYearList;
+                listData = cd.getTimePreloadYearList();
                 makeBarChart(listData, "year");
                 barChart.invalidate();
                 break;
             case "요일 분석":
-                listData = activity.timePreloadDayOFWeekList;
+                listData = cd.getFreqByDayOfWeek();
 
                 //fill missing entries as 0
                 for(int i=0; i<daysOfWeek.length; i++){
@@ -234,7 +232,7 @@ public class TimeAnalyseFrag extends Fragment {
             case "시간 분석":
                 //listData = (List)((ArrayList)(activity.timePreloadList2)).clone(); //cld.getFreqByTimeOfDay();
 
-                listData = activity.timePreloadTimeOfDayList;
+                listData = cd.getTimePreloadTimeOfDayList();
                 //fill missing entries as 0
                 for(int i=0; i<timeOfDayStrs.length; i++){
                     boolean added = false;

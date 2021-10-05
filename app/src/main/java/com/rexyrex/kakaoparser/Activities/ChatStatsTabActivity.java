@@ -139,15 +139,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     private InterstitialAd mInterstitialAd;
     private AdRequest adRequest;
 
-    public List<DateIntPair> timePreloadDayList;
-    public List timePreloadMonthList;
-    public List timePreloadYearList;
-    public List timePreloadTimeOfDayList;
-    public List timePreloadDayOFWeekList;
-
-    public ArrayList<StringIntPair> wordPreloadFreqList;
-    public ArrayList<ChatLineModel> chatPreloadChatList;
-
     Runtime runtime;
 
     SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
@@ -157,9 +148,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        timePreloadDayList = new ArrayList<>();
-        timePreloadTimeOfDayList = new ArrayList<>();
 
         cd = ChatData.getInstance(this);
         final File chatFile = cd.getChatFile();
@@ -821,19 +809,16 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             cd.setTop10ChattersByDeletedMsg(chatLineDao.getTop10ChattersByDeletedMsg());
 
             cd.setWordFreqArrList(wordDao.getFreqWordList());
-            wordPreloadFreqList = new ArrayList(cd.getWordFreqArrList());
             cd.setFreqByDayOfWeek(chatLineDao.getFreqByDayOfWeek());
             cd.setMaxFreqByDayOfWeek(chatLineDao.getMaxFreqDayOfWeek());
             cd.setAllChatInit(chatLineDao.getAllChatsByDateDesc());
-            chatPreloadChatList = new ArrayList(cd.getAllChatInit());
             cd.setAuthorsList(chatLineDao.getChatters());
 
             updateLoadStatusSubtext("시간 정리", false);
-            timePreloadDayList = chatLineDao.getFreqByDay();
-            timePreloadMonthList = chatLineDao.getFreqByMonth();
-            timePreloadYearList = chatLineDao.getFreqByYear();
-            timePreloadTimeOfDayList = chatLineDao.getFreqByTimeOfDay();
-            timePreloadDayOFWeekList = chatLineDao.getFreqByDayOfWeek();
+            cd.setTimePreloadDayList(chatLineDao.getFreqByDay());
+            cd.setTimePreloadMonthList(chatLineDao.getFreqByMonth());
+            cd.setTimePreloadYearList(chatLineDao.getFreqByYear());
+            cd.setTimePreloadTimeOfDayList(chatLineDao.getFreqByTimeOfDay());
 
             updateLoadStatusSubtext("평균 사용량 계산", false);
             cd.setDaysActiveRankingList(chatLineDao.getDaysActiveRank());
@@ -879,20 +864,17 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         //-- Time start
 
-        jsonTmp = new Gson().toJson(timePreloadDayList);
+        jsonTmp = new Gson().toJson(cd.getTimePreloadDayList());
         spu.saveString(R.string.SP_BACKUP_TIME_DAY_LIST, jsonTmp);
 
-        jsonTmp = new Gson().toJson(timePreloadMonthList);
+        jsonTmp = new Gson().toJson(cd.getTimePreloadMonthList());
         spu.saveString(R.string.SP_BACKUP_TIME_MONTH_LIST, jsonTmp);
 
-        jsonTmp = new Gson().toJson(timePreloadYearList);
+        jsonTmp = new Gson().toJson(cd.getTimePreloadYearList());
         spu.saveString(R.string.SP_BACKUP_TIME_YEAR_LIST, jsonTmp);
 
-        jsonTmp = new Gson().toJson(timePreloadTimeOfDayList);
+        jsonTmp = new Gson().toJson(cd.getTimePreloadTimeOfDayList());
         spu.saveString(R.string.SP_BACKUP_TIME_OF_DAY_LIST, jsonTmp);
-
-        jsonTmp = new Gson().toJson(timePreloadDayOFWeekList);
-        spu.saveString(R.string.SP_BACKUP_TIME_DAY_OF_WEEK_LIST, jsonTmp);
 
         //-- Time End
 
@@ -981,13 +963,12 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         //List<DateIntPair> timePreloadDayList
         Type type = new TypeToken< List <DateIntPair> >() {}.getType();
-        timePreloadDayList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_DAY_LIST, ""), type);
+        cd.setTimePreloadDayList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_DAY_LIST, ""), type));
 
         type = new TypeToken< List <StringIntPair> >() {}.getType();
-        timePreloadMonthList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_MONTH_LIST, ""), type);
-        timePreloadYearList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_YEAR_LIST, ""), type);
-        timePreloadTimeOfDayList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_OF_DAY_LIST, ""), type);
-        timePreloadDayOFWeekList = new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_DAY_OF_WEEK_LIST, ""), type);
+        cd.setTimePreloadMonthList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_MONTH_LIST, ""), type));
+        cd.setTimePreloadYearList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_YEAR_LIST, ""), type));
+        cd.setTimePreloadTimeOfDayList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_TIME_OF_DAY_LIST, ""), type));
 
         cd.setChatterFreqArrList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_ChatterFrequencyPairs, ""), type));
         cd.setTop10Chatters(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10Chatters, ""), type));
@@ -997,7 +978,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         cd.setTop10ChattersByLink(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByLink, ""), type));
         cd.setTop10ChattersByDeletedMsg(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_Top10ChattersByDeletedMsg, ""), type));
         cd.setWordFreqArrList(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_WordFreqArrList, ""), type));
-        wordPreloadFreqList = new ArrayList(cd.getWordFreqArrList());
 
         cd.setFreqByDayOfWeek(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_FreqByDayOfWeek, ""), type));
         cd.setMaxFreqByDayOfWeek(spu.getInt(R.string.SP_BACKUP_MaxFreqByDayOfWeek, 0));
@@ -1018,7 +998,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         type = new TypeToken< List <ChatLineModel> >() {}.getType();
         cd.setAllChatInit(new Gson().fromJson(spu.getString(R.string.SP_BACKUP_AllChatInit, ""), type));
-        chatPreloadChatList = new ArrayList(cd.getAllChatInit());
     }
 
     public void updateLoadStatusText(String s, boolean finished){
