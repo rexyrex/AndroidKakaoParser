@@ -37,6 +37,7 @@ import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.Entities.PersonChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.Fragments.main.WordAnalyseFrag;
 import com.rexyrex.kakaoparser.R;
@@ -71,6 +72,8 @@ public class PWordFrag extends Fragment {
 
     SharedPrefUtils spu;
 
+    PersonChatData pcd;
+
     public PWordFrag() {
         // Required empty public constructor
     }
@@ -90,6 +93,7 @@ public class PWordFrag extends Fragment {
             numberFormat = NumberFormat.getInstance();
             numberFormat.setGroupingUsed(true);
             cd = ChatData.getInstance(getContext());
+            pcd = PersonChatData.getInstance(getContext());
             spu = new SharedPrefUtils(getContext());
             database = MainDatabase.getDatabase(getContext());
             wordDao = database.getWordDAO();
@@ -195,10 +199,8 @@ public class PWordFrag extends Fragment {
     public PieData getChatAmountPieData(){
         List<StringIntPair> chatters = null;
 
-        PersonDtlActivity activity = (PersonDtlActivity) getActivity();
-
-        chatters = activity.top10Words;
-        int totalCount = activity.distinctWordCount;
+        chatters = pcd.getTop10Words();
+        int totalCount = pcd.getDistinctWordCount();
 
         ArrayList chatAmountArrayList = new ArrayList();
         ArrayList chatNicknameArrayList = new ArrayList();

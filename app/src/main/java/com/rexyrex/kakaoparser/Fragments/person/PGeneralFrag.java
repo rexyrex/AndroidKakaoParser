@@ -28,6 +28,7 @@ import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
+import com.rexyrex.kakaoparser.Entities.PersonChatData;
 import com.rexyrex.kakaoparser.Entities.PersonGeneralInfoData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.Entities.StringStringPair;
@@ -64,6 +65,8 @@ public class PGeneralFrag extends Fragment {
 
     NumberFormat numberFormat;
 
+    PersonChatData pcd;
+
     public PGeneralFrag() {
         // Required empty public constructor
     }
@@ -83,16 +86,13 @@ public class PGeneralFrag extends Fragment {
         LogUtils.e("ON CREATE");
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-
-
-            PersonDtlActivity pda = (PersonDtlActivity) getActivity();
-
             cd = ChatData.getInstance(getContext());
+            pcd = PersonChatData.getInstance(getContext());
             database = MainDatabase.getDatabase(getContext());
             chatLineDao = database.getChatLineDAO();
             wordDao = database.getWordDAO();
-            statsList = pda.statsList;
-            statsDtlMap = pda.statsDtlMap;
+            statsList = pcd.getStatsList();
+            statsDtlMap = pcd.getStatsDtlMap();
             spu = new SharedPrefUtils(getActivity());
             author = spu.getString(R.string.SP_PERSON_DTL_NAME, "");
             numberFormat = NumberFormat.getInstance();

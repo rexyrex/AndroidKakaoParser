@@ -35,6 +35,7 @@ import com.rexyrex.kakaoparser.Database.DAO.ChatLineDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.DateIntPair;
+import com.rexyrex.kakaoparser.Entities.PersonChatData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.LogUtils;
@@ -73,6 +74,7 @@ public class PTimeFrag extends Fragment {
     ListView lv;
 
     ChatData cd;
+    PersonChatData pcd;
 
     NumberFormat numberFormat;
 
@@ -100,6 +102,7 @@ public class PTimeFrag extends Fragment {
         database = MainDatabase.getDatabase(getContext());
         cld = database.getChatLineDAO();
         cd = ChatData.getInstance(getContext());
+        pcd = PersonChatData.getInstance(getContext());
 
         numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
@@ -181,11 +184,9 @@ public class PTimeFrag extends Fragment {
         List listData = new ArrayList<>();
         List tmpList = new ArrayList();
 
-        PersonDtlActivity activity = (PersonDtlActivity) getActivity();
-
         switch(items[position]){
             case "일 분석":
-                List<DateIntPair> tmp = activity.timePreloadDayList; //cld.getFreqByDay();
+                List<DateIntPair> tmp = pcd.getTimePreloadDayList(); //cld.getFreqByDay();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일", Locale.KOREAN);
                 LogUtils.e("START ADDING1");
                 for(int i=0; i<tmp.size(); i++){
@@ -197,17 +198,17 @@ public class PTimeFrag extends Fragment {
                 barChart.invalidate();
                 break;
             case "월 분석":
-                listData = activity.timePreloadMonthList;
+                listData = pcd.getTimePreloadMonthList();
                 makeBarChart(listData, "month");
                 barChart.invalidate();
                 break;
             case "연 분석":
-                listData = activity.timePreloadYearList;
+                listData = pcd.getTimePreloadYearList();
                 makeBarChart(listData, "year");
                 barChart.invalidate();
                 break;
             case "요일 분석":
-                listData = activity.timePreloadDayOFWeekList;
+                listData = pcd.getTimePreloadDayOFWeekList();
 
                 //fill missing entries as 0
                 for(int i=0; i<daysOfWeek.length; i++){
@@ -234,7 +235,7 @@ public class PTimeFrag extends Fragment {
             case "시간 분석":
                 //listData = (List)((ArrayList)(activity.timePreloadList2)).clone(); //cld.getFreqByTimeOfDay();
 
-                listData = activity.timePreloadTimeOfDayList;
+                listData = pcd.getTimePreloadTimeOfDayList();
                 //fill missing entries as 0
                 for(int i=0; i<timeOfDayStrs.length; i++){
                     boolean added = false;

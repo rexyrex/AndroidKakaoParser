@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             spu.saveBool(R.string.SP_REVIEW_REQUESTED, false);
         }
 
-        if(spu.getInt(R.string.SP_LOGIN_COUNT, 0) > 3 &&
+        if(spu.getInt(R.string.SP_LOGIN_COUNT, 0) >= 3 &&
                 !spu.getBool(R.string.SP_REVIEW_REQUESTED, false) &&
                 !spu.getBool(R.string.SP_REVIEW_COMPLETED, false) &&
                 spu.getInt(R.string.SP_ANALYSE_COMPLETE_COUNT, 0) >= 1

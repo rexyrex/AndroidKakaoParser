@@ -154,6 +154,18 @@
     <string name="SP_BACKUP_SentWordRankingList">SP_BACKUP_SentWordRankingList</string>
     <string name="SP_BACKUP_WordLengthRankingList">SP_BACKUP_WordLengthRankingList</string>
 
+    <!-- Person -->
+    <string name="SP_BACKUP_PERSON_TIME_DAY_LIST">SP_BACKUP_PERSON_TIME_DAY_LIST</string>
+    <string name="SP_BACKUP_PERSON_TIME_MONTH_LIST">SP_BACKUP_PERSON_TIME_MONTH_LIST</string>
+    <string name="SP_BACKUP_PERSON_TIME_YEAR_LIST">SP_BACKUP_PERSON_TIME_YEAR_LIST</string>
+    <string name="SP_BACKUP_PERSON_TIME_OF_DAY_LIST">SP_BACKUP_PERSON_TIME_OF_DAY_LIST</string>
+    <string name="SP_BACKUP_PERSON_TIME_DAY_OF_WEEK_LIST">SP_BACKUP_PERSON_TIME_DAY_OF_WEEK_LIST</string>
+
+    <string name="SP_BACKUP_PERSON_top10Words">SP_BACKUP_PERSON_top10Words</string>
+    <string name="SP_BACKUP_PERSON_distinctWordCount">SP_BACKUP_PERSON_distinctWordCount</string>
+
+    <string name="SP_BACKUP_PERSON_statsList">SP_BACKUP_PERSON_statsList</string>
+    <string name="SP_BACKUP_PERSON_statsDtlMap">SP_BACKUP_PERSON_statsDtlMap</string>
 
     <string name="FirebaseTopicName">KakaoParserFBTopic</string>
 

@@ -25,6 +25,7 @@ import com.rexyrex.kakaoparser.Database.DAO.WordDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.DateIntPair;
+import com.rexyrex.kakaoparser.Entities.PersonChatData;
 import com.rexyrex.kakaoparser.Entities.PersonGeneralInfoData;
 import com.rexyrex.kakaoparser.Entities.StringIntPair;
 import com.rexyrex.kakaoparser.Entities.StringStringPair;
@@ -76,12 +77,16 @@ public class PersonDtlActivity extends AppCompatActivity {
 
     TextView loadingTV, loadingSubTV;
 
+    PersonChatData pcd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person_dtl);
 
         spu = new SharedPrefUtils(this);
+
+        pcd = PersonChatData.getInstance(this);
 
         viewPager = findViewById(R.id.viewPagerPersonDtl);
         tabs = findViewById(R.id.tabsPersonDtl);
@@ -337,6 +342,17 @@ public class PersonDtlActivity extends AppCompatActivity {
 
                 top10Words = wordDao.getTop10WordsByAuthor(author);
                 distinctWordCount = wordDao.getDistinctWordCountByAuthor(author);
+
+                pcd.setStatsList(statsList);
+                pcd.setStatsDtlMap(statsDtlMap);
+                pcd.setDistinctWordCount(distinctWordCount);
+                pcd.setTop10Words(top10Words);
+
+                pcd.setTimePreloadDayList(timePreloadDayList);
+                pcd.setTimePreloadMonthList(timePreloadMonthList);
+                pcd.setTimePreloadYearList(timePreloadYearList);
+                pcd.setTimePreloadDayOFWeekList(timePreloadDayOFWeekList);
+                pcd.setTimePreloadTimeOfDayList(timePreloadTimeOfDayList);
 
                 return null;
             }
