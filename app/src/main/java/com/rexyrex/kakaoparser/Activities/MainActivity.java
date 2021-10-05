@@ -239,6 +239,8 @@ public class MainActivity extends AppCompatActivity {
                     reviewSuggestDialog.cancel();
                 }
             });
+
+            reviewSuggestDialog.show();
         }
 
 

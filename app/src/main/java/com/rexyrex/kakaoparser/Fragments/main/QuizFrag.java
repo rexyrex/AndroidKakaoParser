@@ -243,7 +243,7 @@ public class QuizFrag extends Fragment implements FirebaseUtils.NicknameCallback
             quizScoreTV.setText(cd.getChatFileTitle() + "\n" + "퀴즈 기록 : " + acm.getHighscore() + "점");
 
             //Show review popup if conditions are met
-            if(spu.getBool(R.string.SP_REVIEW_POPUP_SHOW, true) && spu.getInt(R.string.SP_QUIZ_FINISH_COUNT, 0) >= 3){
+            if(spu.getBool(R.string.SP_REVIEW_POPUP_SHOW, true) && spu.getInt(R.string.SP_QUIZ_FINISH_COUNT, 0) >= 3 && !spu.getBool(R.string.SP_REVIEW_COMPLETED, false)){
                 reviewSuggestDialog.show();
                 //If review popup was showed at least once, do not show
                 spu.saveBool(R.string.SP_REVIEW_POPUP_SHOW, false);
