@@ -169,10 +169,8 @@ public class PWordFrag extends Fragment {
         totalCount = 0;
         pairs = null;
 
-        PersonDtlActivity activity = (PersonDtlActivity) getActivity();
-
-        pairs = activity.top10Words;
-        totalCount = activity.distinctWordCount;
+        pairs = pcd.getTop10Words();
+        totalCount = pcd.getDistinctWordCount();
 
         CustomAdapter customAdapter = new CustomAdapter(pairs, totalCount);
         freqLV.setAdapter(customAdapter);

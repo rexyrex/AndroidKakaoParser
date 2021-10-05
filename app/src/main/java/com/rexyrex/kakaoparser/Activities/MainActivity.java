@@ -204,33 +204,42 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     spu.saveBool(R.string.SP_REVIEW_COMPLETED, true);
                     reviewSuggestDialog.cancel();
-                    Task<ReviewInfo> request = manager.requestReviewFlow();
-                    request.addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            // We can get the ReviewInfo object
-                            ReviewInfo reviewInfo = task.getResult();
-                            LogUtils.e("Review Task is Successful : " + reviewInfo.toString());
 
-                            Task<Void> flow = manager.launchReviewFlow(MainActivity.this, reviewInfo);
-                            flow.addOnCompleteListener(task2 -> {
-                                LogUtils.e("review task on complete : " + task2.isSuccessful());
-                                // The flow has finished. The API does not indicate whether the user
-                                // reviewed or not, or even whether the review dialog was shown. Thus, no
-                                // matter the result, we continue our app flow.
-                            });
-                        } else {
-                            LogUtils.e("review task exception : " + task.getException().toString());
-                            // There was some problem, log or handle the error code.
-                            task.getException().printStackTrace();
-                            //@ReviewErrorCode int reviewErrorCode = ((Exception) task.getException()).getErrorCode();
-                            String appPackageName = "com.rexyrex.kakaoparser";
-                            try {
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-                            } catch (android.content.ActivityNotFoundException anfe) {
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
-                            }
-                        }
-                    });
+                    String appPackageName = "com.rexyrex.kakaoparser";
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                    } catch (android.content.ActivityNotFoundException anfe) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                    }
+
+
+//                    Task<ReviewInfo> request = manager.requestReviewFlow();
+//                    request.addOnCompleteListener(task -> {
+//                        if (task.isSuccessful()) {
+//                            // We can get the ReviewInfo object
+//                            ReviewInfo reviewInfo = task.getResult();
+//                            LogUtils.e("Review Task is Successful : " + reviewInfo.toString());
+//
+//                            Task<Void> flow = manager.launchReviewFlow(MainActivity.this, reviewInfo);
+//                            flow.addOnCompleteListener(task2 -> {
+//                                LogUtils.e("review task on complete : " + task2.isSuccessful());
+//                                // The flow has finished. The API does not indicate whether the user
+//                                // reviewed or not, or even whether the review dialog was shown. Thus, no
+//                                // matter the result, we continue our app flow.
+//                            });
+//                        } else {
+//                            LogUtils.e("review task exception : " + task.getException().toString());
+//                            // There was some problem, log or handle the error code.
+//                            task.getException().printStackTrace();
+//                            //@ReviewErrorCode int reviewErrorCode = ((Exception) task.getException()).getErrorCode();
+//                            String appPackageName = "com.rexyrex.kakaoparser";
+//                            try {
+//                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+//                            } catch (android.content.ActivityNotFoundException anfe) {
+//                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+//                            }
+//                        }
+//                    });
                 }
             });
             reviewPopupCancelBtn.setOnClickListener(new View.OnClickListener() {
@@ -541,6 +550,18 @@ public class MainActivity extends AppCompatActivity {
         numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
 
+        ArrayList<String> paths = new ArrayList<>();
+        paths.add("KakaoTalk/Chats/");
+        paths.add("Documents/Chats/");
+        paths.add("DualApp/KakaoTalk/Chats/");
+
+        int totalFileCount = 0;
+
+        for(String path : paths){
+            File dir = new File(Environment.getExternalStorageDirectory() + File.separator + path);
+
+        }
+
 
         String folderPath = Environment.getExternalStorageDirectory()
                 + File.separator + "KakaoTalk/Chats/";
@@ -555,7 +576,7 @@ public class MainActivity extends AppCompatActivity {
         File dir1 = new File(folderPath);
         File dir2 = new File(folderPath2);
         File dir3 = new File(folderPath3);
-        int totalFileCount = 0;
+
         boolean dir1Exists = false, dir2Exists = false, dir3Exists = false;
 
         if(dir1.isDirectory() && dir1.listFiles()!=null){
