@@ -32,13 +32,13 @@ android {
     productFlavors {
         devFlavor {
             dimension = 'default'
-            versionCode 16
-            versionName '1.4.0'
+            versionCode 17
+            versionName '1.4.1'
         }
         prdFlavor {
             dimension = 'default'
-            versionCode 16
-            versionName '1.4.0'
+            versionCode 17
+            versionName '1.4.1'
         }
     }
 
