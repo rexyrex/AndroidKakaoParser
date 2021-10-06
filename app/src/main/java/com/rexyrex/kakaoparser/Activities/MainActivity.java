@@ -38,8 +38,11 @@ import com.google.android.play.core.review.model.ReviewErrorCode;
 import com.google.android.play.core.review.testing.FakeReviewManager;
 import com.google.android.play.core.tasks.Task;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
+import com.rexyrex.kakaoparser.Database.Models.ChatLineModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.EnvConstants;
 import com.rexyrex.kakaoparser.R;
@@ -65,6 +68,8 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -550,98 +555,38 @@ public class MainActivity extends AppCompatActivity {
         numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
 
-        ArrayList<String> paths = new ArrayList<>();
-        paths.add("KakaoTalk/Chats/");
-        paths.add("Documents/Chats/");
-        paths.add("DualApp/KakaoTalk/Chats/");
+//        ArrayList<String> paths = new ArrayList<>();
+//        paths.add("KakaoTalk/Chats/");
+//        paths.add("Documents/Chats/");
+//        paths.add("DualApp/KakaoTalk/Chats/");
 
-        int totalFileCount = 0;
+
+        Type type = new TypeToken< List <String> >() {}.getType();
+        ArrayList<String> paths = new Gson().fromJson(spu.getString(R.string.SP_FB_PATHS, ""),type);
+
+        ArrayList<File> filesArrList = new ArrayList<>();
 
         for(String path : paths){
             File dir = new File(Environment.getExternalStorageDirectory() + File.separator + path);
-
-        }
-
-
-        String folderPath = Environment.getExternalStorageDirectory()
-                + File.separator + "KakaoTalk/Chats/";
-
-        String folderPath2 = Environment.getExternalStorageDirectory()
-                + File.separator + "Documents/Chats/";
-
-        String folderPath3 = Environment.getExternalStorageDirectory()
-                + File.separator + "DualApp/KakaoTalk/Chats/";
-
-
-        File dir1 = new File(folderPath);
-        File dir2 = new File(folderPath2);
-        File dir3 = new File(folderPath3);
-
-        boolean dir1Exists = false, dir2Exists = false, dir3Exists = false;
-
-        if(dir1.isDirectory() && dir1.listFiles()!=null){
-            totalFileCount += dir1.listFiles().length;
-            dir1Exists = true;
-        }
-
-        if(dir2.isDirectory() && dir2.listFiles()!=null){
-            totalFileCount += dir2.listFiles().length;
-            dir2Exists = true;
-        }
-
-        if(dir3.isDirectory() && dir3.listFiles()!=null){
-            totalFileCount += dir3.listFiles().length;
-            dir3Exists = true;
-        }
-
-        if (totalFileCount>0) {
-
-            files = new File[totalFileCount];
-            int tmpFileIndex = 0;
-
-            if(dir1Exists){
-                for(int i=0; i<dir1.listFiles().length; i++){
-                    files[tmpFileIndex] = dir1.listFiles()[i];
-                    tmpFileIndex++;
+            if(dir.isDirectory() && dir.listFiles()!=null){
+                for(int i=0; i<dir.listFiles().length; i++){
+                    File addFile = dir.listFiles()[i];
+                    if(FileParseUtils.checkIfChatFileExists(addFile)){
+                        filesArrList.add(addFile);
+                    }
                 }
             }
+        }
 
-            if(dir2Exists){
-                for(int i=0; i<dir2.listFiles().length; i++){
-                    files[tmpFileIndex] = dir2.listFiles()[i];
-                    tmpFileIndex++;
-                }
-            }
+        if (filesArrList.size()>0) {
+            //files = new File[filesArrList.size()];
+            reversedFilesArr = filesArrList.toArray(new File[0]);
 
-            if(dir3Exists){
-                for(int i=0; i<dir3.listFiles().length; i++){
-                    files[tmpFileIndex] = dir3.listFiles()[i];
-                    tmpFileIndex++;
-                }
-            }
-
-
-            Arrays.sort(files, new CustomComparator());
-
-            List<File> goodFiles = new ArrayList<>();
-            int notDeleteFileCount = 0;
-            //filter deleted or deleting folders
-            for(int i=files.length-1; i>=0; i--){
-                if(FileParseUtils.checkIfChatFileExists(files[i])){
-                    goodFiles.add(files[i]);
-                }
-            }
-
-            reversedFilesArr = new File[goodFiles.size()];
+            Arrays.sort(reversedFilesArr, new CustomComparator());
 
             //update file count
-            spu.saveInt(R.string.SP_EXPORTED_CHAT_COUNT, files.length);
-
-            for(int i=0; i<goodFiles.size(); i++){
-                if(FileParseUtils.checkIfChatFileExists(goodFiles.get(i))){
-                    reversedFilesArr[i] = goodFiles.get(i);
-                }
-            }
+            spu.saveInt(R.string.SP_EXPORTED_CHAT_COUNT, reversedFilesArr.length);
+            LogUtils.e("File length: " + reversedFilesArr.length);
 
             //프로필 이미지
             Drawable[] profPics = new Drawable[10];
@@ -935,7 +880,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class CustomComparator implements Comparator<File> {
-        @Override public int compare(File f1, File f2) {
+        @Override public int compare(File f2, File f1) {
             return StringParseUtils.chatFileNameToDate(f1.getName()).compareTo(StringParseUtils.chatFileNameToDate(f2.getName()));
         }
 

@@ -101,6 +101,9 @@ public class FirebaseUtils {
         user.put("LastLogoutDt", spu.getString(R.string.SP_LOGOUT_DT, "null"));
         user.put("FrstRegistDt", spu.getString(R.string.SP_REGIST_DT, "null"));
 
+        user.put("ReviewShow", spu.getBool(R.string.SP_REVIEW_REQUESTED, false));
+        user.put("ReviewSuccess", spu.getBool(R.string.SP_REVIEW_COMPLETED, false));
+
         user.put("SettingBtnCount", spu.getInt(R.string.SP_OPEN_SETTINGS_COUNT, 0));
         user.put("KakaoBtnCount", spu.getInt(R.string.SP_OPEN_KAKAO_COUNT, 0));
         user.put("InstructionsBtnCount", spu.getInt(R.string.SP_OPEN_HOW_TO_COUNT, 0));

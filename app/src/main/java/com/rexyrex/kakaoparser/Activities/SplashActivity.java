@@ -37,6 +37,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 import com.rexyrex.kakaoparser.BuildConfig;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.R;
@@ -150,6 +151,9 @@ public class SplashActivity extends AppCompatActivity {
                         spu.saveBool(R.string.SP_FB_BOOL_USERS2, (boolean) map.get("users2"));
                         spu.saveBool(R.string.SP_FB_BOOL_QUIZ_SHARE, (boolean) map.get("quizShare"));
                         spu.saveBool(R.string.SP_FB_BOOL_SAVE_SUMMARY, (boolean) map.get("saveSummary"));
+
+                        ArrayList<String> paths = (ArrayList<String>) map.get("paths");
+                        spu.saveString(R.string.SP_FB_PATHS, new Gson().toJson(paths));
 
                         ArrayList<String> saveChatUUIDBlacklist = (ArrayList<String>) map.get("saveChatUUIDBlacklist");
                         boolean isBlacklisted = false;

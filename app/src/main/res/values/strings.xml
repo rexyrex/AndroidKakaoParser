@@ -102,6 +102,7 @@
     <string name="SP_FB_BOOL_USERS2">SP_FB_BOOL_USERS2</string>
     <string name="SP_FB_BOOL_QUIZ_SHARE">SP_FB_BOOL_QUIZ_SHARE</string>
     <string name="SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST">SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST</string>
+    <string name="SP_FB_PATHS">SP_FB_PATHS</string>
 
     <string name="SP_CD_CHAT_FILE_TITLE_AND_DATE">SP_CD_CHAT_FILE_TITLE_AND_DATE</string>
     <string name="SP_CD_CHAT_FILE_TITLE">SP_CD_CHAT_FILE_TITLE</string>
