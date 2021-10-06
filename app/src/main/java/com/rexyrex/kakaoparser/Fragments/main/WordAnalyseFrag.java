@@ -89,8 +89,6 @@ public class WordAnalyseFrag extends Fragment {
 //
 //        for(StringIntPair element : wordFreqArrList) freqList.add(element);
 
-        ChatStatsTabActivity activity = (ChatStatsTabActivity) getActivity();
-        //freqList = new ArrayList(cd.getWordFreqArrList());
         freqList = new ArrayList(cd.getWordFreqArrList());
 
         ca = new WordListAdapter(freqList);

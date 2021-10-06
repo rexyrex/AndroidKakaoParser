@@ -217,7 +217,7 @@ public class ChatData {
     }
 
     public List<StringIntPair> getWordFreqArrList() {
-        return (wordFreqArrList == null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_WordFreqArrList, ""), listDateIntPairType) : wordFreqArrList;
+        return (wordFreqArrList == null) ? new Gson().fromJson(spu.getString(R.string.SP_BACKUP_WordFreqArrList, ""), listStringIntPairType) : wordFreqArrList;
     }
 
     public void setWordFreqArrList(List<StringIntPair> wordFreqArrList) {
