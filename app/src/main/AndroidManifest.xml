@@ -2,13 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.rexyrex.kakaoparser">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:hardwareAccelerated="true"
         android:allowBackup="false"
         android:alwaysRetainTaskState="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/icon_2021_09_29"
         android:label="@string/app_name"
         android:largeHeap="true"
@@ -17,19 +16,17 @@
         android:roundIcon="@mipmap/icon_2021_09_29_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".Activities.EmotionsActivity"
+            android:exported="true" />
 
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="@string/AdMob_app_ID"
-            ></meta-data>
+        <activity android:name=".Activities.SendOpinionActivity" />
 
-        <activity android:name=".Activities.SendOpinionActivity"></activity>
         <activity android:name=".Activities.QuizInstructionsActivity" />
         <activity android:name=".Activities.QuizHighscoreActivity" />
         <activity
             android:name=".Activities.QuizActivity"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".Activities.SettingsActivity"
             android:label="@string/title_activity_settings" />
@@ -59,6 +56,9 @@
             android:name=".Activities.MainActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/AdMob_app_ID" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
@@ -89,5 +89,8 @@
             </intent-filter>
         </service>
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 </manifest>

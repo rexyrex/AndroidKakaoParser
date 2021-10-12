@@ -331,7 +331,10 @@ public class SplashActivity extends AppCompatActivity {
                     FirebaseUtils.updateUserInfo(SplashActivity.this, spu, "Login", db);
                     FirebaseUtils.logFirebaseEventOpenApp(SplashActivity.this);
 
-                    Intent statsIntent = new Intent(SplashActivity.this, MainActivity.class);
+//                    Intent statsIntent = new Intent(SplashActivity.this, MainActivity.class);
+//                    SplashActivity.this.startActivity(statsIntent);
+
+                    Intent statsIntent = new Intent(SplashActivity.this, EmotionsActivity.class);
                     SplashActivity.this.startActivity(statsIntent);
                 }
                 finish();
