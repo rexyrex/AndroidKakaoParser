@@ -73,6 +73,8 @@ dependencies {
 
     implementation 'com.google.android.play:core:1.10.2'
 
+    implementation files('libs/kkma-2.1.jar')
+
     implementation platform('com.google.firebase:firebase-bom:28.3.1')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging'

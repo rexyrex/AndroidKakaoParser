@@ -79,8 +79,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -143,10 +145,18 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     SimpleDateFormat titleDateFormat = new SimpleDateFormat("yyyy.M.d");
 
+    HashMap<String,Double> labelsDict;
+    HashMap<String,Double> classProbDict;
+    HashMap<String,Double> uniqueWordCountDict;
+    HashMap<String,HashMap<String, Double>> wordProbDict;
+
+    HashMap<String, Integer> emotionCountMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
+        emotionCountMap = new HashMap<>();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         cd = ChatData.getInstance(this);
@@ -299,6 +309,24 @@ public class ChatStatsTabActivity extends AppCompatActivity {
             @Override
             protected String doInBackground(String... params) {
 
+                String labelsDictStr = FileParseUtils.getJsonFromAssets(getApplicationContext(), "labels.json");
+                Type StringStringMapType = new TypeToken<HashMap<String, String>>() {}.getType();
+                labelsDict = new Gson().fromJson(labelsDictStr, StringStringMapType);
+
+                String classProbDictStr = FileParseUtils.getJsonFromAssets(getApplicationContext(), "class_prob_dict.json");
+                Type stringFloatMap = new TypeToken<HashMap<String, Double>>() {}.getType();
+                classProbDict = new Gson().fromJson(classProbDictStr, stringFloatMap);
+                LogUtils.e("E50: " + classProbDict.get("E50"));
+
+                String uniqueWordCountDictStr = FileParseUtils.getJsonFromAssets(getApplicationContext(), "unique_word_count_dict.json");
+                uniqueWordCountDict = new Gson().fromJson(uniqueWordCountDictStr, stringFloatMap);
+                LogUtils.e("E50 unique count: " + uniqueWordCountDict.get("E50"));
+
+                String wordProbDictStr = FileParseUtils.getJsonFromAssets(getApplicationContext(), "word_prob_dict.json");
+                Type mapInMapType = new TypeToken<HashMap<String, HashMap<String, Double>>>() {}.getType();
+                wordProbDict = new Gson().fromJson(wordProbDictStr, mapInMapType);
+                LogUtils.e("E50: " + wordProbDict.get("E50").size());
+
                 try {
                     //Text to alert user loading not started yet (DB clear can take some time)
                     ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
@@ -334,6 +362,8 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                     cd.setChatFileTitle(chatTitle);
 
                     String chatStr = FileParseUtils.parseFile(chatFile, startDt, endDt, ChatStatsTabActivity.this);
+
+                    //getEmotion(chatStr);
 
                     ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
                         @Override
@@ -371,6 +401,9 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                         if (!chatLines[i].contains(",") || !chatLines[i].contains(":")) {
                             continue;
                         }
+
+//                        LogUtils.e("Sent : " + chatLines[i]);
+//                        getEmotion(chatLines[i]);
 
                         final int progress = (int) (((double) i / chatLines.length) * 100);
                         final double progressD = (double) (((double) i / chatLines.length));
@@ -483,6 +516,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                 }
                                 entireMsgIndex++;
                             }
+
                             String[] splitWords = chat.split("\\s");
 
                             String dayKey = DateFormats.day.format(date);
@@ -506,6 +540,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
                                 wordCount++;
                                 wordModelArrayList.add(new WordModel(lineId, date, person, chat, false, false, false, false, 0));
                             } else {
+                                LogUtils.e("Sent: " + chat);
+                                String emotion = getEmotion(chat);
+
+                                emotionCountMap.put(emotion, emotionCountMap.getOrDefault(emotion, 0) + 1);
+
                                 String bufferStr = "";
                                 for (int w = 0; w < splitWords.length; w++) {
                                     if (isCancelled()) {
@@ -562,6 +601,11 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
                             lineId++;
                         }
+                    }
+
+                    for(Map.Entry<String, Integer> classProbEntry : emotionCountMap.entrySet()){
+                        LogUtils.e("Emotion : " + labelsDict.get(classProbEntry.getKey()));
+                        LogUtils.e("Count : " + classProbEntry.getValue());
                     }
 
                     ChatStatsTabActivity.this.runOnUiThread(new Runnable() {
@@ -1160,6 +1204,58 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
     }
 
+    private String getEmotion(String inputStr){
+        String[] words = inputStr.split("\\s");
+
+        //LogUtils.e("words size : " + words.length);
+
+        HashMap<String, Double> res = new HashMap<>();
+
+        double maxProb=-Double.MAX_VALUE, secondProb=0, thirdProb=0, sumProb=0;
+        String maxLabel="", secondLabel="", thirdLabel="";
+
+        for(Map.Entry<String, Double> classProbEntry : classProbDict.entrySet()){
+            String label = classProbEntry.getKey();
+            double prob = classProbEntry.getValue();
+            double defaultProb = Math.log(1 / uniqueWordCountDict.get(label));
+
+            for(int i=0; i<words.length; i++){
+                String word = words[i];
+                prob += wordProbDict.get(label).getOrDefault(word, defaultProb);
+            }
+            //LogUtils.e("label:" + labelsDict.get(label) + ", prob:" + prob);
+            res.put(label, prob);
+            sumProb += prob;
+            if(prob > maxProb){
+                thirdLabel = secondLabel;
+                thirdProb = secondProb;
+
+                secondLabel = maxLabel;
+                secondProb = maxProb;
+
+                maxLabel = label;
+                maxProb = prob;
+            } else if(prob > secondProb){
+                thirdLabel = secondLabel;
+                thirdProb = secondProb;
+
+                secondLabel = label;
+                secondProb = prob;
+            } else if(prob > thirdProb){
+                thirdLabel = label;
+                thirdProb = prob;
+            }
+
+        }
+
+        LogUtils.e(
+                ""+labelsDict.get(maxLabel) + " : " + (maxProb / -sumProb)*100 + "\n"
+                        + labelsDict.get(secondLabel) + " : " + (secondProb / -sumProb)*100 + "\n"
+                        + labelsDict.get(thirdLabel) + " : " + (thirdProb / -sumProb)*100 + "\n"
+        );
+        return maxLabel;
+    }
+
     private void backupChat(String title, File file){
         Date nowDate = new Date();
 
@@ -1197,8 +1293,6 @@ public class ChatStatsTabActivity extends AppCompatActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
-
     }
 
     private void loadAd(){

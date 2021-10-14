@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.text.CharacterIterator;
@@ -72,6 +73,25 @@ public class FileParseUtils {
         }
 
         return chat;
+    }
+
+    public static String getJsonFromAssets(Context context, String fileName) {
+        String jsonString;
+        try {
+            InputStream is = context.getAssets().open(fileName);
+
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+
+            jsonString = new String(buffer, "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return jsonString;
     }
 
     public static File getFileFromFolder(File folder){
