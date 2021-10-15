@@ -36,6 +36,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.rexyrex.kakaoparser.BuildConfig;
@@ -130,7 +131,11 @@ public class SplashActivity extends AppCompatActivity {
         }
 
 
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(false)
+                .build();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.setFirestoreSettings(settings);
         DocumentReference docRef = db.collection("Version").document("MinVersion");
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
