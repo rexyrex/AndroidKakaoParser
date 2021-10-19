@@ -28,6 +28,11 @@
     <PreferenceCategory app:title="문의하기">
 
         <Preference
+            app:key="saveChatError"
+            app:title="채팅이 목록에 안떠요!"
+            />
+
+        <Preference
             app:key="appOpinion"
             app:title="간편 의견 접수"
             />
