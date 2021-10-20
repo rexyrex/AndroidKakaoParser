@@ -26,12 +26,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="문의하기">
-
-        <Preference
-            app:key="saveChatError"
-            app:title="채팅이 목록에 안떠요!"
-            />
-
         <Preference
             app:key="appOpinion"
             app:title="간편 의견 접수"
@@ -40,6 +34,15 @@
         <Preference
             app:key="appEmail"
             app:title="이메일로 문의하기"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="도움말">
+
+        <Preference
+            app:key="saveChatError"
+            app:title="대화 내보내기해도 채팅목록이 비어있어요"
             />
 
     </PreferenceCategory>

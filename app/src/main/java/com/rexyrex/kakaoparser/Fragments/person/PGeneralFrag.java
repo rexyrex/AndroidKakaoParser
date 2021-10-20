@@ -16,6 +16,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
@@ -224,7 +225,7 @@ public class PGeneralFrag extends Fragment {
                 seeMoreBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        Toast.makeText(getActivity(), "준비중입니다", Toast.LENGTH_SHORT).show();
                     }
                 });
                 return convertView;

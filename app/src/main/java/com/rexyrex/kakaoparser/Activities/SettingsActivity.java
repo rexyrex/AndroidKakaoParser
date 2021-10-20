@@ -2,6 +2,7 @@ package com.rexyrex.kakaoparser.Activities;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -78,7 +79,8 @@ public class SettingsActivity extends AppCompatActivity {
                 Intent email = new Intent(Intent.ACTION_SEND);
                 email.putExtra(Intent.EXTRA_EMAIL, new String[]{ "rexyrex.dev@gmail.com"});
                 email.putExtra(Intent.EXTRA_SUBJECT, "[KakaoParser] 문의합니다");
-
+                email.putExtra(Intent.EXTRA_TEXT,
+                        "사용자 ID : " + spu.getString(R.string.SP_UUID, "none") + "\n\n내용 : \n\n");
                 email.setType("message/rfc822");
 
                 startActivity(Intent.createChooser(email, "이메일 클라이언트 선택 :"));

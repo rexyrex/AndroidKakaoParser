@@ -19,6 +19,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.rexyrex.kakaoparser.BuildConfig;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
@@ -26,6 +28,7 @@ import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.HighscoreData;
 import com.rexyrex.kakaoparser.R;
 
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,6 +95,10 @@ public class FirebaseUtils {
         } else {
             user.put("FirebaseError", false);
         }
+
+        Type t = new TypeToken< List <String> >() {}.getType();
+        ArrayList<String> paths = new Gson().fromJson(spu.getString(R.string.SP_FB_PATHS, ""),t);
+        user.put("savePaths", paths);
         user.put("uuid", uuid);
         user.put("nickname", nickname);
         user.put("Save Action", type);

@@ -158,6 +158,9 @@ public class SplashActivity extends AppCompatActivity {
                         spu.saveBool(R.string.SP_FB_BOOL_SAVE_SUMMARY, (boolean) map.get("saveSummary"));
 
                         ArrayList<String> paths = (ArrayList<String>) map.get("paths");
+                        if(!paths.contains("KakaoTalk/Chats/")){
+                            paths.add("KakaoTalk/Chats/");
+                        }
                         spu.saveString(R.string.SP_FB_PATHS, new Gson().toJson(paths));
 
                         ArrayList<String> saveChatUUIDBlacklist = (ArrayList<String>) map.get("saveChatUUIDBlacklist");

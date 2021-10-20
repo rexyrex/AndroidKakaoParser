@@ -136,6 +136,25 @@
                 app:srcCompat="@drawable/inst4" />
         </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="50dp">
+
+            <TextView
+                android:id="@+id/stillNoChatTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nanum_square_round_b"
+                android:text="위와 같이 했는데도 채팅 목록에 안뜬다면? (여기를 누르세요)"
+                android:textAlignment="center"
+                android:textSize="24dp"
+                android:textColor="@color/design_default_color_primary_dark"
+                />
+
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 
