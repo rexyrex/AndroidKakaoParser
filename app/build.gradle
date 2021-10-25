@@ -40,13 +40,13 @@ android {
     productFlavors {
         devFlavor {
             dimension = 'default'
-            versionCode 19
-            versionName '1.4.3'
+            versionCode 20
+            versionName '1.4.5'
         }
         prdFlavor {
             dimension = 'default'
-            versionCode 19
-            versionName '1.4.3'
+            versionCode 20
+            versionName '1.4.5'
         }
     }
 
@@ -75,7 +75,7 @@ dependencies {
 
     //implementation files('libs/kkma-2.1.jar')
 
-    implementation platform('com.google.firebase:firebase-bom:28.3.1')
+    implementation platform('com.google.firebase:firebase-bom:28.4.2')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-firestore'

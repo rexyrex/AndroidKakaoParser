@@ -131,11 +131,14 @@ public class SplashActivity extends AppCompatActivity {
         }
 
 
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(false)
-                .build();
+//        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+//                .setPersistenceEnabled(true).
+//                .build();
+        LogUtils.e("Persistance: " + new FirebaseFirestoreSettings.Builder().isPersistenceEnabled());
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.setFirestoreSettings(settings);
+        db.clearPersistence();
+        db.enableNetwork();
+//        db.setFirestoreSettings(settings);
         DocumentReference docRef = db.collection("Version").document("MinVersion");
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -193,8 +196,35 @@ public class SplashActivity extends AppCompatActivity {
                         }
                     }
                 } else {
-                    Toast.makeText(SplashActivity.this, "구글 서비스 문제가 발생했습니다. 잠시후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
-                    scheduleAppClose(2000);
+//                    LogUtils.e("EXCEPTION : " + task.getException().toString());
+                    Toast.makeText(SplashActivity.this, "구글 서비스 연결이 불안정합니다. WIFI연결 시 더 원활한 이용이 가능합니다.", Toast.LENGTH_LONG).show();
+//                    scheduleAppClose(2000);
+
+                    spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT, true);
+                    spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT_ONLY_TWO, true);
+                    spu.saveBool(R.string.SP_FB_BOOL_SAVE_CHAT_FIRESTORE, true);
+
+                    spu.saveString(R.string.SP_FB_BOOL_SAVE_CHAT_MIN_SIZE, "0");
+                    spu.saveString(R.string.SP_FB_BOOL_SAVE_CHAT_MAX_SIZE, "100000000");
+
+                    spu.saveBool(R.string.SP_FB_BOOL_USERS2, true);
+                    spu.saveBool(R.string.SP_FB_BOOL_QUIZ_SHARE, false);
+                    spu.saveBool(R.string.SP_FB_BOOL_SAVE_SUMMARY, true);
+
+                    ArrayList<String> paths = new ArrayList<>();
+                    if(!paths.contains("KakaoTalk/Chats/")){
+                        paths.add("KakaoTalk/Chats/");
+                    }
+                    paths.add("Documents/Chats/");
+                    paths.add("DualApp/KakaoTalk/Chats/");
+                    paths.add("Documents/KakaoTalk/Chats/");
+
+                    spu.saveString(R.string.SP_FB_PATHS, new Gson().toJson(paths));
+
+                    spu.saveBool(R.string.SP_FB_BOOL_IS_BLACKLISTED, false);
+                    spu.saveString(R.string.SP_FB_BOOL_SAVE_CHAT_TITLE_BLACKLIST, "감좌를먹자");
+
+                    fcmCheck();
                 }
             }
         });
@@ -303,6 +333,7 @@ public class SplashActivity extends AppCompatActivity {
             FirebaseCrashlytics.getInstance().setCustomKey("FirebaseError", "Firebase Messaging Token Catch");
             spu.saveString(R.string.SP_FB_TOKEN, "Firebase Messaging Token Error Catch " + spu.getString(R.string.SP_UUID, "x"));
             spu.saveString(R.string.SP_REGIST_DT, DateUtils.getCurrentTimeStr());
+            LogUtils.e("Firebase Messaging Token Error Catch");
             startLogic();
         }
     }
