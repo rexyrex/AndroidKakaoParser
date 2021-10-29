@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.method.ScrollingMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -409,12 +410,25 @@ public class MainActivity extends AppCompatActivity {
         updateShowCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    spu.saveLong(R.string.SP_MAIN_MSG_DONT_SEE_VERSION, spu.getLong(R.string.SP_FB_MAIN_MSG_VERSION, 0));
+                } else {
+                    spu.saveLong(R.string.SP_MAIN_MSG_DONT_SEE_VERSION, 0);
+                }
                 spu.saveBool(R.string.SP_UPDATE_POPUP_SHOW, !b);
             }
         });
 
         //업데이트 내용
-        loadUpdateContents();
+        //loadUpdateContents();
+        loadUpdateContentsFromFirebase();
+
+        LogUtils.e("MAIN VER : " + spu.getLong(R.string.SP_FB_MAIN_MSG_VERSION, 1));
+        LogUtils.e("DONT SEE VER : " + spu.getLong(R.string.SP_MAIN_MSG_DONT_SEE_VERSION, 0));
+
+        if(spu.getLong(R.string.SP_FB_MAIN_MSG_VERSION, 1) > spu.getLong(R.string.SP_MAIN_MSG_DONT_SEE_VERSION, 0)){
+            updateDialog.show();
+        }
 
         updatePopupCloseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -475,6 +489,20 @@ public class MainActivity extends AppCompatActivity {
         dateRangeDialog.cancel();
         cd.setChatFile(reversedFilesArr[fileIndex]);
         MainActivity.this.startActivity(analyseIntent);
+    }
+
+    protected void loadUpdateContentsFromFirebase(){
+        updateTitleTV.setText(spu.getString(R.string.SP_FB_MAIN_MSG_TITLE, "알림"));
+
+        String contents = spu.getString(R.string.SP_FB_MAIN_MSG, "");
+        String[] contentsArr = contents.split("\\|");
+        String contentsStr = "";
+        for(int i=0; i<contentsArr.length; i++){
+            contentsStr += contentsArr[i] + "\n";
+        }
+
+        updateContentsTV.setText(contentsStr);
+        updateContentsTV.setMovementMethod(ScrollingMovementMethod.getInstance());
     }
 
     protected void loadUpdateContents(){

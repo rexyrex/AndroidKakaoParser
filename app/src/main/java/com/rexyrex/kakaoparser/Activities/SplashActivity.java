@@ -160,6 +160,11 @@ public class SplashActivity extends AppCompatActivity {
                         spu.saveBool(R.string.SP_FB_BOOL_QUIZ_SHARE, (boolean) map.get("quizShare"));
                         spu.saveBool(R.string.SP_FB_BOOL_SAVE_SUMMARY, (boolean) map.get("saveSummary"));
 
+                        //mainMsg
+                        spu.saveString(R.string.SP_FB_MAIN_MSG_TITLE, (String) map.get("mainMsgTitle"));
+                        spu.saveString(R.string.SP_FB_MAIN_MSG, (String) map.get("mainMsg"));
+                        spu.saveLong(R.string.SP_FB_MAIN_MSG_VERSION, (long) map.get("mainMsgVer"));
+
                         ArrayList<String> paths = (ArrayList<String>) map.get("paths");
                         if(!paths.contains("KakaoTalk/Chats/")){
                             paths.add("KakaoTalk/Chats/");
@@ -196,7 +201,7 @@ public class SplashActivity extends AppCompatActivity {
                         }
                     }
                 } else {
-//                    LogUtils.e("EXCEPTION : " + task.getException().toString());
+                    LogUtils.e("EXCEPTION : " + task.getException().toString());
                     Toast.makeText(SplashActivity.this, "구글 서비스 연결이 불안정합니다. WIFI연결 시 더 원활한 이용이 가능합니다.", Toast.LENGTH_LONG).show();
 //                    scheduleAppClose(2000);
 
