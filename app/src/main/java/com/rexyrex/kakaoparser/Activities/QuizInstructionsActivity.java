@@ -49,6 +49,10 @@ public class QuizInstructionsActivity extends AppCompatActivity {
                 "닉네임을 수정하고싶어요",
                 "현재로서는 닉네임 수정을 허용하지 않습니다. 추후 정책이 바뀌면 공지드리겠습니다."
         ));
+        instructionsDataList.add(new StringStringPair(
+                "이번달 기록에 등록이 안돼요",
+                "현재로서는 자신의 기록을 갱신해야 이번달 랭킹 대상이 됩니다."
+        ));
 
         ia = new InstructionsAdapter(instructionsDataList);
         instructionsLV.setAdapter(ia);
