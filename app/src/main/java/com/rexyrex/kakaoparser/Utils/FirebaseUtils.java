@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rexyrex.kakaoparser.BuildConfig;
+import com.rexyrex.kakaoparser.Constants.DateFormats;
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Entities.ChatData;
@@ -29,8 +31,12 @@ import com.rexyrex.kakaoparser.Entities.HighscoreData;
 import com.rexyrex.kakaoparser.R;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -325,11 +331,29 @@ public class FirebaseUtils {
                 });
     }
 
-    public static void getHighscores(){
+    public static void getHighscores(boolean isMonthly, Context context){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference citiesRef = db.collection("quiz");
 
-        Query query = citiesRef.whereGreaterThan("highscore", 0).orderBy("highscore", Query.Direction.DESCENDING).limit(100);
+        Calendar calendar = Calendar.getInstance();
+        // Get the current date
+        Date today = calendar.getTime();
+
+        // Setting the first day of month
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        Date firstDayOfMonth = calendar.getTime();
+
+        Query query;
+
+        if(isMonthly){
+            query = citiesRef.whereGreaterThan("highscoreUpdateServerDt", firstDayOfMonth);
+        } else {
+            //전체
+            query = citiesRef
+                    .whereNotEqualTo("highscore", 0)
+                    .orderBy("highscore", Query.Direction.DESCENDING).limit(100);
+        }
+
         query.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -343,17 +367,36 @@ public class FirebaseUtils {
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 //LogUtils.e(document.getId() + " => " + document.getData());
-                                if(document.getData().containsKey("nickname") && document.getData().containsKey("highscore"))
+                                if(document.getData().containsKey("nickname") && document.getData().containsKey("highscore") && (long) document.getData().get("highscore") > 0)
                                 highscoreDataList.add(new HighscoreData((int) ((long) document.getData().get("highscore")), (String) document.getData().get("nickname")));
                             }
-                            highscoreCallback.getHighscores(highscoreDataList);
+                            if(isMonthly){
+                                Collections.sort(highscoreDataList, new HighscoreComparator());
+                                List<HighscoreData> top100 = new ArrayList<>();
+                                for(int i=0; i<(highscoreDataList.size()>100?100:highscoreDataList.size()); i++){
+                                    top100.add(highscoreDataList.get(i));
+                                }
+                                highscoreCallback.getHighscores(top100);
+                            } else {
+                                highscoreCallback.getHighscores(highscoreDataList);
+                            }
+
                         } else {
                             highscoreCallback.getHighscores(highscoreDataList);
                             FirebaseCrashlytics.getInstance().log("[REXYREX] Highscore list get fail");
                             LogUtils.e("Error getting documents: " + task.getException().toString());
+                            Toast.makeText(context, "순위를 불러오는데 에러가 났습니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+    }
+
+    public static class HighscoreComparator implements Comparator<HighscoreData>{
+
+        @Override
+        public int compare(HighscoreData d1, HighscoreData d2) {
+            return d1.getHighscore()<d2.getHighscore()?1:-1;
+        }
     }
 
     public static void saveShareQuizQuestion(String title, String subTitle, List<String> options, SharedPrefUtils spu, ChatData cd){

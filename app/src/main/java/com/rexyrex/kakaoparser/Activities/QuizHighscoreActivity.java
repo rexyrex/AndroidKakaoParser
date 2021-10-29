@@ -1,28 +1,28 @@
 package com.rexyrex.kakaoparser.Activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.rexyrex.kakaoparser.Database.DAO.AnalysedChatDAO;
 import com.rexyrex.kakaoparser.Database.MainDatabase;
 import com.rexyrex.kakaoparser.Database.Models.AnalysedChatModel;
 import com.rexyrex.kakaoparser.Entities.ChatData;
 import com.rexyrex.kakaoparser.Entities.HighscoreData;
-import com.rexyrex.kakaoparser.Fragments.main.QuizFrag;
 import com.rexyrex.kakaoparser.R;
 import com.rexyrex.kakaoparser.Utils.FirebaseUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
-import java.io.DataOutput;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class QuizHighscoreActivity extends AppCompatActivity implements FirebaseUtils.HighscoreCallback {
@@ -34,13 +34,19 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
 
     ConstraintLayout cl;
     View line1, line2;
-    TextView titleTV, myDescTV, myTitleTV, myScoreTV, mainListDescTV;
+    TextView myDescTV, myTitleTV, myScoreTV, mainListDescTV;
 
     ChatData cd;
     private MainDatabase database;
     AnalysedChatDAO analysedChatDAO;
 
+    Button monthlyBtn, allTimeBtn;
+
     boolean isMy = false;
+
+    boolean isMonthly = true;
+
+    int month;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,9 +69,8 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
 
         highscoreDataList = new ArrayList<>();
 
-        highscoreDataList.add(new HighscoreData(0, "로딩중..."));
+        highscoreDataList.add(new HighscoreData(0, "불러오는중..."));
 
-        titleTV = findViewById(R.id.quizHighscoreTitleTV);
         myDescTV = findViewById(R.id.highlightedQuizHighscoreLayoutDescText);
         myTitleTV = findViewById(R.id.highlightedQuizHighscoreTitleTV);
         myScoreTV = findViewById(R.id.highlightedQuizHighscoreValueTV);
@@ -73,12 +78,21 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
         line1 = findViewById(R.id.quizFirstLine);
         line2 = findViewById(R.id.quizSecondLine);
         cl = findViewById(R.id.highlightedQuizHighscoreLayout);
+        monthlyBtn = findViewById(R.id.thisMonthRankingBtn);
+        allTimeBtn = findViewById(R.id.allTimeRankingBtn);
 
-        if(!isMy){
-            titleTV.setText("온라인 랭킹");
-        } else {
-            titleTV.setText("나의 점수");
-        }
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        month = calendar.get(Calendar.MONTH) + 1;
+
+        monthlyBtn.setText(month + "월 랭킹");
+
+//        if(!isMy){
+//            titleTV.setText("온라인 랭킹");
+//        } else {
+//            titleTV.setText("나의 점수");
+//        }
 
         hideShowSomeUi(false);
 
@@ -86,8 +100,46 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
         ha = new HighscoreAdapter(highscoreDataList);
         highscoreLV.setAdapter(ha);
 
+        monthlyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isMonthly) return;
+                isMonthly = true;
+                updateBtn();
+                loadData();
+            }
+        });
+
+        allTimeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isMonthly) return;
+                isMonthly = false;
+                updateBtn();
+                loadData();
+            }
+        });
+
+        updateBtn();
         FirebaseUtils.setHighscoreCallback(this);
-        FirebaseUtils.getHighscores();
+        loadData();
+    }
+
+    public void updateBtn(){
+        if(isMonthly){
+            monthlyBtn.setBackground(getDrawable(R.drawable.ranking_tab_btn_selected));
+            allTimeBtn.setBackground(getDrawable(R.drawable.ranking_tab_btn_released));
+        } else {
+            monthlyBtn.setBackground(getDrawable(R.drawable.ranking_tab_btn_released));
+            allTimeBtn.setBackground(getDrawable(R.drawable.ranking_tab_btn_selected));
+        }
+    }
+
+    public void loadData(){
+        highscoreDataList.clear();
+        highscoreDataList.add(new HighscoreData(0, "불러오는중..."));
+        ha.notifyDataSetChanged();
+        FirebaseUtils.getHighscores(isMonthly, this);
     }
 
     public void hideShowSomeUi(boolean show){
@@ -122,8 +174,19 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
 
             myDescTV.setText("나의 랭킹");
             myTitleTV.setText("" + (myRank == 0 ? "?" : (""+myRank)) + ". " + spu.getString(R.string.SP_QUIZ_NICKNAME, "<등록안됨>"));
-            myScoreTV.setText(""+ spu.getInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, 0));
-            mainListDescTV.setText("전체 랭킹");
+            if(isMonthly){
+                if(myRank!=0){
+                    myScoreTV.setText(""+ spu.getInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, 0));
+                } else {
+                    myScoreTV.setText("0");
+                }
+
+                mainListDescTV.setText(month + "월 랭킹 (Top 100)");
+            } else {
+                myScoreTV.setText(""+ spu.getInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, 0));
+                mainListDescTV.setText("전체 랭킹 (Top 100)");
+            }
+
         } else {
             //개인 채팅 랭킹
             List<AnalysedChatModel> allAnalysedChatsList = analysedChatDAO.getItemsByScore();
