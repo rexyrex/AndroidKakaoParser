@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="320dp"
-    android:layout_height="270dp"
+    android:layout_height="300dp"
     android:background="@color/colorPrimary">
 
     <TextView
@@ -167,6 +167,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/quizOnlineScoreCL" />
 
+        <TextView
+            android:id="@+id/quizInfoTV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/nanum_square_round_r"
+            android:text="이번달 랭킹은 '랭킹 보기'를 통해 확인하실 수 있습니다"
+            android:textSize="11sp"
+            android:textAlignment="center"
+            android:textColor="@color/lightBrown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/quizOnlineScoreCLSubTextTV" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
@@ -203,7 +219,7 @@
             android:layout_weight="1"
             android:background="@drawable/custom_show_more_btn"
             android:fontFamily="@font/nanum_square_round_r"
-            android:text="순위 보기" />
+            android:text="랭킹 보기" />
 
         <Space
             android:layout_width="0dp"

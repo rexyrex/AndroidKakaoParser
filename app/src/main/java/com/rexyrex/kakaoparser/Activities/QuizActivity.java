@@ -387,8 +387,8 @@ public class QuizActivity extends AppCompatActivity {
             finalDialogOnlineScoreValueTV = finalDialog.findViewById(R.id.quizOnlineScoreValueTV);
 
 
-            finalDialogTitleTV.setText("[" + cd.getChatFileTitle() + "] 퀴즈");
-            finalDialogCurrentQuizScoreTV.setText("최종 점수 : " + score + "점");
+            finalDialogTitleTV.setText("" + cd.getChatFileTitle() + "");
+            finalDialogCurrentQuizScoreTV.setText("점수 : " + score + "점");
 
             int prevHighScore = cd.getChatAnalyseDbModel().getHighscore();
             //Compare current score with local highscore

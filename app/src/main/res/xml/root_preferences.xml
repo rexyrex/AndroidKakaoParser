@@ -42,7 +42,7 @@
 
         <Preference
             app:key="saveChatError"
-            app:title="대화 내보내기해도 채팅목록이 비어있어요"
+            app:title="자주 묻는 질문"
             />
 
     </PreferenceCategory>

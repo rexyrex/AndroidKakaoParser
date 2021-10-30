@@ -52,7 +52,7 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/custom_show_more_btn"
         android:fontFamily="@font/nanum_square_round_r"
-        android:text="순위 보기"
+        android:text="랭킹 보기"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
