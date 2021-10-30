@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
     LinearLayout kakaoBtn;
     LinearLayout instructionsBtn;
+    LinearLayout rankingBtn;
 
     ImageView settingsIV;
 
@@ -152,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
         kakaoBtn = findViewById(R.id.openKakaoLayout);
         instructionsBtn = findViewById(R.id.instructionsLayout);
+        rankingBtn = findViewById(R.id.rankingLayout);
 
         db = MainDatabase.getDatabase(this);
         spu = new SharedPrefUtils(this);
@@ -403,7 +405,23 @@ public class MainActivity extends AppCompatActivity {
         updateTitleTV = updateDialog.findViewById(R.id.updatePopupTitleTV);
         updateContentsTV = updateDialog.findViewById(R.id.updatePopupContentsTV);
         updateShowCheckBox = updateDialog.findViewById(R.id.updatePopupSeeAgainCheckBox);
-        updatePopupCloseBtn = updateDialog.findViewById(R.id.updatePopupCloseBtn);
+        updatePopupCloseBtn = updateDialog.findViewById(R.id.mainPopupCancelBtn);
+        Button updateCustomBtn = updateDialog.findViewById(R.id.customBtn);
+
+        if(!spu.getBool(R.string.SP_FB_MAIN_MSG_BTN_YN, false)){
+            updateCustomBtn.setVisibility(View.GONE);
+        } else {
+            updateCustomBtn.setText(spu.getString(R.string.SP_FB_MAIN_MSG_BTN_TITLE, "이동하기"));
+            updateCustomBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse(spu.getString(R.string.SP_FB_MAIN_MSG_BTN_URL, "https://www.rexyrex.com/kakaoParserHelp")));
+                    startActivity(browserIntent);
+                }
+            });
+        }
+
 
         updateShowCheckBox.setText("다시 보지 않기");
 
@@ -458,6 +476,15 @@ public class MainActivity extends AppCompatActivity {
                 spu.saveInt(R.string.SP_OPEN_HOW_TO_COUNT, spu.getInt(R.string.SP_OPEN_HOW_TO_COUNT, 0) + 1);
                 Intent instIntent = new Intent(MainActivity.this, InstructionsActivity.class);
                 MainActivity.this.startActivity(instIntent);
+            }
+        });
+
+        rankingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, QuizHighscoreActivity.class);
+                intent.putExtra("my", false);
+                startActivity(intent);
             }
         });
 

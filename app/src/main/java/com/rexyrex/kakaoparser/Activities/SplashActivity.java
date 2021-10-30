@@ -97,7 +97,9 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         if(spu.getString(R.string.SP_UUID, "none").equals("none")){
-            spu.saveString(R.string.SP_UUID, UUID.randomUUID().toString());
+            String uuid = UUID.randomUUID().toString();
+            LogUtils.e("UUID : " + uuid);
+            spu.saveString(R.string.SP_UUID, uuid);
         }
 
         FirebaseCrashlytics.getInstance().setUserId(spu.getString(R.string.SP_UUID, "no uuid"));
@@ -164,6 +166,9 @@ public class SplashActivity extends AppCompatActivity {
                         spu.saveString(R.string.SP_FB_MAIN_MSG_TITLE, (String) map.get("mainMsgTitle"));
                         spu.saveString(R.string.SP_FB_MAIN_MSG, (String) map.get("mainMsg"));
                         spu.saveLong(R.string.SP_FB_MAIN_MSG_VERSION, (long) map.get("mainMsgVer"));
+                        spu.saveBool(R.string.SP_FB_MAIN_MSG_BTN_YN, (boolean) map.get("mainMsgBtnYn"));
+                        spu.saveString(R.string.SP_FB_MAIN_MSG_BTN_TITLE, (String) map.get("mainMsgBtnTitle"));
+                        spu.saveString(R.string.SP_FB_MAIN_MSG_BTN_URL, (String) map.get("mainMsgBtnUrl"));
 
                         ArrayList<String> paths = (ArrayList<String>) map.get("paths");
                         if(!paths.contains("KakaoTalk/Chats/")){

@@ -6,6 +6,16 @@
     android:background="@color/colorPrimary"
     >
 
+    <Button
+        android:id="@+id/mainPopupCancelBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@android:drawable/ic_delete"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:textColor="@color/design_default_color_error"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/updatePopupTitleTV"
         android:layout_width="wrap_content"
@@ -34,21 +44,36 @@
         android:id="@+id/updatePopupContentsTV"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="Update contents goes here"
-        android:singleLine="false"
-        android:maxLines="15"
-        android:scrollbars="vertical"
+        android:layout_marginBottom="4dp"
         android:fadeScrollbars="false"
-        android:textSize="14sp"
+        android:maxLines="20"
+        android:scrollbars="vertical"
+        android:singleLine="false"
+        android:text="Update contents goes here"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/updatePopupSeeAgainCheckBox"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/customBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/updatePopupIV" />
+
+    <Button
+        android:id="@+id/customBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginBottom="16dp"
+        android:layout_weight="1"
+        android:background="@drawable/quiz_btns"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:text="문제 공유"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/updatePopupSeeAgainCheckBox"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <CheckBox
         android:id="@+id/updatePopupSeeAgainCheckBox"
@@ -60,20 +85,9 @@
         android:buttonTint="@color/white"
         android:textSize="12sp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/updatePopupCloseBtn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/updatePopupCloseBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="닫기"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/custom_show_more_btn"
-        android:fontFamily="@font/nanum_square_round_r"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -47,7 +47,9 @@ import com.rexyrex.kakaoparser.Utils.ShareUtils;
 import com.rexyrex.kakaoparser.Utils.SharedPrefUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -410,9 +412,11 @@ public class QuizActivity extends AppCompatActivity {
             }
 
             int onlineHighScore = spu.getInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, 0);
+            FirebaseUtils.saveHighscore(score, spu, cd); //save to firebase
+            //FirebaseUtils.updateMonthlyHighscore(score, spu);
             if(onlineHighScore < score){
                 spu.saveInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, score); //save locally
-                FirebaseUtils.saveHighscore(score, spu, cd); //save to firebase
+
 
                 finalDialogOnlineScoreCL.setBackground(getDrawable(R.drawable.quiz_choice_correct));
                 finalDialogOnlineScoreDescTV.setTextColor(getColor(R.color.lightGreen));

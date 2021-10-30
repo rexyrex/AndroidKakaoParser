@@ -139,7 +139,7 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
         highscoreDataList.clear();
         highscoreDataList.add(new HighscoreData(0, "불러오는중..."));
         ha.notifyDataSetChanged();
-        FirebaseUtils.getHighscores(isMonthly, this);
+        FirebaseUtils.getHighscores(isMonthly, this, spu);
     }
 
     public void hideShowSomeUi(boolean show){
@@ -153,7 +153,7 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
     }
 
     @Override
-    public void getHighscores(List<HighscoreData> highscores) {
+    public void getHighscores(List<HighscoreData> highscores, int myScore) {
         highscoreDataList.clear();
         if(!isMy){
             //온라인 랭킹
@@ -176,7 +176,7 @@ public class QuizHighscoreActivity extends AppCompatActivity implements Firebase
             myTitleTV.setText("" + (myRank == 0 ? "?" : (""+myRank)) + ". " + spu.getString(R.string.SP_QUIZ_NICKNAME, "<등록안됨>"));
             if(isMonthly){
                 if(myRank!=0){
-                    myScoreTV.setText(""+ spu.getInt(R.string.SP_QUIZ_ALL_TIME_HIGH_SCORE, 0));
+                    myScoreTV.setText(""+ myScore);
                 } else {
                     myScoreTV.setText("0");
                 }

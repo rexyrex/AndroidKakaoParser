@@ -15,11 +15,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rexyrex.kakaoparser.BuildConfig;
@@ -219,7 +224,7 @@ public class FirebaseUtils {
     }
 
     public interface HighscoreCallback{
-        void getHighscores(List<HighscoreData> highscores);
+        void getHighscores(List<HighscoreData> highscores, int myScore);
     }
 
     public static void saveChatStats(SharedPrefUtils spu, ChatData cd, String dateRangeStr){
@@ -274,10 +279,56 @@ public class FirebaseUtils {
                 });
     }
 
+    public static void updateMonthlyHighscore(int score, SharedPrefUtils spu){
+        String yearMonthStr = getYearMonthStr();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
+        String uuid = spu.getString(R.string.SP_UUID, "none");
+        DocumentReference monthlyDoc = db.collection("quiz").document(firebaseToken);
+
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(monthlyDoc);
+
+                if(snapshot.exists()){
+                    if(snapshot.contains(yearMonthStr)){
+                        double serverScore = snapshot.getDouble(yearMonthStr);
+                        if(score > serverScore){
+                            transaction.update(monthlyDoc, yearMonthStr, score);
+                        }
+                    } else {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put(yearMonthStr, score);
+                        transaction.set(monthlyDoc, data, SetOptions.merge());
+                    }
+
+                }
+
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+
+    }
+
     public static void saveHighscore(int score, SharedPrefUtils spu, ChatData cd){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String firebaseToken = spu.getString(R.string.SP_FB_TOKEN, "null");
         String uuid = spu.getString(R.string.SP_UUID, "none");
+        String yearMonthStr = getYearMonthStr();
+
+        DocumentReference scoreDoc = db.collection("quiz").document(firebaseToken);
 
         Map<String, Object> quizEntry = new HashMap<>();
         quizEntry.put("nickname", spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"));
@@ -314,26 +365,85 @@ public class FirebaseUtils {
         quizEntry.put("ChatLineCount", cd.getChatLineCount());
         quizEntry.put("ChatTitle", cd.getChatFileTitle());
 
-        db.collection("quiz").document(firebaseToken)
-                .set(quizEntry)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
+//        db.collection("quiz").document(firebaseToken)
+//                .set(quizEntry)
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        //LogUtils.e("Error adding document" + e.getMessage());
+//                        e.printStackTrace();
+//                    }
+//                });
 
+
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(scoreDoc);
+
+                if(snapshot.exists()){
+                    if(snapshot.contains("highscore")){
+                        double serverScore = snapshot.getDouble("highscore");
+                        if(score > serverScore){
+                            transaction.update(scoreDoc, "highscore", score);
+                        }
+                    } else {
+                        transaction.set(scoreDoc, quizEntry, SetOptions.merge());
                     }
-                })
+
+                    if(snapshot.contains(yearMonthStr)){
+                        double serverScore = snapshot.getDouble(yearMonthStr);
+                        if(score > serverScore){
+                            transaction.update(scoreDoc, yearMonthStr, score);
+                        }
+                    } else {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put(yearMonthStr, score);
+                        transaction.set(scoreDoc, data, SetOptions.merge());
+                    }
+
+                }
+
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+            }
+        })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        //LogUtils.e("Error adding document" + e.getMessage());
-                        e.printStackTrace();
+
                     }
                 });
+
+
+
     }
 
-    public static void getHighscores(boolean isMonthly, Context context){
+    public static String getYearMonthStr(){
+        Date date = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        String yearMonthStr = String.valueOf(cal.get(Calendar.YEAR));
+        String monthStr = String.valueOf(cal.get(Calendar.MONTH) + 1);
+        monthStr = (monthStr.length()==2?"":"0") + monthStr;
+        yearMonthStr = yearMonthStr + monthStr;
+        return yearMonthStr;
+    }
+
+    public static void getHighscores(boolean isMonthly, Context context, SharedPrefUtils spu){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference citiesRef = db.collection("quiz");
+        String yearMonthStr = getYearMonthStr();
 
         Calendar calendar = Calendar.getInstance();
         // Get the current date
@@ -346,7 +456,8 @@ public class FirebaseUtils {
         Query query;
 
         if(isMonthly){
-            query = citiesRef.whereGreaterThan("highscoreUpdateServerDt", firstDayOfMonth);
+            query = citiesRef.whereNotEqualTo(yearMonthStr, null);
+            //query = citiesRef.whereGreaterThan("highscoreUpdateServerDt", firstDayOfMonth);
         } else {
             //전체
             query = citiesRef
@@ -362,30 +473,42 @@ public class FirebaseUtils {
                         if (task.isSuccessful()) {
 
                             if(task.getResult().isEmpty()){
-                                highscoreCallback.getHighscores(highscoreDataList);
+                                highscoreCallback.getHighscores(highscoreDataList, 0);
                             }
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 //LogUtils.e(document.getId() + " => " + document.getData());
-                                if(document.getData().containsKey("nickname") && document.getData().containsKey("highscore") && (long) document.getData().get("highscore") > 0)
-                                highscoreDataList.add(new HighscoreData((int) ((long) document.getData().get("highscore")), (String) document.getData().get("nickname")));
+                                if(isMonthly){
+                                    if(document.getData().containsKey("nickname") && document.getData().containsKey(yearMonthStr) && (long) document.getData().get(yearMonthStr) > 0)
+                                        highscoreDataList.add(new HighscoreData((int) ((long) document.getData().get(yearMonthStr)), (String) document.getData().get("nickname")));
+                                } else {
+                                    if(document.getData().containsKey("nickname") && document.getData().containsKey("highscore") && (long) document.getData().get("highscore") > 0)
+                                        highscoreDataList.add(new HighscoreData((int) ((long) document.getData().get("highscore")), (String) document.getData().get("nickname")));
+                                }
+
                             }
                             if(isMonthly){
                                 Collections.sort(highscoreDataList, new HighscoreComparator());
+                                int myScore = 0;
+                                for(HighscoreData hd : highscoreDataList){
+                                    if(hd.getNickname().equals(spu.getString(R.string.SP_QUIZ_NICKNAME, "-1"))){
+                                        myScore = hd.getHighscore();
+                                    }
+                                }
                                 List<HighscoreData> top100 = new ArrayList<>();
                                 for(int i=0; i<(highscoreDataList.size()>100?100:highscoreDataList.size()); i++){
                                     top100.add(highscoreDataList.get(i));
                                 }
-                                highscoreCallback.getHighscores(top100);
+                                highscoreCallback.getHighscores(top100, myScore);
                             } else {
-                                highscoreCallback.getHighscores(highscoreDataList);
+                                highscoreCallback.getHighscores(highscoreDataList, 0);
                             }
 
                         } else {
-                            highscoreCallback.getHighscores(highscoreDataList);
+                            highscoreCallback.getHighscores(highscoreDataList, 0);
                             FirebaseCrashlytics.getInstance().log("[REXYREX] Highscore list get fail");
                             LogUtils.e("Error getting documents: " + task.getException().toString());
-                            Toast.makeText(context, "순위를 불러오는데 에러가 났습니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "순위를 불러오는데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
