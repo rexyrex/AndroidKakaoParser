@@ -16,9 +16,7 @@
         android:roundIcon="@mipmap/icon_2021_09_29_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".Activities.EmotionsActivity"
-            android:exported="true" />
+
 
         <activity android:name=".Activities.SendOpinionActivity" />
 

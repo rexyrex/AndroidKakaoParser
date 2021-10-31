@@ -80,7 +80,7 @@ public class SettingsActivity extends AppCompatActivity {
                 email.putExtra(Intent.EXTRA_EMAIL, new String[]{ "rexyrex.dev@gmail.com"});
                 email.putExtra(Intent.EXTRA_SUBJECT, "[KakaoParser] 문의합니다");
                 email.putExtra(Intent.EXTRA_TEXT,
-                        "사용자 ID : " + spu.getString(R.string.SP_UUID, "none") + "\n\n내용 : \n\n");
+                        "사용자 ID : " + spu.getString(R.string.SP_UUID, "none") + "\n(지우지 말아주세요 - 기종 및 Android 버전 등 버그 해결하는데 도움되는 정보입니다)" + "\n\n내용 : \n\n");
                 email.setType("message/rfc822");
 
                 startActivity(Intent.createChooser(email, "이메일 클라이언트 선택 :"));
@@ -136,6 +136,19 @@ public class SettingsActivity extends AppCompatActivity {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW,
                         Uri.parse("https://rexyrex.com/kakaoParserFAQ"));
                 startActivity(browserIntent);
+                return true;
+            }
+
+            if(key.equals("userIdCopy")){
+                try {
+                    Intent i = new Intent(Intent.ACTION_SEND);
+                    i.setType("text/plain");
+                    //i.putExtra(Intent.EXTRA_SUBJECT, "CherryAndroid");
+                    i.putExtra(Intent.EXTRA_TEXT, spu.getString(R.string.SP_UUID, "[에러]"));
+                    getActivity().startActivity(Intent.createChooser(i, "선택하세요"));
+                } catch(Exception e) {
+                    //e.printStackTrace();
+                }
                 return true;
             }
 

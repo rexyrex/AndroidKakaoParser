@@ -55,4 +55,11 @@
             />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="기타">
+        <Preference
+            app:key="userIdCopy"
+            app:title="UUID 복사/공유"
+            />
+    </PreferenceCategory>
+
 </PreferenceScreen>

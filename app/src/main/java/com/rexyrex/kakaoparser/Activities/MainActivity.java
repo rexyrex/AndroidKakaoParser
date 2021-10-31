@@ -138,16 +138,6 @@ public class MainActivity extends AppCompatActivity {
 
         cd = ChatData.getInstance(this);
 
-        //banner ad
-        adContainer = findViewById(R.id.adView);
-        mAdView = new AdView(this);
-        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner_Main));
-        adContainer.addView(mAdView);
-
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.setAdSize(AdUtils.getAdSize(this));
-        mAdView.loadAd(adRequest);
-
         chatLV = findViewById(R.id.chatLV);
         settingsIV = findViewById(R.id.settingsIV);
 
@@ -157,6 +147,18 @@ public class MainActivity extends AppCompatActivity {
 
         db = MainDatabase.getDatabase(this);
         spu = new SharedPrefUtils(this);
+
+        if(spu.getBool(R.string.SP_FB_ADS_CHAT, true)) {
+            //banner ad
+            adContainer = findViewById(R.id.adView);
+            mAdView = new AdView(this);
+            mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner_Main));
+            adContainer.addView(mAdView);
+
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.setAdSize(AdUtils.getAdSize(this));
+            mAdView.loadAd(adRequest);
+        }
 
         startCalendar = Calendar.getInstance();
         endCalendar = Calendar.getInstance();

@@ -180,6 +180,7 @@ public class SplashActivity extends AppCompatActivity {
                         spu.saveString(R.string.SP_FB_PATHS, new Gson().toJson(paths));
 
                         ArrayList<String> saveChatUUIDBlacklist = (ArrayList<String>) map.get("saveChatUUIDBlacklist");
+
                         boolean isBlacklisted = false;
                         for(String b : saveChatUUIDBlacklist){
                             if(spu.getString(R.string.SP_UUID, "").equals(b)){
@@ -187,6 +188,14 @@ public class SplashActivity extends AppCompatActivity {
                             }
                         }
                         spu.saveBool(R.string.SP_FB_BOOL_IS_BLACKLISTED, isBlacklisted);
+
+                        ArrayList<String> noAdsUUIDWhiteList = (ArrayList<String>) map.get("noAdsUUIDWhiteList");
+                        for(String wl : noAdsUUIDWhiteList){
+                            if(spu.getString(R.string.SP_UUID, "").equals(wl)){
+                                spu.saveBool(R.string.SP_FB_ADS_CHAT, false);
+                                spu.saveBool(R.string.SP_FB_ADS_QUIZ, false);
+                            }
+                        }
 
                         ArrayList<String> saveChatTitleBlacklist = (ArrayList<String>) map.get("saveChatTitleBlacklist");
                         String saveChatTitleBlacklistStr = "";

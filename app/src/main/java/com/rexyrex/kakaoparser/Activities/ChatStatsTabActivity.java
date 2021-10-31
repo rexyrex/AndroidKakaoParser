@@ -219,13 +219,17 @@ public class ChatStatsTabActivity extends AppCompatActivity {
 
         //ad
         adContainer = findViewById(R.id.adView);
-        mAdView = new AdView(this);
-        mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner_Chat_Tab));
-        adContainer.addView(mAdView);
 
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.setAdSize(AdUtils.getAdSize(this));
-        mAdView.loadAd(adRequest);
+        if(spu.getBool(R.string.SP_FB_ADS_CHAT, true)){
+            mAdView = new AdView(this);
+            mAdView.setAdUnitId(getString(R.string.AdMob_ad_unit_ID_Banner_Chat_Tab));
+            adContainer.addView(mAdView);
+
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.setAdSize(AdUtils.getAdSize(this));
+            mAdView.loadAd(adRequest);
+        }
+
 
         String chatTitle = FileParseUtils.parseFileForTitle(chatFile);
 
