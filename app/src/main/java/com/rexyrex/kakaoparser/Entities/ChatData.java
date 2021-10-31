@@ -351,6 +351,7 @@ public class ChatData {
 
     public void setLinkCount(int linkCount) {
         this.linkCount = linkCount;
+        spu.saveInt(R.string.SP_BACKUP_LinkCount, linkCount);
     }
 
     public int getPicCount() {
@@ -359,6 +360,7 @@ public class ChatData {
 
     public void setPicCount(int picCount) {
         this.picCount = picCount;
+        spu.saveInt(R.string.SP_BACKUP_PicCount, picCount);
     }
 
     public int getVideoCount() {
@@ -367,6 +369,7 @@ public class ChatData {
 
     public void setVideoCount(int videoCount) {
         this.videoCount = videoCount;
+        spu.saveInt(R.string.SP_BACKUP_VideoCount, videoCount);
     }
 
     public int getPptCount() {
@@ -375,6 +378,7 @@ public class ChatData {
 
     public void setPptCount(int pptCount) {
         this.pptCount = pptCount;
+        spu.saveInt(R.string.SP_BACKUP_PptCount, pptCount);
     }
 
     public int getDeletedMsgCount() {
@@ -383,6 +387,7 @@ public class ChatData {
 
     public void setDeletedMsgCount(int deletedMsgCount) {
         this.deletedMsgCount = deletedMsgCount;
+        spu.saveInt(R.string.SP_BACKUP_DeletedMsgCount, deletedMsgCount);
     }
 
     public List<StringIntPair> getDaysActiveRankingList() {

@@ -99,7 +99,7 @@ public interface WordDAO {
     public List<StringIntPair> getFreqWordListSearchByAuthorTop10(String searchTerm);
 
     //get lines containing word
-    @Query("SELECT * FROM tb_chat_line WHERE id IN (SELECT line_id FROM tb_word WHERE word = :word)")
+    @Query("SELECT * FROM tb_chat_line WHERE id IN (SELECT line_id FROM tb_word WHERE word = :word) LIMIT 10000")
     public List<ChatLineModel> getChatLinesContainingWord(String word);
 
     @Query("SELECT COUNT(*) FROM tb_word WHERE isPic = 1")

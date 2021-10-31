@@ -391,7 +391,8 @@ public class FirebaseUtils {
                     if(snapshot.contains("highscore")){
                         double serverScore = snapshot.getDouble("highscore");
                         if(score > serverScore){
-                            transaction.update(scoreDoc, "highscore", score);
+                            transaction.update(scoreDoc, quizEntry);
+                            //transaction.update(scoreDoc, "highscore", score);
                         }
                     } else {
                         transaction.set(scoreDoc, quizEntry, SetOptions.merge());
@@ -442,6 +443,7 @@ public class FirebaseUtils {
 
     public static void getHighscores(boolean isMonthly, Context context, SharedPrefUtils spu){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.clearPersistence();
         CollectionReference citiesRef = db.collection("quiz");
         String yearMonthStr = getYearMonthStr();
 

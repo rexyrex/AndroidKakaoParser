@@ -1296,6 +1296,7 @@ public class ChatStatsTabActivity extends AppCompatActivity {
     }
 
     private void loadAd(){
+        if(!spu.getBool(R.string.SP_FB_ADS_CHAT, true)) return;
         InterstitialAd.load(ChatStatsTabActivity.this,getString(R.string.AdMob_ad_unit_Interstitial_Chat_Tab), adRequest,
                 new InterstitialAdLoadCallback() {
                     @Override

@@ -134,7 +134,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             if(key.equals("saveChatError")){
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse("https://rexyrex.com/kakaoParserErrorHelp1"));
+                        Uri.parse("https://rexyrex.com/kakaoParserFAQ"));
                 startActivity(browserIntent);
                 return true;
             }

@@ -162,6 +162,9 @@ public class SplashActivity extends AppCompatActivity {
                         spu.saveBool(R.string.SP_FB_BOOL_QUIZ_SHARE, (boolean) map.get("quizShare"));
                         spu.saveBool(R.string.SP_FB_BOOL_SAVE_SUMMARY, (boolean) map.get("saveSummary"));
 
+                        spu.saveBool(R.string.SP_FB_ADS_CHAT, (boolean) map.get("ads-chat"));
+                        spu.saveBool(R.string.SP_FB_ADS_QUIZ, (boolean) map.get("ads-quiz"));
+
                         //mainMsg
                         spu.saveString(R.string.SP_FB_MAIN_MSG_TITLE, (String) map.get("mainMsgTitle"));
                         spu.saveString(R.string.SP_FB_MAIN_MSG, (String) map.get("mainMsg"));

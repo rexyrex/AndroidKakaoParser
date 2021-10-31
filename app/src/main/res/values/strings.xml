@@ -107,6 +107,9 @@
     <string name="SP_FB_MAIN_MSG">SP_FB_MAIN_MSG</string>
     <string name="SP_FB_MAIN_MSG_VERSION">SP_FB_MAIN_MSG_VERSION</string>
 
+    <string name="SP_FB_ADS_CHAT">SP_FB_ADS_CHAT</string>
+    <string name="SP_FB_ADS_QUIZ">SP_FB_ADS_QUIZ</string>
+
     <string name="SP_FB_MAIN_MSG_BTN_TITLE">SP_FB_MAIN_MSG_BTN_TITLE</string>
     <string name="SP_FB_MAIN_MSG_BTN_URL">SP_FB_MAIN_MSG_BTN_URL</string>
     <string name="SP_FB_MAIN_MSG_BTN_YN">SP_FB_MAIN_MSG_BTN_YN</string>

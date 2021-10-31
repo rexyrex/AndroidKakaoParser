@@ -135,9 +135,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
-        //ad
-        adRequest = new AdRequest.Builder().build();
-        loadAd();
+
 
         //banner ad
 //        adContainer = findViewById(R.id.adView);
@@ -170,6 +168,10 @@ public class QuizActivity extends AppCompatActivity {
         chatLineDAO = database.getChatLineDAO();
         wordDAO = database.getWordDAO();
         analysedChatDAO = database.getAnalysedChatDAO();
+
+        //ad
+        adRequest = new AdRequest.Builder().build();
+        loadAd();
 
         answersList = new ArrayList<>();
 
@@ -690,6 +692,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void loadAd(){
+        if(!spu.getBool(R.string.SP_FB_ADS_QUIZ, true)) return;
         InterstitialAd.load(QuizActivity.this,getString(R.string.AdMob_ad_unit_Interstitial_Quiz_Finish), adRequest,
                 new InterstitialAdLoadCallback() {
                     @Override
